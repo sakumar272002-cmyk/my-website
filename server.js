@@ -13,10 +13,11 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 
 // ─── DATABASE ───────────────────────────────────────────────
 const db = mysql.createConnection({
-  host:     'localhost',
-  user:     'root',
-  password: 'Ashok@1234',        // ← your MySQL password here
-  database: 'mywebsite'
+  host:     process.env.DB_HOST     || 'bgkwzqnaueygs0sltdxg-mysql.services.clever-cloud.com',
+  port:     process.env.DB_PORT     || 3306,
+  user:     process.env.DB_USER     || 'utkpn8wzxl290hqx',
+  password: process.env.DB_PASSWORD || 'i6AZV2A3QoiqjQT9i3QI',
+  database: process.env.DB_NAME     || 'bgkwzqnaueygs0sltdxg'
 });
 
 db.connect((err) => {
@@ -43,7 +44,7 @@ app.get('/gst', (req, res) => {
 });
 
 // ─── START ──────────────────────────────────────────────────
-app.listen(3000, () => {
-  console.log('🚀 Server running at http://localhost:3000');
-  console.log('👉 Open Chrome and go to: http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

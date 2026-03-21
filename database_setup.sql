@@ -1,6 +1,7 @@
 -- ============================================
 -- RUN THIS IN MySQL Workbench
 -- ============================================
+USE bgkwzqnaueygs0sltdxg;
 
 CREATE DATABASE IF NOT EXISTS mywebsite;
 USE mywebsite;
