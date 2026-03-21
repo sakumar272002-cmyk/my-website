@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sree Electricals & Electronics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      background: #fff8f0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%);
+      padding: 14px 40px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 4px 20px rgba(255,107,53,0.35);
+    }
+
+    .logo-circle {
+      width: 46px; height: 46px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid rgba(255,255,255,0.5);
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+      letter-spacing: 0.5px;
+    }
+
+    .header-sub {
+      margin-left: auto;
+      font-size: 11px;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    /* ── MAIN ── */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* ── LEFT: LOGIN ── */
+    .login-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 40px;
+      background: #fffaf5;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Warm decorative circles */
+    .login-section::before {
+      content: '';
+      position: absolute;
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, rgba(255,205,60,0.18) 0%, transparent 70%);
+      top: -80px; right: -80px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .login-section::after {
+      content: '';
+      position: absolute;
+      width: 250px; height: 250px;
+      background: radial-gradient(circle, rgba(255,107,53,0.1) 0%, transparent 70%);
+      bottom: -60px; left: -60px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 380px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .welcome-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff3e0;
+      border: 1px solid #ffcc80;
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #e65100;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .login-box h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 34px;
+      font-weight: 700;
+      color: #3e1c00;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .login-subtitle {
+      font-size: 13px;
+      color: #a06040;
+      margin-bottom: 36px;
+    }
+
+    .form-group { margin-bottom: 20px; }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #7d4e2d;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px; top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.5;
+    }
+
+    .form-group input {
+      width: 100%;
+      background: #fff8f0;
+      border: 1.5px solid #f0c080;
+      border-radius: 12px;
+      padding: 13px 16px 13px 42px;
+      font-size: 14px;
+      font-family: 'Poppins', sans-serif;
+      color: #3e1c00;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .form-group input::placeholder { color: #c49a72; }
+
+    .form-group input:focus {
+      border-color: #ff6b35;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(255,107,53,0.1);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+      border: none;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      margin-top: 10px;
+      letter-spacing: 0.5px;
+      transition: all 0.3s;
+      box-shadow: 0 6px 20px rgba(255,107,53,0.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(255,107,53,0.45);
+    }
+
+    .login-btn:active { transform: translateY(0); }
+
+    #message {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 13px;
+      color: #e53935;
+      min-height: 18px;
+    }
+
+    #message.success { color: #2e7d32; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 20px 0 0;
+    }
+
+    .divider-line { flex: 1; height: 1px; background: #f0c080; }
+    .divider-text { font-size: 11px; color: #c49a72; }
+
+    /* ── RIGHT: ANIMATION ── */
+    .animation-section {
+      background: linear-gradient(160deg, #fff3e0 0%, #ffe0b2 40%, #ffccbc 100%);
+      position: relative;
+      overflow: hidden;
+      border-left: 1px solid #f0c080;
+    }
+
+    /* Warm decorative blobs */
+    .blob1 {
+      position: absolute;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(255,193,7,0.2) 0%, transparent 70%);
+      top: -80px; right: -80px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .blob2 {
+      position: absolute;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(255,87,34,0.12) 0%, transparent 70%);
+      bottom: -50px; left: -50px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+      pointer-events: none;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .slide-canvas {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .slide-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #3e1c00;
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    .slide-desc {
+      font-size: 12px;
+      color: #a06040;
+      text-align: center;
+      margin-top: 5px;
+      max-width: 280px;
+      line-height: 1.6;
+    }
+
+    .slide-dots {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 7px;
+      z-index: 10;
+    }
+
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: rgba(120,60,20,0.2);
+      transition: all 0.4s;
+      cursor: pointer;
+    }
+
+    .dot.active {
+      background: #ff6b35;
+      width: 22px;
+      border-radius: 4px;
+    }
+
+    .progress-bar {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #ff6b35, #ffcd3c);
+      width: 0%;
+      z-index: 10;
+    }
+
+    /* ── ANIMATIONS ── */
+    .bulb-glow { animation: warmGlow 2.5s ease-in-out infinite; }
+    @keyframes warmGlow {
+      0%,100% { filter: drop-shadow(0 0 10px #ff9800) drop-shadow(0 0 24px #ff6b35); }
+      50% { filter: drop-shadow(0 0 22px #ffcd3c) drop-shadow(0 0 44px #ff9800); }
+    }
+
+    .ray-line { animation: rayPulse 1.8s ease-in-out infinite; }
+    .ray-line:nth-child(2) { animation-delay:0.23s; }
+    .ray-line:nth-child(3) { animation-delay:0.46s; }
+    .ray-line:nth-child(4) { animation-delay:0.69s; }
+    .ray-line:nth-child(5) { animation-delay:0.92s; }
+    .ray-line:nth-child(6) { animation-delay:1.15s; }
+    .ray-line:nth-child(7) { animation-delay:1.38s; }
+    @keyframes rayPulse {
+      0%,100% { opacity:1; }
+      50% { opacity:0.3; }
+    }
+
+    .circuit-trace { stroke-dasharray:280; stroke-dashoffset:280; animation:traceDraw 3s ease forwards infinite; }
+    .circuit-trace:nth-child(2) { animation-delay:0.6s; }
+    .circuit-trace:nth-child(3) { animation-delay:1.2s; }
+    @keyframes traceDraw {
+      0% { stroke-dashoffset:280; opacity:0.4; }
+      70% { stroke-dashoffset:0; opacity:1; }
+      100% { stroke-dashoffset:0; opacity:0.7; }
+    }
+
+    .fan-spin { transform-origin:160px 130px; animation:spinFan 2s linear infinite; }
+    @keyframes spinFan { to { transform:rotate(360deg); } }
+
+    .bolt-flash { animation:boltAnim 2s ease-in-out infinite; }
+    @keyframes boltAnim {
+      0%,100% { filter:drop-shadow(0 0 8px #ff9800); opacity:1; }
+      40% { opacity:0.2; filter:none; }
+      65% { filter:drop-shadow(0 0 20px #ffcd3c); opacity:1; }
+    }
+
+    .led-blink { animation:ledOn 0.9s ease-in-out infinite alternate; }
+    .led-blink:nth-child(even) { animation-delay:0.45s; }
+    @keyframes ledOn {
+      from { opacity:0.3; }
+      to   { opacity:1; }
+    }
+
+    .wave-move { animation:waveAnim 2s ease-in-out infinite; }
+    .wave-move:nth-child(2) { animation-delay:0.35s; opacity:0.6; }
+    .wave-move:nth-child(3) { animation-delay:0.7s; opacity:0.35; }
+    @keyframes waveAnim {
+      0%,100% { transform:translateY(0); }
+      50% { transform:translateY(-6px); }
+    }
+
+    .solar-glow { animation:solarPulse 2.2s ease-in-out infinite; }
+    @keyframes solarPulse {
+      0%,100% { opacity:0.5; }
+      50% { opacity:1; }
+    }
+
+    .charge-bar { animation:chargeFill 2.5s ease-in-out infinite alternate; }
+    @keyframes chargeFill {
+      from { height:40px; y:120px; }
+      to { height:68px; y:92px; }
+    }
+
+    .switch-toggle { transform-origin:120px 155px; animation:toggleAnim 2.5s ease-in-out infinite; }
+    @keyframes toggleAnim {
+      0%,45% { transform:rotate(0deg); }
+      55%,100% { transform:rotate(-55deg); }
+    }
+
+    @media (max-width:768px) {
+      main { grid-template-columns:1fr; }
+      .animation-section { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo-circle">
+    <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+      <path d="M13 2L4 9.5V23h18V9.5L13 2z" fill="rgba(255,255,255,0.3)" stroke="white" stroke-width="1.5"/>
+      <path d="M11 13.5h2l-1.5 5.5 6-7.5h-2l1.5-5.5-6 7.5z" fill="white"/>
+    </svg>
+  </div>
+  <h1>Sree Electricals &amp; Electronics</h1>
+  <div class="header-sub">Powering Your World</div>
+</header>
+
+<!-- MAIN -->
+<main>
+
+  <!-- LEFT: LOGIN -->
+  <div class="login-section">
+    <div class="login-box">
+
+      <h2>Welcome Back!</h2>
+      <p class="login-subtitle">Sign in to manage your store</p>
+
+      <div class="form-group">
+        <label>Username</label>
+        <div class="input-wrap">
+          <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c49a72" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <input type="text" id="username" placeholder="Enter your username" autocomplete="off"/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c49a72" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <input type="password" id="password" placeholder="Enter your password"/>
+        </div>
+      </div>
+
+      <button class="login-btn" onclick="handleLogin()">Sign In →</button>
+      <p id="message"></p>
+
+      <div class="divider">
+        <div class="divider-line"></div>
+        <div class="divider-text">SREE ELECTRICALS & ELECTRONICS</div>
+        <div class="divider-line"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: ANIMATION -->
+  <div class="animation-section">
+    <div class="blob1"></div>
+    <div class="blob2"></div>
+
+    <!-- SLIDE 1: Glowing Bulb -->
+    <div class="slide active" id="slide-0">
+      <div class="slide-canvas">
+        <svg width="300" height="240" viewBox="0 0 300 240">
+          <defs>
+            <radialGradient id="g1" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#fff9c4" stop-opacity="0.6"/>
+              <stop offset="100%" stop-color="#ffe0b2" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <ellipse cx="150" cy="120" rx="90" ry="90" fill="url(#g1)"/>
+          <g stroke="#ff9800" stroke-linecap="round" stroke-width="2.5">
+            <line class="ray-line" x1="150" y1="30" x2="150" y2="16"/>
+            <line class="ray-line" x1="195" y1="55" x2="205" y2="45"/>
+            <line class="ray-line" x1="218" y1="100" x2="233" y2="100"/>
+            <line class="ray-line" x1="195" y1="145" x2="205" y2="155"/>
+            <line class="ray-line" x1="105" y1="55" x2="95" y2="45"/>
+            <line class="ray-line" x1="82" y1="100" x2="67" y2="100"/>
+            <line class="ray-line" x1="105" y1="145" x2="95" y2="155"/>
+          </g>
+          <g class="bulb-glow">
+            <path d="M122 110 Q118 88 133 74 Q150 62 167 74 Q182 88 178 110 L173 130 L127 130 Z" fill="#ffe082" stroke="#ff9800" stroke-width="2"/>
+            <rect x="127" y="130" width="46" height="8" rx="3" fill="#ffb300" opacity="0.85"/>
+            <rect x="130" y="140" width="40" height="6" rx="3" fill="#ff9800" opacity="0.65"/>
+            <rect x="134" y="148" width="32" height="5" rx="3" fill="#ff7043" opacity="0.45"/>
+            <polyline points="135,126 141,118 147,124 153,114 159,124 165,118 170,126" fill="none" stroke="#ff6f00" stroke-width="1.8"/>
+          </g>
+        </svg>
+      </div>
+      <div class="slide-title">LED & Lighting Solutions</div>
+      <div class="slide-desc">Energy-efficient, long-lasting bulbs for homes & offices</div>
+    </div>
+
+    <!-- SLIDE 2: Circuit Board -->
+    <div class="slide" id="slide-1">
+      <div class="slide-canvas">
+        <svg width="300" height="240" viewBox="0 0 300 240">
+          <rect x="50" y="45" width="200" height="150" rx="8" fill="rgba(255,152,0,0.08)" stroke="#ffb74d" stroke-width="1.5"/>
+          <g stroke="rgba(255,152,0,0.15)" stroke-width="1">
+            <line x1="80" y1="45" x2="80" y2="195"/>
+            <line x1="120" y1="45" x2="120" y2="195"/>
+            <line x1="150" y1="45" x2="150" y2="195"/>
+            <line x1="180" y1="45" x2="180" y2="195"/>
+            <line x1="220" y1="45" x2="220" y2="195"/>
+            <line x1="50" y1="80" x2="250" y2="80"/>
+            <line x1="50" y1="120" x2="250" y2="120"/>
+            <line x1="50" y1="165" x2="250" y2="165"/>
+          </g>
+          <path class="circuit-trace" d="M80 80 L120 80 L120 120 L150 120" fill="none" stroke="#ff6b35" stroke-width="2.5" stroke-linecap="round"/>
+          <path class="circuit-trace" d="M150 120 L180 120 L180 80 L220 80" fill="none" stroke="#ff9800" stroke-width="2.5" stroke-linecap="round" style="animation-delay:0.6s"/>
+          <path class="circuit-trace" d="M150 120 L150 165 L120 165" fill="none" stroke="#ff6b35" stroke-width="2.5" stroke-linecap="round" style="animation-delay:1.2s"/>
+          <rect x="135" y="107" width="30" height="26" rx="3" fill="#fff8f0" stroke="#ff9800" stroke-width="1.5"/>
+          <text x="150" y="124" font-size="9" fill="#e65100" text-anchor="middle" font-family="monospace" font-weight="700">MCU</text>
+          <rect x="100" y="68" width="28" height="22" rx="3" fill="#fff8f0" stroke="#ffb74d" stroke-width="1.5"/>
+          <rect x="190" y="108" width="24" height="24" rx="3" fill="#fff8f0" stroke="#ffb74d" stroke-width="1.5"/>
+          <circle cx="80" cy="80" r="5" fill="#ff6b35" style="animation:ledOn 0.8s infinite alternate"/>
+          <circle cx="220" cy="80" r="5" fill="#ff9800" style="animation:ledOn 0.8s 0.4s infinite alternate"/>
+          <circle cx="150" cy="165" r="5" fill="#ff6b35" style="animation:ledOn 0.8s 0.8s infinite alternate"/>
+        </svg>
+      </div>
+      <div class="slide-title">Electronic Components</div>
+      <div class="slide-desc">Precision circuits for all your electronic needs</div>
+    </div>
+
+    <!-- SLIDE 3: Fan -->
+    <div class="slide" id="slide-2">
+      <div class="slide-canvas">
+        <svg width="300" height="240" viewBox="0 0 300 240">
+          <defs>
+            <radialGradient id="fanBg" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#fff3e0" stop-opacity="0.8"/>
+              <stop offset="100%" stop-color="#ffe0b2" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <circle cx="150" cy="130" r="85" fill="url(#fanBg)" stroke="#ffcc80" stroke-width="1" stroke-dasharray="8,6"/>
+          <g class="fan-spin">
+            <ellipse cx="150" cy="80" rx="14" ry="46" fill="#ff9800" opacity="0.8" rx="5"/>
+            <ellipse cx="195" cy="155" rx="46" ry="14" fill="#ff9800" opacity="0.8" transform="rotate(30 195 155)"/>
+            <ellipse cx="105" cy="155" rx="46" ry="14" fill="#ff9800" opacity="0.8" transform="rotate(-30 105 155)"/>
+          </g>
+          <circle cx="150" cy="130" r="20" fill="#fff8f0" stroke="#ff9800" stroke-width="2.5"/>
+          <circle cx="150" cy="130" r="10" fill="#ff9800"/>
+          <rect x="144" y="48" width="12" height="28" rx="4" fill="#e0c8a0"/>
+          <circle cx="150" cy="48" r="9" fill="#f5deb3" stroke="#d4a56a" stroke-width="1.5"/>
+          <g stroke="#ffb74d" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5">
+            <path class="wave-move" d="M90 195 Q120 183 150 188 Q180 193 210 183"/>
+            <path class="wave-move" d="M85 208 Q120 196 150 202 Q180 208 215 198" style="animation-delay:0.35s"/>
+          </g>
+        </svg>
+      </div>
+      <div class="slide-title">Fans & Ventilation</div>
+      <div class="slide-desc">Keep your space cool with premium fans</div>
+    </div>
+
+    <!-- SLIDE 4: Lightning Bolt -->
+    <div class="slide" id="slide-3">
+      <div class="slide-canvas">
+        <svg width="300" height="240" viewBox="0 0 300 240">
+          <defs>
+            <radialGradient id="powerBg" cx="50%" cy="40%" r="55%">
+              <stop offset="0%" stop-color="#fff9c4" stop-opacity="0.7"/>
+              <stop offset="100%" stop-color="#ffe0b2" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <ellipse cx="150" cy="115" rx="85" ry="85" fill="url(#powerBg)"/>
+          <path class="bolt-flash" d="M168 45 L135 118 L158 118 L128 195 L178 108 L153 108 Z" fill="#ff9800" stroke="#ff6b35" stroke-width="1.5" stroke-linejoin="round"/>
+          <circle cx="150" cy="120" r="58" fill="none" stroke="rgba(255,152,0,0.2)" stroke-width="2"/>
+          <circle cx="150" cy="120" r="78" fill="none" stroke="rgba(255,152,0,0.1)" stroke-width="2"/>
+          <circle cx="95" cy="85" r="3" fill="#ff9800" class="led-blink"/>
+          <circle cx="215" cy="75" r="2.5" fill="#ffcc02" class="led-blink" style="animation-delay:0.5s"/>
+          <circle cx="208" cy="165" r="3" fill="#ff6b35" class="led-blink" style="animation-delay:1s"/>
+        </svg>
+      </div>
+      <div class="slide-title">Power Distribution</div>
+      <div class="slide-desc">Reliable power for homes, shops & industries</div>
+    </div>
+
+    <!-- SLIDE 5: Solar -->
+    <div class="slide" id="slide-4">
+      <div class="slide-canvas">
+        <svg width="300" height="240" viewBox="0 0 300 240">
+          <circle cx="80" cy="62" r="30" fill="#ffcc02" class="solar-glow"/>
+          <g stroke="#ff9800" stroke-width="2.5" stroke-linecap="round" class="solar-glow">
+            <line x1="80" y1="22" x2="80" y2="12"/>
+            <line x1="107" y1="35" x2="114" y2="28"/>
+            <line x1="120" y1="62" x2="130" y2="62"/>
+            <line x1="53" y1="35" x2="46" y2="28"/>
+            <line x1="40" y1="62" x2="30" y2="62"/>
+            <line x1="80" y1="92" x2="80" y2="100"/>
+          </g>
+          <g transform="translate(95,95) rotate(-4)">
+            <rect width="155" height="108" rx="6" fill="#1565c0" stroke="#1976d2" stroke-width="1.5"/>
+            <g stroke="#2196f3" stroke-width="0.8">
+              <line x1="38" y1="0" x2="38" y2="108"/>
+              <line x1="77" y1="0" x2="77" y2="108"/>
+              <line x1="116" y1="0" x2="116" y2="108"/>
+              <line x1="0" y1="27" x2="155" y2="27"/>
+              <line x1="0" y1="54" x2="155" y2="54"/>
+              <line x1="0" y1="81" x2="155" y2="81"/>
+            </g>
+            <rect width="155" height="108" rx="6" fill="rgba(255,255,255,0.04)"/>
+          </g>
+          <line x1="90" y1="80" x2="118" y2="103" stroke="#ffcc02" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>
+          <line x1="80" y1="85" x2="130" y2="112" stroke="#ffcc02" stroke-width="1" stroke-dasharray="4,3" opacity="0.4"/>
+          <text x="175" y="225" font-family="Poppins,sans-serif" font-size="11" fill="#e65100" text-anchor="middle" font-weight="600">● Solar Active</text>
+        </svg>
+      </div>
+      <div class="slide-title">Solar Energy Solutions</div>
+      <div class="slide-desc">Go green with cost-saving solar systems</div>
+    </div>
+
+    <!-- SLIDE 6: Switchboard -->
+    <div class="slide" id="slide-5">
+      <div class="slide-canvas">
+        <svg width="300" height="240" viewBox="0 0 300 240">
+          <rect x="75" y="60" width="150" height="130" rx="10" fill="#fff8f0" stroke="#ffb74d" stroke-width="2"/>
+          <rect x="85" y="72" width="130" height="8" rx="3" fill="#ffe0b2"/>
+          <!-- Switches -->
+          <rect x="92" y="90" width="44" height="22" rx="11" fill="#66bb6a" stroke="#4caf50" stroke-width="1.5"/>
+          <circle cx="125" cy="101" r="9" fill="white"/>
+          <rect x="148" y="90" width="44" height="22" rx="11" fill="#bdbdbd" stroke="#9e9e9e" stroke-width="1.5"/>
+          <circle cx="159" cy="101" r="9" fill="white"/>
+          <rect x="92" y="122" width="44" height="22" rx="11" fill="#66bb6a" stroke="#4caf50" stroke-width="1.5"/>
+          <circle cx="125" cy="133" r="9" fill="white" class="switch-toggle"/>
+          <rect x="148" y="122" width="44" height="22" rx="11" fill="#ffa726" stroke="#ff9800" stroke-width="1.5"/>
+          <circle cx="181" cy="133" r="9" fill="white"/>
+          <!-- Sockets -->
+          <rect x="92" y="155" width="44" height="26" rx="5" fill="#fff3e0" stroke="#ffcc80" stroke-width="1.5"/>
+          <circle cx="105" cy="167" r="4" fill="#bdbdbd"/>
+          <circle cx="125" cy="167" r="4" fill="#bdbdbd"/>
+          <rect x="148" y="155" width="44" height="26" rx="5" fill="#fff3e0" stroke="#ffcc80" stroke-width="1.5"/>
+          <rect x="156" y="161" width="6" height="12" rx="2" fill="#bdbdbd"/>
+          <rect x="168" y="161" width="6" height="12" rx="2" fill="#bdbdbd"/>
+          <rect x="160" y="167" width="12" height="6" rx="2" fill="#bdbdbd"/>
+          <text x="150" y="83" font-family="Poppins,sans-serif" font-size="9" fill="#e65100" text-anchor="middle" letter-spacing="1.5" font-weight="600">MAIN BOARD</text>
+        </svg>
+      </div>
+      <div class="slide-title">Switches & Sockets</div>
+      <div class="slide-desc">Stylish modular switches for every room</div>
+    </div>
+
+    <!-- SLIDE 7: AC -->
+    <div class="slide" id="slide-6">
+      <div class="slide-canvas">
+        <svg width="300" height="240" viewBox="0 0 300 240">
+          <rect x="55" y="80" width="190" height="65" rx="12" fill="#e3f2fd" stroke="#90caf9" stroke-width="2"/>
+          <rect x="68" y="95" width="170" height="6" rx="3" fill="rgba(144,202,249,0.4)"/>
+          <rect x="68" y="108" width="170" height="6" rx="3" fill="rgba(144,202,249,0.3)"/>
+          <rect x="68" y="121" width="170" height="6" rx="3" fill="rgba(144,202,249,0.2)"/>
+          <rect x="195" y="88" width="40" height="24" rx="5" fill="#1565c0"/>
+          <text x="215" y="104" font-family="monospace" font-size="11" fill="#64b5f6" text-anchor="middle" font-weight="700">24°C</text>
+          <circle cx="72" cy="88" r="5" fill="#66bb6a" class="led-blink"/>
+          <g stroke="#64b5f6" stroke-width="2" fill="none" stroke-linecap="round">
+            <path class="wave-move" d="M75 162 Q110 150 150 158 Q190 166 225 154"/>
+            <path class="wave-move" d="M75 175 Q110 163 150 171 Q190 179 225 167" style="animation-delay:0.35s"/>
+            <path class="wave-move" d="M75 188 Q110 176 150 184 Q190 192 225 180" style="animation-delay:0.7s"/>
+          </g>
+          <text x="150" y="218" font-family="Poppins,sans-serif" font-size="10" fill="#1976d2" text-anchor="middle" font-weight="600" letter-spacing="2">COOL AIR FLOW</text>
+        </svg>
+      </div>
+      <div class="slide-title">Air Conditioners</div>
+      <div class="slide-desc">Beat the heat with energy-star rated ACs</div>
+    </div>
+
+    <!-- SLIDE 8: LED Strip -->
+    <div class="slide" id="slide-7">
+      <div class="slide-canvas">
+        <svg width="300" height="240" viewBox="0 0 300 240">
+          <rect x="35" y="118" width="230" height="14" rx="7" fill="#fff3e0" stroke="#ffcc80" stroke-width="1.5"/>
+          <g>
+            <circle class="led-blink" cx="60" cy="125" r="7" fill="#ff6b35"/>
+            <circle class="led-blink" cx="93" cy="125" r="7" fill="#ff9800" style="animation-delay:0.2s"/>
+            <circle class="led-blink" cx="126" cy="125" r="7" fill="#ffcd3c" style="animation-delay:0.4s"/>
+            <circle class="led-blink" cx="159" cy="125" r="7" fill="#ff6b35" style="animation-delay:0.6s"/>
+            <circle class="led-blink" cx="192" cy="125" r="7" fill="#ff9800" style="animation-delay:0.8s"/>
+            <circle class="led-blink" cx="225" cy="125" r="7" fill="#ffcd3c" style="animation-delay:1.0s"/>
+            <circle class="led-blink" cx="255" cy="125" r="7" fill="#ff6b35" style="animation-delay:1.2s"/>
+          </g>
+          <g opacity="0.25">
+            <circle cx="60" cy="125" r="18" fill="#ff6b35" class="led-blink"/>
+            <circle cx="126" cy="125" r="18" fill="#ffcd3c" class="led-blink" style="animation-delay:0.4s"/>
+            <circle cx="192" cy="125" r="18" fill="#ff9800" class="led-blink" style="animation-delay:0.8s"/>
+            <circle cx="255" cy="125" r="18" fill="#ff6b35" class="led-blink" style="animation-delay:1.2s"/>
+          </g>
+          <text x="150" y="172" font-family="Poppins,sans-serif" font-size="11" fill="#bf360c" text-anchor="middle" font-weight="600">Warm  ·  Neutral  ·  Cool White</text>
+          <g>
+            <rect x="80" y="188" width="30" height="16" rx="8" fill="#ff6b35"/>
+            <rect x="120" y="188" width="30" height="16" rx="8" fill="#ffcd3c"/>
+            <rect x="160" y="188" width="30" height="16" rx="8" fill="#ff9800"/>
+            <rect x="200" y="188" width="30" height="16" rx="8" fill="#ff8a65"/>
+          </g>
+        </svg>
+      </div>
+      <div class="slide-title">LED Strip Lighting</div>
+      <div class="slide-desc">Warm ambiance lighting for any space</div>
+    </div>
+
+    <!-- SLIDE 9: Cables -->
+    <div class="slide" id="slide-8">
+      <div class="slide-canvas">
+        <svg width="300" height="240" viewBox="0 0 300 240">
+          <defs>
+            <path id="wire1" d="M30 120 Q100 55 170 120 Q240 185 290 120"/>
+          </defs>
+          <path d="M30 112 Q100 47 170 112 Q240 177 290 112 L290 128 Q240 193 170 128 Q100 63 30 128 Z" fill="#e53935" stroke="#c62828" stroke-width="1"/>
+          <path d="M30 120 Q100 55 170 120 Q240 185 290 120" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+          <!-- Label lines -->
+          <text x="45" y="175" font-family="Poppins,sans-serif" font-size="11" fill="#e53935" font-weight="600">LIVE</text>
+          <text x="45" y="193" font-family="Poppins,sans-serif" font-size="11" fill="#1976d2" font-weight="600">NEUTRAL</text>
+          <text x="45" y="211" font-family="Poppins,sans-serif" font-size="11" fill="#388e3c" font-weight="600">EARTH</text>
+          <!-- Flowing electrons -->
+          <circle r="5" fill="white" opacity="0.9">
+            <animateMotion dur="2.2s" repeatCount="indefinite">
+              <mpath href="#wire1"/>
+            </animateMotion>
+          </circle>
+          <circle r="4" fill="#ffcd3c" opacity="0.9">
+            <animateMotion dur="2.2s" begin="0.75s" repeatCount="indefinite">
+              <mpath href="#wire1"/>
+            </animateMotion>
+          </circle>
+          <circle r="4" fill="#ff9800" opacity="0.8">
+            <animateMotion dur="2.2s" begin="1.5s" repeatCount="indefinite">
+              <mpath href="#wire1"/>
+            </animateMotion>
+          </circle>
+        </svg>
+      </div>
+      <div class="slide-title">Cables & Wiring</div>
+      <div class="slide-desc">ISI marked wires for safe electrical work</div>
+    </div>
+
+    <!-- SLIDE 10: UPS Battery -->
+    <div class="slide" id="slide-9">
+      <div class="slide-canvas">
+        <svg width="300" height="240" viewBox="0 0 300 240">
+          <rect x="75" y="72" width="150" height="110" rx="10" fill="#fff8f0" stroke="#ffb74d" stroke-width="2"/>
+          <rect x="148" y="60" width="28" height="14" rx="4" fill="#ffcc80"/>
+          <rect x="88" y="85" width="124" height="84" rx="7" fill="#fff3e0"/>
+          <!-- Battery bars -->
+          <rect x="94" y="92" width="22" height="70" rx="4" fill="#66bb6a" class="led-blink"/>
+          <rect x="122" y="92" width="22" height="70" rx="4" fill="#66bb6a" class="led-blink" style="animation-delay:0.3s"/>
+          <rect x="150" y="108" width="22" height="54" rx="4" fill="#ffa726" class="led-blink" style="animation-delay:0.6s"/>
+          <rect x="178" y="130" width="22" height="32" rx="4" fill="#ef5350" class="led-blink" style="animation-delay:0.9s"/>
+          <!-- % -->
+          <text x="150" y="135" font-family="Playfair Display,serif" font-size="22" font-weight="700" fill="#e65100" text-anchor="middle">75%</text>
+          <text x="150" y="152" font-family="Poppins,sans-serif" font-size="9" fill="#a06040" text-anchor="middle" letter-spacing="1.5" font-weight="600">BACKUP POWER</text>
+          <!-- bolt -->
+          <path class="bolt-flash" d="M225 80 L215 98 L222 98 L210 118 L224 100 L217 100 Z" fill="#ff9800" opacity="0.9"/>
+        </svg>
+      </div>
+      <div class="slide-title">UPS & Battery Backup</div>
+      <div class="slide-desc">Never lose power with our reliable UPS</div>
+    </div>
+
+    <!-- Dots & progress -->
+    <div class="slide-dots" id="dots"></div>
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+</main>
+
+<script>
+  const TOTAL = 10;
+  let current = 0;
+  let timer;
+
+  const dotsEl = document.getElementById('dots');
+  for(let i=0;i<TOTAL;i++){
+    const d = document.createElement('div');
+    d.className = 'dot'+(i===0?' active':'');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  }
+
+  function goTo(n){
+    document.getElementById('slide-'+current).classList.remove('active');
+    document.querySelectorAll('.dot')[current].classList.remove('active');
+    current = n;
+    document.getElementById('slide-'+current).classList.add('active');
+    document.querySelectorAll('.dot')[current].classList.add('active');
+    resetBar();
+  }
+
+  function resetBar(){
+    const b = document.getElementById('progressBar');
+    b.style.transition='none'; b.style.width='0%';
+    setTimeout(()=>{ b.style.transition='width 5s linear'; b.style.width='100%'; },50);
+  }
+
+  function startTimer(){ clearInterval(timer); timer=setInterval(()=>goTo((current+1)%TOTAL),5000); resetBar(); }
+  startTimer();
+
+  async function handleLogin(){
+    const u = document.getElementById('username').value.trim();
+    const p = document.getElementById('password').value.trim();
+    const m = document.getElementById('message');
+    if(!u||!p){ m.className=''; m.textContent='Please enter both fields.'; return; }
+    try{
+      const r = await fetch('/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+      const d = await r.json();
+      if(d.success){ m.className='success'; m.textContent='Login successful! Redirecting...'; setTimeout(()=>window.location.href='/dashboard.html',1000); }
+      else{ m.className=''; m.textContent='Invalid username or password.'; }
+    }catch(e){ m.className=''; m.textContent='Cannot connect to server.'; }
+  }
+
+  document.getElementById('password').addEventListener('keydown',e=>{ if(e.key==='Enter') handleLogin(); });
+</script>
+
+</body>
+</html>
