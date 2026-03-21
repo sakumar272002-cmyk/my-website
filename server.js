@@ -4,6 +4,13 @@ const cors       = require('cors');
 const bodyParser = require('body-parser');
 const path       = require('path');
 
+const { Pool } = require('pg');
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
