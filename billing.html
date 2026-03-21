@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Billing</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#f0f2f5; min-height:100vh; }
+
+    .navbar {
+      background:#1a3a5c; color:white; padding:0 32px; height:56px;
+      display:flex; justify-content:space-between; align-items:center;
+      box-shadow:0 2px 8px rgba(0,0,0,0.2);
+    }
+    .navbar h1 { font-size:20px; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+    .nav-btns { display:flex; gap:10px; }
+    .btn-back {
+      background:transparent; color:white; border:1px solid rgba(255,255,255,0.5);
+      padding:7px 20px; border-radius:6px; cursor:pointer; font-size:13px;
+    }
+    .btn-back:hover { background:rgba(255,255,255,0.15); }
+    .btn-download {
+      background:#27ae60; color:white; border:none;
+      padding:7px 20px; border-radius:6px; cursor:pointer; font-size:13px; font-weight:500;
+    }
+    .btn-download:hover { background:#219a52; }
+
+    .content { max-width:900px; margin:32px auto; padding:0 20px; }
+
+    /* BILL CARD */
+    .bill-card {
+      background:white; border-radius:12px;
+      box-shadow:0 2px 16px rgba(0,0,0,0.08); overflow:hidden;
+    }
+
+    /* BILL HEADER */
+    .bill-header {
+      padding:24px 32px 16px;
+      border-bottom:2px solid #1a3a5c;
+    }
+    .bill-top {
+      display:grid; grid-template-columns:1fr auto 1fr;
+      align-items:start; margin-bottom:8px;
+    }
+    .bill-left  { font-size:13px; color:#444; }
+    .bill-left span { display:block; font-size:15px; font-weight:600; color:#1a3a5c; margin-top:2px; }
+    .bill-center { text-align:center; }
+    .bill-center h2 { font-size:22px; font-weight:700; color:#1a3a5c; letter-spacing:1px; }
+    .bill-center p  { font-size:12px; color:#888; margin-top:2px; }
+    .bill-right { text-align:right; font-size:13px; color:#444; }
+    .bill-right span { display:block; font-size:15px; font-weight:600; color:#1a3a5c; margin-top:2px; }
+
+    .gst-row {
+      text-align:center; font-size:13px; color:#666; margin-top:6px;
+      padding-top:8px; border-top:1px dashed #ddd;
+    }
+    .gst-row strong { color:#1a3a5c; }
+
+    /* TABLE */
+    table { width:100%; border-collapse:collapse; }
+    thead th {
+      background:#1a3a5c; color:white; padding:12px 16px;
+      font-size:13px; font-weight:600; text-align:left;
+    }
+    thead th:first-child { width:60px; text-align:center; }
+    thead th:nth-child(3){ width:120px; text-align:center; }
+    thead th:nth-child(4){ width:130px; text-align:right; }
+    thead th:nth-child(5){ width:140px; text-align:right; }
+
+    tbody tr { border-bottom:1px solid #f0f2f5; }
+    tbody tr:hover { background:#f7f9fc; }
+    tbody td { padding:11px 16px; font-size:14px; color:#333; }
+    tbody td:first-child  { text-align:center; color:#999; }
+    tbody td:nth-child(3) { text-align:center; }
+    tbody td:nth-child(4) { text-align:right; }
+    tbody td:nth-child(5) { text-align:right; font-weight:600; color:#1a3a5c; }
+
+    .empty-row td { color:#bbb !important; font-style:italic; }
+
+    /* TOTALS */
+    .totals-section {
+      padding:16px 32px; border-top:2px solid #1a3a5c;
+      display:flex; flex-direction:column; align-items:flex-end; gap:6px;
+    }
+    .total-line {
+      display:flex; justify-content:space-between;
+      width:260px; font-size:14px; color:#444; padding:3px 0;
+    }
+    .total-line.grand {
+      font-size:16px; font-weight:700; color:#1a3a5c;
+      border-top:1px solid #1a3a5c; padding-top:8px; margin-top:4px;
+    }
+    .total-line .label { color:#666; }
+    .total-line.grand .label { color:#1a3a5c; }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <h1>Testing Shop — Billing</h1>
+  <div class="nav-btns">
+    <button class="btn-back"     onclick="window.location.href='/dashboard.html'">← Back</button>
+    <button class="btn-download" onclick="downloadPDF()">Download PDF</button>
+  </div>
+</div>
+
+<div class="content">
+  <div class="bill-card" id="billCard">
+
+    <div class="bill-header">
+      <div class="bill-top">
+        <div class="bill-left">
+          Bill No.<span id="billNo">—</span>
+        </div>
+        <div class="bill-center">
+          <h2>TESTING SHOP</h2>
+          <p id="shopTagline"></p>
+        </div>
+        <div class="bill-right">
+          Date<span id="billDate">—</span>
+        </div>
+      </div>
+
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Sl.No</th><th>Product</th><th>Quantity</th><th>Price (₹)</th><th>Total Price (₹)</th>
+        </tr>
+      </thead>
+      <tbody id="billBody"></tbody>
+    </table>
+
+    <div class="totals-section">
+      <div class="total-line grand">
+        <span class="label">Grand Total</span>
+        <span id="grandTotal">₹ 0.00</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ── Helpers ──
+  function today() {
+    const d = new Date();
+    return d.getDate().toString().padStart(2,'0') + '/' +
+           (d.getMonth()+1).toString().padStart(2,'0') + '/' +
+           d.getFullYear();
+  }
+
+  function getBillNo() {
+    let n = parseInt(localStorage.getItem('billNo') || '0') + 1;
+    localStorage.setItem('billNo', n);
+    return n;
+  }
+
+  // ── Load bill data ──
+  async function loadBill() {
+    // Bill No & Date
+    const billNo = getBillNo();
+    document.getElementById('billNo').textContent   = 'BILL-' + String(billNo).padStart(4,'0');
+    document.getElementById('billDate').textContent = today();
+
+    const gstRate = 0;
+
+    // Data from sessionStorage
+    const raw = sessionStorage.getItem('billData');
+    if (!raw) { document.getElementById('billBody').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#aaa;">No data found. Go back and enter products.</td></tr>'; return; }
+    const allData = JSON.parse(raw);
+    const rows    = allData.filter(r => r.product && (parseFloat(r.qty)||0) > 0 && (parseFloat(r.price)||0) > 0);
+
+    const tbody = document.getElementById('billBody');
+    tbody.innerHTML = '';
+    let subtotal = 0;
+
+    rows.forEach((r, idx) => {
+      const qty   = parseFloat(r.qty)   || 0;
+      const price = parseFloat(r.price) || 0;
+      const total = qty * price;
+      subtotal   += total;
+      const tr    = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${idx+1}</td>
+        <td>${r.product}</td>
+        <td style="text-align:center">${qty}</td>
+        <td style="text-align:right">₹ ${price.toFixed(2)}</td>
+        <td style="text-align:right;font-weight:600;color:#1a3a5c;">₹ ${total.toFixed(2)}</td>`;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('grandTotal').textContent = '₹ ' + subtotal.toFixed(2);
+  }
+
+  // ── Download PDF ──
+  function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+    // Use Rs. instead of Rs symbol — jsPDF default font doesnt support Unicode rupee
+    function fmt(val) { return 'Rs. ' + parseFloat(val).toFixed(2); }
+
+    const billNo   = document.getElementById('billNo').textContent;
+    const date     = document.getElementById('billDate').textContent;
+
+
+    // Get raw numbers from DOM (strip Rs symbol)
+    const raw     = sessionStorage.getItem('billData');
+    const all     = JSON.parse(raw || '[]');
+    const rows    = all.filter(r => r.product && (parseFloat(r.qty)||0) > 0 && (parseFloat(r.price)||0) > 0);
+
+    let subtotalNum = 0;
+    rows.forEach(r => { subtotalNum += (parseFloat(r.qty)||0) * (parseFloat(r.price)||0); });
+
+    // ── PAGE WIDTH ──
+    const pw = doc.internal.pageSize.getWidth(); // 210mm
+
+    // ── HEADER ──
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.setTextColor(26, 58, 92);
+    doc.text('TESTING SHOP', pw / 2, 18, { align: 'center' });
+
+    // Divider under title
+    doc.setDrawColor(26, 58, 92);
+    doc.setLineWidth(0.8);
+    doc.line(14, 22, pw - 14, 22);
+
+    // Bill No | Date
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(50, 50, 50);
+    doc.text('Bill No: ' + billNo, 14, 29);
+    doc.text('Date: ' + date, pw - 14, 29, { align: 'right' });
+
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.3);
+    doc.line(14, 33, pw - 14, 33);
+
+    // ── TABLE ──
+    const tableBody = rows.map((r, i) => {
+      const qty   = parseFloat(r.qty)   || 0;
+      const price = parseFloat(r.price) || 0;
+      const total = qty * price;
+      return [
+        i + 1,
+        r.product,
+        qty.toString(),
+        fmt(price),
+        fmt(total)
+      ];
+    });
+
+    doc.autoTable({
+      startY: 37,
+      head: [['Sl.No', 'Product', 'Qty', 'Price (Rs.)', 'Total Price (Rs.)']],
+      body: tableBody,
+      theme: 'grid',
+      tableWidth: 'auto',
+      margin: { left: 14, right: 14 },
+      headStyles: {
+        fillColor: [26, 58, 92],
+        textColor: 255,
+        fontStyle: 'bold',
+        fontSize: 10,
+        halign: 'center',
+        cellPadding: 4
+      },
+      bodyStyles: {
+        fontSize: 10,
+        cellPadding: 3,
+        textColor: [40, 40, 40]
+      },
+      columnStyles: {
+        0: { halign: 'center', cellWidth: 15 },
+        1: { halign: 'left',   cellWidth: 'auto' },
+        2: { halign: 'center', cellWidth: 18 },
+        3: { halign: 'right',  cellWidth: 38 },
+        4: { halign: 'right',  cellWidth: 45 }
+      },
+      alternateRowStyles: { fillColor: [245, 248, 252] }
+    });
+
+    // ── TOTALS ──
+    const finalY = doc.lastAutoTable.finalY + 6;
+    const col1   = 130;
+    const col2   = pw - 14;
+
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.3);
+
+    // Grand total divider
+    doc.line(col1, finalY + 3, col2, finalY + 3);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(26, 58, 92);
+    doc.text('Grand Total:',     col1, finalY + 10, { align: 'left' });
+    doc.text(fmt(subtotalNum),   col2, finalY + 10, { align: 'right' });
+
+    // ── FOOTER ──
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(9);
+    doc.setTextColor(150, 150, 150);
+    doc.text('Thank you for shopping with us!', pw / 2, finalY + 20, { align: 'center' });
+
+    // ── SAVE ──
+    const safeBillNo = billNo.replace(/[^a-zA-Z0-9]/g, '_');
+    const safeDate   = date.replace(/\//g, '-');
+    doc.save(safeBillNo + '_' + safeDate + '.pdf');
+  }
+
+  loadBill();
+</script>
+</body>
+</html>

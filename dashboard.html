@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Testing Shop — Dashboard</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#f0f2f5; min-height:100vh; }
+
+    .navbar {
+      background:#1a3a5c; color:white; padding:0 32px; height:56px;
+      display:flex; justify-content:space-between; align-items:center;
+      box-shadow:0 2px 8px rgba(0,0,0,0.2);
+    }
+    .navbar h1 { font-size:20px; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+    .logout-btn {
+      background:transparent; color:white; border:1px solid rgba(255,255,255,0.5);
+      padding:7px 20px; border-radius:6px; cursor:pointer; font-size:13px;
+    }
+    .logout-btn:hover { background:rgba(255,255,255,0.15); }
+
+    .content { max-width:1100px; margin:32px auto; padding:0 20px; }
+
+    .table-card { background:white; border-radius:12px; box-shadow:0 2px 16px rgba(0,0,0,0.08); overflow:hidden; }
+
+    .table-card-header {
+      padding:16px 24px; border-bottom:1px solid #e8ecf0;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .table-card-header h2 { font-size:15px; font-weight:600; color:#1a3a5c; }
+
+    .btn-save {
+      background:#1a3a5c; color:white; border:none; padding:8px 22px;
+      border-radius:6px; cursor:pointer; font-size:13px; font-weight:500;
+    }
+    .btn-save:hover { background:#14304f; }
+    .btn-clear {
+      background:transparent; color:#e24b4a; border:1px solid #e24b4a;
+      padding:8px 22px; border-radius:6px; cursor:pointer; font-size:13px; margin-right:8px;
+    }
+    .btn-clear:hover { background:#fff0f0; }
+
+    table { width:100%; border-collapse:collapse; }
+    thead th {
+      background:#1a3a5c; color:white; padding:13px 16px;
+      font-size:13px; font-weight:600; letter-spacing:0.4px; text-align:left;
+    }
+    thead th:first-child  { width:70px;  text-align:center; }
+    thead th:nth-child(3) { width:130px; text-align:center; }
+    thead th:nth-child(4) { width:150px; text-align:right; }
+    thead th:nth-child(5) { width:160px; text-align:right; }
+
+    tbody tr { border-bottom:1px solid #f0f2f5; transition:background 0.12s; }
+    tbody tr:hover { background:#f7f9fc; }
+    tbody tr:last-child { border-bottom:none; }
+    tbody td { padding:5px 10px; font-size:14px; color:#333; }
+    tbody td:first-child  { text-align:center; color:#999; font-size:13px; }
+    tbody td:nth-child(3) { text-align:center; }
+    tbody td:nth-child(4) { text-align:right; }
+    tbody td:nth-child(5) { text-align:right; }
+
+    .cell-input {
+      width:100%; border:1px solid transparent; border-radius:6px;
+      padding:7px 10px; font-size:14px; font-family:'Segoe UI',sans-serif;
+      background:transparent; color:#1a1a2e; outline:none;
+      transition:border 0.15s, background 0.15s;
+    }
+    .cell-input:hover  { border-color:#c5d5e8; background:#f0f5fb; }
+    .cell-input:focus  { border-color:#1a3a5c; background:white; box-shadow:0 0 0 3px rgba(26,58,92,0.08); }
+    .cell-input.qty    { text-align:center; }
+    .cell-input.price  { text-align:right; }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
+    input[type=number] { -moz-appearance:textfield; }
+
+    .total-display {
+      padding:7px 10px; font-size:14px; font-weight:600; color:#1a3a5c;
+      background:#eef3fa; border-radius:6px; text-align:right;
+      min-height:36px; display:flex; align-items:center; justify-content:flex-end;
+    }
+
+    tfoot td {
+      background:#eef3fa; padding:13px 16px; font-weight:700;
+      font-size:14px; color:#1a3a5c; border-top:2px solid #c5d5e8;
+    }
+    tfoot td:last-child { text-align:right; font-size:15px; }
+
+    /* PAGINATOR */
+    .paginator {
+      display:flex; justify-content:center; align-items:center;
+      gap:6px; padding:16px 24px; border-top:1px solid #e8ecf0;
+    }
+    .page-btn {
+      width:36px; height:36px; border-radius:6px; border:1px solid #c5d5e8;
+      background:white; color:#1a3a5c; font-size:14px; font-weight:500;
+      cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center;
+    }
+    .page-btn:hover   { background:#eef3fa; }
+    .page-btn.active  { background:#1a3a5c; color:white; border-color:#1a3a5c; }
+    .page-btn.arrow   { font-size:16px; color:#1a3a5c; }
+
+    .toast {
+      position:fixed; bottom:28px; right:28px; background:#1a3a5c; color:white;
+      padding:12px 24px; border-radius:8px; font-size:14px;
+      opacity:0; transform:translateY(10px); transition:all 0.3s;
+      pointer-events:none; z-index:999;
+    }
+    .toast.show { opacity:1; transform:translateY(0); }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <h1>Testing Shop</h1>
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<div class="content">
+  <div class="table-card">
+    <div class="table-card-header">
+      <h2>Product Entry Table &nbsp;<span id="pageLabel" style="font-weight:400;color:#888;font-size:13px;"></span></h2>
+      <div>
+        <button class="btn-clear" onclick="clearAll()">Clear All</button>
+        <button class="btn-save"  onclick="saveData()">Save</button>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Sl.No</th><th>Product</th><th>Quantity</th><th>Price (₹)</th><th>Total Price (₹)</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4">Grand Total</td>
+          <td id="grandTotal">₹ 0.00</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="paginator" id="paginator"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const ROWS_PER_PAGE = 10;
+  const TOTAL_PAGES   = 5;
+  const TOTAL_ROWS    = ROWS_PER_PAGE * TOTAL_PAGES; // 50 rows total
+
+  let currentPage = 1;
+
+  // All data lives here — 50 rows, cleared on every login
+  let allData = Array.from({length: TOTAL_ROWS}, () => ({product:'', qty:'', price:''}));
+
+  function buildTable() {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    const start = (currentPage - 1) * ROWS_PER_PAGE;
+    const end   = start + ROWS_PER_PAGE;
+
+    for (let i = start; i < end; i++) {
+      const slNo = i + 1;
+      const r    = allData[i];
+      const tr   = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${slNo}</td>
+        <td><input class="cell-input" type="text" id="product_${i}"
+          placeholder="Enter product name" value="${r.product}"
+          oninput="updateData(${i})" /></td>
+        <td><input class="cell-input qty" type="number" id="qty_${i}"
+          placeholder="0" min="0" value="${r.qty}"
+          oninput="updateData(${i})" /></td>
+        <td><input class="cell-input price" type="number" id="price_${i}"
+          placeholder="0.00" min="0" step="0.01" value="${r.price}"
+          oninput="updateData(${i})" /></td>
+        <td><div class="total-display" id="total_${i}">${calcRowTotal(i)}</div></td>`;
+      tbody.appendChild(tr);
+    }
+    document.getElementById('pageLabel').textContent = `— Page ${currentPage} of ${TOTAL_PAGES}`;
+    buildPaginator();
+    calcGrandTotal();
+  }
+
+  function calcRowTotal(i) {
+    const qty   = parseFloat(allData[i].qty)   || 0;
+    const price = parseFloat(allData[i].price) || 0;
+    return (qty > 0 && price > 0) ? '₹ ' + (qty * price).toFixed(2) : '—';
+  }
+
+  function updateData(i) {
+    allData[i].product = document.getElementById(`product_${i}`) ? document.getElementById(`product_${i}`).value : allData[i].product;
+    allData[i].qty     = document.getElementById(`qty_${i}`)     ? document.getElementById(`qty_${i}`).value     : allData[i].qty;
+    allData[i].price   = document.getElementById(`price_${i}`)   ? document.getElementById(`price_${i}`).value   : allData[i].price;
+    const el = document.getElementById(`total_${i}`);
+    if (el) el.textContent = calcRowTotal(i);
+    calcGrandTotal();
+  }
+
+  function calcGrandTotal() {
+    let grand = 0;
+    allData.forEach(r => {
+      const qty   = parseFloat(r.qty)   || 0;
+      const price = parseFloat(r.price) || 0;
+      grand += qty * price;
+    });
+    document.getElementById('grandTotal').textContent = '₹ ' + grand.toFixed(2);
+  }
+
+  function buildPaginator() {
+    const pg = document.getElementById('paginator');
+    pg.innerHTML = '';
+
+    // Prev arrow
+    const prev = document.createElement('button');
+    prev.className = 'page-btn arrow';
+    prev.textContent = '‹';
+    prev.onclick = () => { if (currentPage > 1) goPage(currentPage - 1); };
+    pg.appendChild(prev);
+
+    for (let p = 1; p <= TOTAL_PAGES; p++) {
+      const btn = document.createElement('button');
+      btn.className = 'page-btn' + (p === currentPage ? ' active' : '');
+      btn.textContent = p;
+      btn.onclick = () => goPage(p);
+      pg.appendChild(btn);
+    }
+
+    // Next arrow
+    const next = document.createElement('button');
+    next.className = 'page-btn arrow';
+    next.textContent = '›';
+    next.onclick = () => { if (currentPage < TOTAL_PAGES) goPage(currentPage + 1); };
+    pg.appendChild(next);
+  }
+
+  function goPage(p) {
+    // Save current visible inputs to allData before switching
+    syncCurrentPage();
+    currentPage = p;
+    buildTable();
+  }
+
+  function syncCurrentPage() {
+    const start = (currentPage - 1) * ROWS_PER_PAGE;
+    const end   = start + ROWS_PER_PAGE;
+    for (let i = start; i < end; i++) {
+      if (document.getElementById(`product_${i}`)) {
+        allData[i].product = document.getElementById(`product_${i}`).value;
+        allData[i].qty     = document.getElementById(`qty_${i}`).value;
+        allData[i].price   = document.getElementById(`price_${i}`).value;
+      }
+    }
+  }
+
+  function saveData() {
+    syncCurrentPage();
+    // Collect only filled rows
+    const filledRows = allData.filter(r => r.product || r.qty || r.price);
+    if (filledRows.length === 0) {
+      showToast('Please enter at least one product!', true);
+      return;
+    }
+    // Save to sessionStorage and go to billing
+    sessionStorage.setItem('billData', JSON.stringify(allData));
+    window.location.href = '/billing.html';
+  }
+
+  function clearAll() {
+    if (!confirm('Clear all data from all pages?')) return;
+    allData = Array.from({length: TOTAL_ROWS}, () => ({product:'', qty:'', price:''}));
+    currentPage = 1;
+    buildTable();
+  }
+
+  function logout() {
+    // Clear data on logout
+    sessionStorage.clear();
+    window.location.href = '/login.html';
+  }
+
+  function showToast(msg, isError) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = isError ? '#c0392b' : '#1a3a5c';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  // On page load — always start fresh (no saved data)
+  buildTable();
+</script>
+</body>
+</html>
