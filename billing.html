@@ -180,7 +180,7 @@
     <!-- HEADER: Shop info -->
     <div class="bill-header-top">
       <div class="shop-phone">
-        📞 04636-247675
+        📞 +91 6374743195<br/>+91 9360550626
       </div>
       <div class="shop-name-center">
         <h2>SREE ELECTRICALS &amp; ELECTRONICS</h2>
@@ -195,7 +195,6 @@
       <div class="bill-info-left">
         <div class="info-row"><strong>Bill No. : </strong><span id="billNo">—</span></div>
         <div class="info-row"><strong>Date &amp; Time : </strong><span id="billDateTime">—</span></div>
-        <div class="info-row"><strong>GSTIN No. : </strong><span id="gstinNo">—</span></div>
       </div>
     </div>
 
@@ -203,6 +202,12 @@
     <div class="customer-row">
       <div class="customer-label">Customer Name :</div>
       <input type="text" class="customer-input" id="customerName" placeholder="Enter customer name"/>
+    </div>
+
+    <!-- CUSTOMER PHONE -->
+    <div class="customer-row">
+      <div class="customer-label">Customer Phone :</div>
+      <input type="text" class="customer-input" id="customerPhone" placeholder="Enter customer phone number"/>
     </div>
 
     <!-- TABLE -->
@@ -231,7 +236,7 @@
 <script>
   const SHOP_NAME    = 'SREE ELECTRICALS & ELECTRONICS';
   const SHOP_ADDRESS = 'Subramaniapuram, Vasudevanallur(p.o), Tenkasi Main Road, Tamil Nadu-627758';
-  const SHOP_PHONE   = '04636-247675';
+  const SHOP_PHONE   = '+91 6374743195 / +91 9360550626';
 
   function nowDateTime() {
     const d = new Date();
@@ -251,22 +256,12 @@
     return 'BILL-' + String(n).padStart(4,'0');
   }
 
-  function generateGSTIN() {
-    // 20 char alphanumeric GSTIN placeholder
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let g = '33'; // Tamil Nadu state code
-    for(let i=0;i<18;i++) g += chars[Math.floor(Math.random()*chars.length)];
-    return g;
-  }
 
   function loadBill() {
     const billNo = getBillNo();
     const dt = nowDateTime();
-    const gstin = generateGSTIN();
-
     document.getElementById('billNo').textContent       = billNo;
     document.getElementById('billDateTime').textContent = dt.full;
-    document.getElementById('gstinNo').textContent      = gstin;
 
     const raw = sessionStorage.getItem('billData');
     if(!raw){ document.getElementById('billBody').innerHTML='<tr><td colspan="5" style="text-align:center;padding:24px;color:#c49a72;">No data. Go back and enter products.</td></tr>'; return; }
@@ -302,8 +297,8 @@
 
     const billNo    = document.getElementById('billNo').textContent;
     const dateTime  = document.getElementById('billDateTime').textContent;
-    const gstin     = document.getElementById('gstinNo').textContent;
     const custName  = document.getElementById('customerName').value.trim() || 'Walk-in Customer';
+    const custPhone = document.getElementById('customerPhone').value.trim();
 
     const raw   = sessionStorage.getItem('billData');
     const all   = JSON.parse(raw||'[]');
@@ -334,25 +329,31 @@
 
     // ── BILL INFO ──
     doc.setFillColor(255,248,240);
-    doc.rect(0,32,pw,22,'F');
+    doc.rect(0,32,pw,16,'F');
 
     doc.setFont('helvetica','bold');
     doc.setFontSize(10);
     doc.setTextColor(191,54,12);
     doc.text('Bill No.  : '+billNo,        14, 40);
     doc.text('Date & Time : '+dateTime,    14, 47);
-    doc.text('GSTIN No.  : '+gstin,        14, 54);
-
     // ── CUSTOMER NAME ──
     doc.setFillColor(255,243,224);
-    doc.rect(0,54,pw,12,'F');
+    doc.rect(0,48,pw,18,'F');
     doc.setFont('helvetica','bold');
     doc.setFontSize(10);
     doc.setTextColor(125,78,45);
-    doc.text('Customer Name :', 14, 63);
+    doc.text('Customer Name  :', 14, 55);
     doc.setFont('helvetica','normal');
     doc.setTextColor(62,28,0);
-    doc.text(custName, 60, 63);
+    doc.text(custName, 60, 55);
+
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(10);
+    doc.setTextColor(125,78,45);
+    doc.text('Customer Phone :', 14, 63);
+    doc.setFont('helvetica','normal');
+    doc.setTextColor(62,28,0);
+    doc.text(custPhone || '—', 60, 63);
 
     // Divider
     doc.setDrawColor(255,183,77);
@@ -410,8 +411,8 @@
 
     // ── SAVE PDF ──
     const safeBill = billNo.replace(/[^a-zA-Z0-9]/g,'_');
-    const safeDate = dateTime.split(' ')[0].replace(/\//g,'-');
-    doc.save(safeBill+'_'+safeDate+'.pdf');
+    const safeName = (custName || 'Walk-in_Customer').replace(/[^a-zA-Z0-9]/g,'_');
+    doc.save(safeBill+'_'+safeName+'.pdf');
   }
 
   loadBill();
