@@ -11,11 +11,16 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // ─── SESSION SETUP ───────────────────────────────────────────
+app.set('trust proxy', 1); // Required for Render / reverse proxies
 app.use(session({
   secret: 'sree-electricals-secret-key',
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true, maxAge: 1000 * 60 * 60 } // 1 hour
+  cookie: {
+    httpOnly: true,
+    secure: false,        // Set false — Render handles HTTPS at proxy level
+    maxAge: 1000 * 60 * 60 // 1 hour
+  }
 }));
 
 // ─── DATABASE ────────────────────────────────────────────────
@@ -97,6 +102,11 @@ app.post('/logout', (req, res) => {
     if (err) return res.status(500).json({ success: false });
     res.json({ success: true });
   });
+});
+
+// ─── WHO AM I (returns logged-in username) ───────────────────
+app.get('/me', requireLogin, (req, res) => {
+  res.json({ username: req.session.user || '' });
 });
 
 // ─── GST ─────────────────────────────────────────────────────

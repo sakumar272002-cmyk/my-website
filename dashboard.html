@@ -33,7 +33,26 @@
     .user-avatar {
       width:30px; height:30px; border-radius:50%;
       background:white; display:flex; align-items:center; justify-content:center;
-      flex-shrink:0; box-shadow:0 1px 4px rgba(0,0,0,0.15);
+      flex-shrink:0;
+    }
+    .user-name {
+      font-size:13px; font-weight:600; color:white;
+      letter-spacing:0.3px; max-width:140px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .nav-right {
+      display:flex; align-items:center; gap:14px;
+    }
+    .user-chip {
+      display:flex; align-items:center; gap:8px;
+      background:rgba(255,255,255,0.18);
+      border:1px solid rgba(255,255,255,0.4);
+      border-radius:24px; padding:5px 14px 5px 8px;
+    }
+    .user-avatar {
+      width:30px; height:30px; border-radius:50%;
+      background:white; display:flex; align-items:center; justify-content:center;
+      flex-shrink:0; font-size:16px; line-height:1;
     }
     .user-name {
       font-size:13px; font-weight:600; color:white;
@@ -172,10 +191,7 @@
   <h1>Sree Electricals &amp; Electronics</h1>
   <div class="nav-right">
     <div class="user-chip">
-      <div class="user-avatar">
-        <!-- Person icon in orange -->
-        <span style="font-size:16px;">👤</span>
-      </div>
+      <div class="user-avatar">👤</div>
       <span class="user-name" id="navUsername">—</span>
     </div>
     <button class="logout-btn" onclick="logout()">Logout</button>
@@ -209,28 +225,16 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── AUTH GUARD: redirect to login if not authenticated ──
+  // ── AUTH GUARD ──
   (function(){
     if(sessionStorage.getItem('isLoggedIn') !== 'true'){
       window.location.replace('/login.html');
     }
   })();
 
-  // ── SHOW USERNAME in navbar immediately from sessionStorage ──
-  (function(){
-    const stored = sessionStorage.getItem('authUser') || 'User';
-    document.getElementById('navUsername').textContent = stored;
-    // Also try server as authoritative source
-    fetch('/me')
-      .then(r => r.json())
-      .then(d => {
-        if(d && d.username){
-          document.getElementById('navUsername').textContent = d.username;
-          sessionStorage.setItem('authUser', d.username);
-        }
-      })
-      .catch(()=>{}); // fallback to sessionStorage value already shown
-  })();
+  // ── SHOW USERNAME instantly from sessionStorage ──
+  document.getElementById('navUsername').textContent =
+    sessionStorage.getItem('authUser') || 'User';
 
   const ROWS_PER_PAGE = 10;
   const TOTAL_PAGES   = 5;
@@ -339,10 +343,11 @@
   }
 
   function logout(){
-    sessionStorage.removeItem('isLoggedIn');
-    sessionStorage.removeItem('authUser');
-    sessionStorage.removeItem('billData');
-    window.location.replace('/login.html');
+    fetch('/logout', { method:'POST' })
+      .finally(() => {
+        sessionStorage.clear();
+        window.location.replace('/login.html');
+      });
   }
 
   function showToast(msg){
