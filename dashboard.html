@@ -33,7 +33,7 @@
     .user-avatar {
       width:30px; height:30px; border-radius:50%;
       background:white; display:flex; align-items:center; justify-content:center;
-      flex-shrink:0;
+      flex-shrink:0; box-shadow:0 1px 4px rgba(0,0,0,0.15);
     }
     .user-name {
       font-size:13px; font-weight:600; color:white;
@@ -174,9 +174,7 @@
     <div class="user-chip">
       <div class="user-avatar">
         <!-- Person icon in orange -->
-        <svg viewBox="0 0 24 24" fill="#ff6b35" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
-        </svg>
+        <span style="font-size:16px;">👤</span>
       </div>
       <span class="user-name" id="navUsername">—</span>
     </div>
@@ -218,23 +216,20 @@
     }
   })();
 
-  // ── SHOW USERNAME in navbar ──
+  // ── SHOW USERNAME in navbar immediately from sessionStorage ──
   (function(){
-    // Try sessionStorage first (set during login)
-    const stored = sessionStorage.getItem('authUser');
-    if(stored) {
-      document.getElementById('navUsername').textContent = stored;
-    }
-    // Also fetch from server to confirm (authoritative source)
+    const stored = sessionStorage.getItem('authUser') || 'User';
+    document.getElementById('navUsername').textContent = stored;
+    // Also try server as authoritative source
     fetch('/me')
       .then(r => r.json())
       .then(d => {
-        if(d.username){
+        if(d && d.username){
           document.getElementById('navUsername').textContent = d.username;
           sessionStorage.setItem('authUser', d.username);
         }
       })
-      .catch(()=>{}); // silently ignore if /me not available
+      .catch(()=>{}); // fallback to sessionStorage value already shown
   })();
 
   const ROWS_PER_PAGE = 10;
