@@ -225,30 +225,26 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── AUTH GUARD — verify with server session (source of truth) ──
-  // Show username immediately from localStorage while server check runs
-  document.getElementById('navUsername').textContent =
-    localStorage.getItem('authUser') || '...';
+  // ── AUTH GUARD — check JWT token in localStorage ──
+  const authToken = localStorage.getItem('authToken');
+  if (!authToken) {
+    window.location.replace('/login.html');
+  }
 
-  // Verify session is still valid on server
-  fetch('/me')
-    .then(r => {
-      if (!r.ok) throw new Error('not logged in');
-      return r.json();
-    })
+  // ── SHOW USERNAME instantly from localStorage ──
+  document.getElementById('navUsername').textContent =
+    localStorage.getItem('authUser') || 'User';
+
+  // ── VERIFY TOKEN with server (optional but good practice) ──
+  fetch('/me', { headers: { 'Authorization': authToken } })
+    .then(r => r.json())
     .then(d => {
       if (d && d.username) {
         document.getElementById('navUsername').textContent = d.username;
-        localStorage.setItem('authUser', d.username); // keep fresh
-      } else {
-        throw new Error('no username');
+        localStorage.setItem('authUser', d.username);
       }
     })
-    .catch(() => {
-      // Server says not logged in → redirect to login
-      localStorage.removeItem('authUser');
-      window.location.replace('/login.html');
-    });
+    .catch(() => {}); // token still valid locally, ignore network errors
 
   const ROWS_PER_PAGE = 10;
   const TOTAL_PAGES   = 5;
@@ -357,12 +353,9 @@
   }
 
   function logout(){
-    fetch('/logout', { method:'POST' })
-      .finally(() => {
-        localStorage.removeItem('authUser');
-        sessionStorage.clear();
-        window.location.replace('/login.html');
-      });
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('authUser');
+    window.location.replace('/login.html');
   }
 
   function showToast(msg){

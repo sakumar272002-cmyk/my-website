@@ -2,27 +2,14 @@ const express     = require('express');
 const mysql       = require('mysql2');
 const cors        = require('cors');
 const bodyParser  = require('body-parser');
-const session     = require('express-session');
+const jwt         = require('jsonwebtoken');
 const path        = require('path');
 
 const app = express();
+const JWT_SECRET = 'sree-electricals-jwt-secret-2024';
 
 app.use(cors());
 app.use(bodyParser.json());
-
-// ─── SESSION SETUP ───────────────────────────────────────────
-app.set('trust proxy', 1); // Required for Render / reverse proxies
-app.use(session({
-  secret: 'sree-electricals-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    secure: true,          // Must be true on Render (HTTPS)
-    sameSite: 'none',      // Required for cross-origin cookie on Render
-    maxAge: 1000 * 60 * 60 // 1 hour
-  }
-}));
 
 // ─── DATABASE ────────────────────────────────────────────────
 const db = mysql.createConnection({
@@ -38,45 +25,26 @@ db.connect((err) => {
   else      { console.log('✅ Connected to MySQL database'); }
 });
 
-// ─── AUTH MIDDLEWARE ─────────────────────────────────────────
+// ─── AUTH MIDDLEWARE (JWT) ────────────────────────────────────
 function requireLogin(req, res, next) {
-  if (req.session && req.session.isLoggedIn) {
+  const token = req.headers['authorization'];
+  if (!token) return res.status(401).json({ error: 'Not logged in' });
+  try {
+    req.user = jwt.verify(token, JWT_SECRET);
     next();
-  } else {
-    res.redirect('/login.html');
+  } catch {
+    res.status(401).json({ error: 'Invalid or expired token' });
   }
 }
 
-// ─── PUBLIC ROUTES ───────────────────────────────────────────
-// Root → always go to login
-app.get('/', (req, res) => {
-  if (req.session && req.session.isLoggedIn) {
-    return res.redirect('/dashboard.html');
-  }
-  res.sendFile(path.join(__dirname, 'login.html'));
-});
+// ─── STATIC FILES ─────────────────────────────────────────────
+// Serve login.html publicly, protect others via middleware
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 
-// Login page — if already logged in, redirect to dashboard
-app.get('/login.html', (req, res) => {
-  if (req.session && req.session.isLoggedIn) {
-    return res.redirect('/dashboard.html');
-  }
-  res.sendFile(path.join(__dirname, 'login.html'));
-});
-
-// ─── PROTECTED ROUTES ────────────────────────────────────────
-app.get('/dashboard.html', requireLogin, (req, res) => {
-  res.sendFile(path.join(__dirname, 'dashboard.html'));
-});
-
-app.get('/billing.html', requireLogin, (req, res) => {
-  res.sendFile(path.join(__dirname, 'billing.html'));
-});
-
-// Block any other .html file — redirect to login
-app.get('*.html', (req, res) => {
-  res.redirect('/login.html');
-});
+// Protected HTML pages — token check done client-side (JS guard)
+// Server just serves the file; JS on page will redirect if no token
+app.use(express.static(path.join(__dirname)));
 
 // ─── LOGIN ───────────────────────────────────────────────────
 app.post('/login', (req, res) => {
@@ -87,9 +55,13 @@ app.post('/login', (req, res) => {
     (err, results) => {
       if (err) return res.status(500).json({ success: false });
       if (results.length > 0) {
-        req.session.isLoggedIn = true;
-        req.session.user = username;
-        res.json({ success: true, username: username }); // ← send username to frontend
+        // Create JWT token — valid for 8 hours
+        const token = jwt.sign(
+          { username: username },
+          JWT_SECRET,
+          { expiresIn: '8h' }
+        );
+        res.json({ success: true, token: token, username: username });
       } else {
         res.json({ success: false });
       }
@@ -98,16 +70,14 @@ app.post('/login', (req, res) => {
 });
 
 // ─── LOGOUT ──────────────────────────────────────────────────
+// JWT is stateless — logout is handled client-side by deleting token
 app.post('/logout', (req, res) => {
-  req.session.destroy((err) => {
-    if (err) return res.status(500).json({ success: false });
-    res.json({ success: true });
-  });
+  res.json({ success: true });
 });
 
-// ─── WHO AM I (returns logged-in username) ───────────────────
+// ─── WHO AM I ────────────────────────────────────────────────
 app.get('/me', requireLogin, (req, res) => {
-  res.json({ username: req.session.user || '' });
+  res.json({ username: req.user.username });
 });
 
 // ─── GST ─────────────────────────────────────────────────────

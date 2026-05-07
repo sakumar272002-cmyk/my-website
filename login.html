@@ -804,9 +804,8 @@
 
   // ── AUTH GUARD: redirect to dashboard if already logged in ──
   (function(){
-    if(sessionStorage.getItem('isLoggedIn') === 'true'){
-      window.location.replace('/dashboard.html');
-    }
+    const token = localStorage.getItem('authToken');
+    if(token) window.location.replace('/dashboard.html');
   })();
 
   async function handleLogin(){
@@ -818,10 +817,9 @@
       const r = await fetch('/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
       const d = await r.json();
       if(d.success){
-        // Store in localStorage so it works across tabs
-        localStorage.setItem('authUser', d.username || u);
-        sessionStorage.setItem('isLoggedIn', 'true');
-        sessionStorage.setItem('authUser', d.username || u);
+        // Save JWT token and username to localStorage (survives new tabs & server restarts)
+        localStorage.setItem('authToken', d.token);
+        localStorage.setItem('authUser',  d.username);
         m.className='success';
         m.textContent='Login successful! Redirecting...';
         setTimeout(()=>window.location.replace('/dashboard.html'), 1000);
