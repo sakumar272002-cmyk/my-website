@@ -181,6 +181,13 @@
 <div class="toast" id="toast"></div>
 
 <script>
+  // ── AUTH GUARD: redirect to login if not authenticated ──
+  (function(){
+    if(sessionStorage.getItem('isLoggedIn') !== 'true'){
+      window.location.replace('/login.html');
+    }
+  })();
+
   const ROWS_PER_PAGE = 10;
   const TOTAL_PAGES   = 5;
   const TOTAL_ROWS    = ROWS_PER_PAGE * TOTAL_PAGES;
@@ -273,7 +280,7 @@
     const filledRows=allData.filter(r=>r.product||r.qty||r.price);
     if(filledRows.length===0){ showToast('Please enter at least one product!'); return; }
     sessionStorage.setItem('billData',JSON.stringify(allData));
-    window.location.href='/billing.html';
+    window.location.replace('/billing.html');
   }
 
   function clearAll(){
@@ -287,7 +294,12 @@
     },800);
   }
 
-  function logout(){ sessionStorage.clear(); window.location.href='/login.html'; }
+  function logout(){
+    sessionStorage.removeItem('isLoggedIn');
+    sessionStorage.removeItem('authUser');
+    sessionStorage.removeItem('billData');
+    window.location.replace('/login.html');
+  }
 
   function showToast(msg){
     const t=document.getElementById('toast');

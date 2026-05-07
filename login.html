@@ -802,6 +802,13 @@
   function startTimer(){ clearInterval(timer); timer=setInterval(()=>goTo((current+1)%TOTAL),5000); resetBar(); }
   startTimer();
 
+  // ── AUTH GUARD: redirect to dashboard if already logged in ──
+  (function(){
+    if(sessionStorage.getItem('isLoggedIn') === 'true'){
+      window.location.replace('/dashboard.html');
+    }
+  })();
+
   async function handleLogin(){
     const u = document.getElementById('username').value.trim();
     const p = document.getElementById('password').value.trim();
@@ -810,7 +817,14 @@
     try{
       const r = await fetch('/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
       const d = await r.json();
-      if(d.success){ m.className='success'; m.textContent='Login successful! Redirecting...'; setTimeout(()=>window.location.href='/dashboard.html',1000); }
+      if(d.success){
+        // Set auth token so protected pages can verify the session
+        sessionStorage.setItem('isLoggedIn', 'true');
+        sessionStorage.setItem('authUser', u);
+        m.className='success';
+        m.textContent='Login successful! Redirecting...';
+        setTimeout(()=>window.location.replace('/dashboard.html'), 1000);
+      }
       else{ m.className=''; m.textContent='Invalid username or password.'; }
     }catch(e){ m.className=''; m.textContent='Cannot connect to server.'; }
   }

@@ -169,7 +169,7 @@
 <div class="navbar">
   <h1>Sree Electricals &amp; Electronics</h1>
   <div class="nav-btns">
-    <button class="btn-back" onclick="window.location.href='/dashboard.html'">← Back</button>
+    <button class="btn-back" onclick="window.location.replace('/dashboard.html')">← Back</button>
     <button class="btn-download" onclick="downloadPDF()">⬇ Download PDF</button>
   </div>
 </div>
@@ -234,6 +234,13 @@
 </div>
 
 <script>
+  // ── AUTH GUARD: redirect to login if not authenticated ──
+  (function(){
+    if(sessionStorage.getItem('isLoggedIn') !== 'true'){
+      window.location.replace('/login.html');
+    }
+  })();
+
   const SHOP_NAME    = 'SREE ELECTRICALS & ELECTRONICS';
   const SHOP_ADDRESS = 'Subramaniapuram, Vasudevanallur(p.o), Tenkasi Main Road, Tamil Nadu-627758';
   const SHOP_PHONE   = '+91 9976142451 / +91 9360550626';
@@ -251,9 +258,20 @@
   }
 
   function getBillNo() {
-    let n = parseInt(localStorage.getItem('billNo') || '0') + 1;
-    localStorage.setItem('billNo', n);
-    return 'BILL-' + String(n).padStart(4,'0');
+    // Use sessionStorage so bill numbers don't leak across sessions/users
+    // If this session already has a bill number, reuse it; else generate a new one
+    let existing = sessionStorage.getItem('currentBillNo');
+    if(existing) return existing;
+    // Generate: BILL-YYYYMMDD-HHMM (unique per session, time-based)
+    const d = new Date();
+    const stamp = d.getFullYear().toString() +
+      (d.getMonth()+1).toString().padStart(2,'0') +
+      d.getDate().toString().padStart(2,'0') + '-' +
+      d.getHours().toString().padStart(2,'0') +
+      d.getMinutes().toString().padStart(2,'0');
+    const billNo = 'BILL-' + stamp;
+    sessionStorage.setItem('currentBillNo', billNo);
+    return billNo;
   }
 
 
