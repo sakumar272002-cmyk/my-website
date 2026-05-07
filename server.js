@@ -18,7 +18,8 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: false,        // Set false — Render handles HTTPS at proxy level
+    secure: true,          // Must be true on Render (HTTPS)
+    sameSite: 'none',      // Required for cross-origin cookie on Render
     maxAge: 1000 * 60 * 60 // 1 hour
   }
 }));
@@ -88,7 +89,7 @@ app.post('/login', (req, res) => {
       if (results.length > 0) {
         req.session.isLoggedIn = true;
         req.session.user = username;
-        res.json({ success: true });
+        res.json({ success: true, username: username }); // ← send username to frontend
       } else {
         res.json({ success: false });
       }

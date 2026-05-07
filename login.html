@@ -818,9 +818,10 @@
       const r = await fetch('/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
       const d = await r.json();
       if(d.success){
-        // Set auth token so protected pages can verify the session
+        // Store in localStorage so it works across tabs
+        localStorage.setItem('authUser', d.username || u);
         sessionStorage.setItem('isLoggedIn', 'true');
-        sessionStorage.setItem('authUser', u);
+        sessionStorage.setItem('authUser', d.username || u);
         m.className='success';
         m.textContent='Login successful! Redirecting...';
         setTimeout(()=>window.location.replace('/dashboard.html'), 1000);
