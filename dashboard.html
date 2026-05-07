@@ -21,6 +21,25 @@
       font-size:20px; font-weight:700; letter-spacing:0.5px;
       text-shadow:0 1px 3px rgba(0,0,0,0.15);
     }
+    .nav-right {
+      display:flex; align-items:center; gap:14px;
+    }
+    .user-chip {
+      display:flex; align-items:center; gap:8px;
+      background:rgba(255,255,255,0.18);
+      border:1px solid rgba(255,255,255,0.4);
+      border-radius:24px; padding:5px 14px 5px 6px;
+    }
+    .user-avatar {
+      width:30px; height:30px; border-radius:50%;
+      background:white; display:flex; align-items:center; justify-content:center;
+      flex-shrink:0;
+    }
+    .user-name {
+      font-size:13px; font-weight:600; color:white;
+      letter-spacing:0.3px; max-width:140px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
     .logout-btn {
       background:rgba(255,255,255,0.2); color:white;
       border:1px solid rgba(255,255,255,0.5);
@@ -151,7 +170,18 @@
 
 <div class="navbar">
   <h1>Sree Electricals &amp; Electronics</h1>
-  <button class="logout-btn" onclick="logout()">Logout</button>
+  <div class="nav-right">
+    <div class="user-chip">
+      <div class="user-avatar">
+        <!-- Person icon in orange -->
+        <svg viewBox="0 0 24 24" fill="#ff6b35" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+        </svg>
+      </div>
+      <span class="user-name" id="navUsername">—</span>
+    </div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
 </div>
 
 <div class="content">
@@ -186,6 +216,25 @@
     if(sessionStorage.getItem('isLoggedIn') !== 'true'){
       window.location.replace('/login.html');
     }
+  })();
+
+  // ── SHOW USERNAME in navbar ──
+  (function(){
+    // Try sessionStorage first (set during login)
+    const stored = sessionStorage.getItem('authUser');
+    if(stored) {
+      document.getElementById('navUsername').textContent = stored;
+    }
+    // Also fetch from server to confirm (authoritative source)
+    fetch('/me')
+      .then(r => r.json())
+      .then(d => {
+        if(d.username){
+          document.getElementById('navUsername').textContent = d.username;
+          sessionStorage.setItem('authUser', d.username);
+        }
+      })
+      .catch(()=>{}); // silently ignore if /me not available
   })();
 
   const ROWS_PER_PAGE = 10;

@@ -14,4 +14,15 @@ CREATE TABLE IF NOT EXISTS settings (
 INSERT IGNORE INTO users (username, password) VALUES ('admin', 'admin123');
 INSERT IGNORE INTO users (username, password) VALUES ('john', 'mypassword');
 
+-- Remove john
+DELETE FROM users WHERE username = 'john';
+
+-- Add Seeni
+INSERT IGNORE INTO users (username, password) VALUES ('Seeni', 'Seeni@1969');
+INSERT IGNORE INTO users (username, password) VALUES ('Ari', 'Ari@1999');
+INSERT IGNORE INTO users (username, password) VALUES ('Arul', 'Arul@2001');
+INSERT IGNORE INTO users (username, password) VALUES ('Ashok', 'Ashok@2002');
+
+
+
 INSERT INTO settings (gst_value) VALUES (18);
