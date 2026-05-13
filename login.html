@@ -29,15 +29,15 @@
 
     /* BILLING TYPE RADIO */
     .billing-type { margin-bottom:22px; }
-    .billing-type label.main-label { display:block; font-size:12px; font-weight:600; color:#7d4e2d; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
+    .billing-type-label { display:block; font-size:12px; font-weight:600; color:#7d4e2d; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
     .radio-group { display:flex; gap:12px; }
     .radio-option { flex:1; }
     .radio-option input[type="radio"] { display:none; }
-    .radio-option label { display:flex; align-items:center; justify-content:center; gap:8px; padding:11px 16px; border:1.5px solid #f0c080; border-radius:12px; cursor:pointer; font-size:13px; font-weight:500; color:#7d4e2d; background:#fff8f0; transition:all 0.25s; }
-    .radio-option label:hover { border-color:#ff9800; background:#fff3e0; }
-    .radio-option input[type="radio"]:checked + label { background:linear-gradient(135deg,#ff6b35,#f7931e); color:white; border-color:#ff6b35; box-shadow:0 4px 14px rgba(255,107,53,0.3); }
-    .radio-option label .radio-dot { width:16px; height:16px; border-radius:50%; border:2px solid currentColor; display:flex; align-items:center; justify-content:center; }
-    .radio-option input[type="radio"]:checked + label .radio-dot::after { content:''; width:8px; height:8px; border-radius:50%; background:white; }
+    .radio-card { display:flex; align-items:center; justify-content:center; gap:8px; padding:11px 16px; border:1.5px solid #f0c080; border-radius:12px; cursor:pointer; font-size:13px; font-weight:500; color:#7d4e2d; background:#fff8f0; transition:all 0.25s; user-select:none; }
+    .radio-card:hover { border-color:#ff9800; background:#fff3e0; }
+    .radio-option input[type="radio"]:checked + .radio-card { background:linear-gradient(135deg,#ff6b35,#f7931e); color:white; border-color:#ff6b35; box-shadow:0 4px 14px rgba(255,107,53,0.3); }
+    .radio-dot { width:16px; height:16px; border-radius:50%; border:2px solid currentColor; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .radio-option input[type="radio"]:checked + .radio-card .radio-dot::after { content:''; width:8px; height:8px; border-radius:50%; background:white; display:block; }
 
     .login-btn { width:100%; padding:14px; background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%); border:none; border-radius:12px; font-family:'Poppins',sans-serif; font-size:15px; font-weight:600; color:white; cursor:pointer; margin-top:8px; letter-spacing:0.5px; transition:all 0.3s; box-shadow:0 6px 20px rgba(255,107,53,0.35); }
     .login-btn:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(255,107,53,0.45); }
@@ -118,17 +118,17 @@
 
       <!-- BILLING TYPE -->
       <div class="billing-type">
-        <label class="main-label">Billing Type</label>
+        <span class="billing-type-label">Billing Type</span>
         <div class="radio-group">
           <div class="radio-option">
             <input type="radio" name="billingType" id="billingNormal" value="billing" checked>
-            <label for="billingNormal">
+            <label for="billingNormal" class="radio-card">
               <span class="radio-dot"></span> Billing
             </label>
           </div>
           <div class="radio-option">
             <input type="radio" name="billingType" id="billingElite" value="elite">
-            <label for="billingElite">
+            <label for="billingElite" class="radio-card">
               <span class="radio-dot"></span> Elite Billing
             </label>
           </div>
