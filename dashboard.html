@@ -272,7 +272,7 @@
     syncCurrentPage();
     const filledRows=allData.filter(r=>r.product||r.qty||r.price);
     if(filledRows.length===0){ showToast('Please enter at least one product!'); return; }
-    sessionStorage.setItem('billData',JSON.stringify(allData));
+    localStorage.setItem('billData',JSON.stringify(allData));
     window.location.href='/billing.html';
   }
 
@@ -287,7 +287,13 @@
     },800);
   }
 
-  function logout(){ sessionStorage.clear(); window.location.href='/login.html'; }
+  function logout(){
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('authUser');
+    localStorage.removeItem('billingMode');
+    sessionStorage.removeItem('billData');
+    window.location.replace('/login.html');
+  }
 
   function showToast(msg){
     const t=document.getElementById('toast');
@@ -295,6 +301,13 @@
     t.classList.add('show');
     setTimeout(()=>t.classList.remove('show'),2500);
   }
+
+  // ── AUTH GUARD ──
+  (function(){
+    if(!localStorage.getItem('authToken')){
+      window.location.replace('/login.html');
+    }
+  })();
 
   buildTable();
 </script>

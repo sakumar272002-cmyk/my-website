@@ -234,9 +234,9 @@
 </div>
 
 <script>
-  // ── AUTH GUARD: redirect to login if not authenticated ──
+  // ── AUTH GUARD ──
   (function(){
-    if(sessionStorage.getItem('isLoggedIn') !== 'true'){
+    if(!localStorage.getItem('authToken')){
       window.location.replace('/login.html');
     }
   })();
@@ -281,7 +281,7 @@
     document.getElementById('billNo').textContent       = billNo;
     document.getElementById('billDateTime').textContent = dt.full;
 
-    const raw = sessionStorage.getItem('billData');
+    const raw = localStorage.getItem('billData');
     if(!raw){ document.getElementById('billBody').innerHTML='<tr><td colspan="5" style="text-align:center;padding:24px;color:#c49a72;">No data. Go back and enter products.</td></tr>'; return; }
 
     const allData = JSON.parse(raw);
@@ -318,7 +318,7 @@
     const custName  = document.getElementById('customerName').value.trim() || 'Walk-in Customer';
     const custPhone = document.getElementById('customerPhone').value.trim();
 
-    const raw   = sessionStorage.getItem('billData');
+    const raw   = localStorage.getItem('billData');
     const all   = JSON.parse(raw||'[]');
     const rows  = all.filter(r=>r.product&&(parseFloat(r.qty)||0)>0&&(parseFloat(r.price)||0)>0);
     let grandTotal=0;
