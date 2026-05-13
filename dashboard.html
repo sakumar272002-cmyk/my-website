@@ -1,302 +1,374 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sree Electricals &amp; Electronics</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Poppins',sans-serif; background:#fff8f0; min-height:100vh; }
-
-    /* NAVBAR */
-    .navbar {
-      background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%);
-      color:white; padding:0 32px; height:60px;
-      display:flex; justify-content:space-between; align-items:center;
-      box-shadow:0 4px 16px rgba(255,107,53,0.35);
-    }
-    .navbar h1 {
-      font-family:'Playfair Display',serif;
-      font-size:20px; font-weight:700; letter-spacing:0.5px;
-      text-shadow:0 1px 3px rgba(0,0,0,0.15);
-    }
-    .logout-btn {
-      background:rgba(255,255,255,0.2); color:white;
-      border:1px solid rgba(255,255,255,0.5);
-      padding:8px 22px; border-radius:8px; cursor:pointer;
-      font-size:13px; font-weight:500; font-family:'Poppins',sans-serif;
-      transition:all 0.2s;
-    }
-    .logout-btn:hover { background:rgba(255,255,255,0.35); }
-
-    .content { max-width:1150px; margin:32px auto; padding:0 20px; }
-
-    /* TABLE CARD */
-    .table-card {
-      background:white; border-radius:16px;
-      box-shadow:0 4px 24px rgba(255,107,53,0.12);
-      overflow:hidden; border:1px solid #ffe0c0;
-    }
-
-    table { width:100%; border-collapse:collapse; }
-
-    thead th {
-      background:linear-gradient(135deg,#ff6b35,#f7931e);
-      color:white; padding:14px 16px;
-      font-size:13px; font-weight:600; font-family:'Poppins',sans-serif;
-      letter-spacing:0.3px; text-align:left;
-    }
-    thead th:first-child  { width:70px;  text-align:center; }
-    thead th:nth-child(3) { width:130px; text-align:center; }
-    thead th:nth-child(4) { width:150px; text-align:right; }
-    thead th:nth-child(5) { width:160px; text-align:right; }
-
-    tbody tr { border-bottom:1px solid #fff3e8; transition:background 0.12s; }
-    tbody tr:nth-child(even) { background:#fffaf5; }
-    tbody tr:hover { background:#fff3e0; }
-    tbody tr:last-child { border-bottom:none; }
-    tbody td { padding:5px 10px; font-size:14px; color:#5a3010; }
-    tbody td:first-child  { text-align:center; color:#c49a72; font-size:13px; }
-    tbody td:nth-child(3) { text-align:center; }
-    tbody td:nth-child(4) { text-align:right; }
-    tbody td:nth-child(5) { text-align:right; }
-
-    .cell-input {
-      width:100%; border:1px solid transparent; border-radius:8px;
-      padding:7px 10px; font-size:14px; font-family:'Poppins',sans-serif;
-      background:transparent; color:#3e1c00; outline:none;
-      transition:border 0.15s, background 0.15s;
-    }
-    .cell-input:hover  { border-color:#ffb74d; background:#fff8f0; }
-    .cell-input:focus  { border-color:#ff6b35; background:white; box-shadow:0 0 0 3px rgba(255,107,53,0.1); }
-    .cell-input.qty    { text-align:center; }
-    .cell-input.price  { text-align:right; }
-    input[type=number]::-webkit-inner-spin-button,
-    input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
-    input[type=number] { -moz-appearance:textfield; }
-
-    .total-display {
-      padding:7px 10px; font-size:14px; font-weight:600; color:#e65100;
-      background:#fff3e0; border-radius:8px; text-align:right;
-      min-height:36px; display:flex; align-items:center; justify-content:flex-end;
-    }
-
-    tfoot td {
-      background:linear-gradient(135deg,#fff3e0,#ffe0b2);
-      padding:14px 16px; font-weight:700;
-      font-size:15px; color:#bf360c; border-top:2px solid #ffb74d;
-      font-family:'Playfair Display',serif;
-    }
-    tfoot td:last-child { text-align:right; font-size:16px; }
-
-    /* PAGINATOR */
-    .paginator {
-      display:flex; justify-content:center; align-items:center;
-      gap:6px; padding:16px 24px; border-top:1px solid #ffe0c0;
-      background:#fffaf5;
-    }
-    .page-btn {
-      width:38px; height:38px; border-radius:8px;
-      border:1px solid #ffb74d; background:white;
-      color:#e65100; font-size:14px; font-weight:600;
-      cursor:pointer; transition:all 0.15s;
-      display:flex; align-items:center; justify-content:center;
-      font-family:'Poppins',sans-serif;
-    }
-    .page-btn:hover   { background:#fff3e0; border-color:#ff6b35; }
-    .page-btn.active  { background:linear-gradient(135deg,#ff6b35,#f7931e); color:white; border-color:#ff6b35; }
-    .page-btn.arrow   { font-size:18px; }
-
-    /* BOTTOM ACTIONS */
-    .bottom-actions {
-      display:flex; justify-content:flex-end; gap:10px;
-      padding:16px 24px; border-top:1px solid #ffe0c0;
-      background:#fffaf5;
-    }
-
-    .btn-save {
-      background:linear-gradient(135deg,#ff6b35,#f7931e);
-      color:white; border:none; padding:10px 28px;
-      border-radius:8px; cursor:pointer; font-size:14px;
-      font-weight:600; font-family:'Poppins',sans-serif;
-      box-shadow:0 4px 14px rgba(255,107,53,0.35);
-      transition:all 0.2s;
-    }
-    .btn-save:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(255,107,53,0.45); }
-
-    .btn-clear {
-      background:white; color:#e65100;
-      border:1.5px solid #ff9800; padding:10px 24px;
-      border-radius:8px; cursor:pointer; font-size:14px;
-      font-weight:500; font-family:'Poppins',sans-serif;
-      transition:all 0.2s;
-    }
-    .btn-clear:hover { background:#fff3e0; }
-
-    /* TOAST */
-    .toast {
-      position:fixed; bottom:28px; right:28px;
-      background:linear-gradient(135deg,#ff6b35,#f7931e);
-      color:white; padding:12px 24px; border-radius:10px;
-      font-size:14px; font-weight:500; font-family:'Poppins',sans-serif;
-      opacity:0; transform:translateY(10px); transition:all 0.3s;
-      pointer-events:none; z-index:999;
-      box-shadow:0 4px 20px rgba(255,107,53,0.4);
-    }
-    .toast.show { opacity:1; transform:translateY(0); }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Dashboard — Sree Electricals</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Poppins',sans-serif;background:#fff8f0;min-height:100vh;display:flex;flex-direction:column;}
+/* HEADER */
+header{background:linear-gradient(135deg,#ff6b35,#f7931e 50%,#ffcd3c);padding:12px 28px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(255,107,53,.35);}
+.logo-circle{width:40px;height:40px;background:rgba(255,255,255,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.5);}
+header h1{font-family:'Playfair Display',serif;font-size:20px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.15);}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:14px;}
+.user-badge{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:20px;padding:5px 14px;font-size:12px;color:#fff;font-weight:500;}
+.billing-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:4px 12px;font-size:11px;color:#fff;font-weight:600;letter-spacing:.5px;}
+.billing-badge.elite{background:rgba(255,215,0,.3);border-color:rgba(255,215,0,.6);color:#fff3a0;}
+.logout-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:6px 14px;color:#fff;font-size:12px;cursor:pointer;font-family:'Poppins',sans-serif;}
+.logout-btn:hover{background:rgba(255,255,255,.25);}
+/* TABS */
+.tabs-bar{background:#fff;border-bottom:1px solid #fde0c0;padding:0 28px;display:flex;gap:4px;overflow-x:auto;}
+.tab-btn{padding:12px 18px;font-size:13px;font-weight:500;color:#a06040;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;}
+.tab-btn:hover{color:#ff6b35;}
+.tab-btn.active{color:#ff6b35;border-bottom-color:#ff6b35;font-weight:600;}
+/* CONTENT */
+.content{flex:1;padding:24px 28px;}
+.section-panel{display:none;}
+.section-panel.active{display:block;}
+/* FILTER BAR */
+.filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+.filter-bar label{font-size:12px;font-weight:600;color:#7d4e2d;text-transform:uppercase;letter-spacing:.8px;}
+.filter-select{padding:8px 14px;border:1.5px solid #f0c080;border-radius:10px;font-size:13px;background:#fff;color:#3e1c00;outline:none;cursor:pointer;}
+.filter-select:focus{border-color:#ff6b35;}
+/* BILLING TABLE */
+.table-wrap{background:#fff;border-radius:14px;border:1px solid #fde0c0;overflow:hidden;box-shadow:0 2px 12px rgba(255,107,53,.07);}
+.billing-table{width:100%;border-collapse:collapse;}
+.billing-table thead{background:linear-gradient(135deg,#ff6b35,#f7931e);}
+.billing-table thead th{padding:12px 14px;font-size:12px;font-weight:600;color:#fff;text-align:left;white-space:nowrap;}
+.billing-table tbody tr{border-bottom:1px solid #fff3e0;}
+.billing-table tbody tr:last-child{border-bottom:none;}
+.billing-table tbody tr:hover{background:#fffaf5;}
+.billing-table td{padding:10px 14px;font-size:13px;color:#3e1c00;vertical-align:middle;}
+/* PRODUCT SEARCH DROPDOWN */
+.prod-cell{position:relative;min-width:220px;}
+.prod-input{width:100%;padding:7px 10px;border:1.5px solid #f0c080;border-radius:8px;font-size:13px;background:#fff;color:#3e1c00;outline:none;}
+.prod-input:focus{border-color:#ff6b35;}
+.prod-dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid #ff9800;border-radius:8px;max-height:200px;overflow-y:auto;z-index:100;display:none;box-shadow:0 6px 20px rgba(255,107,53,.15);}
+.prod-dropdown.open{display:block;}
+.prod-option{padding:8px 12px;font-size:12px;cursor:pointer;color:#3e1c00;border-bottom:1px solid #fff3e0;line-height:1.4;}
+.prod-option:hover{background:#fff3e0;}
+.prod-option .prod-name{font-weight:600;}
+.prod-option .prod-meta{color:#a06040;font-size:11px;}
+/* EDITABLE CELLS */
+.edit-input{width:100%;padding:6px 10px;border:1.5px solid #f0c080;border-radius:8px;font-size:13px;background:#fff;color:#3e1c00;outline:none;min-width:80px;}
+.edit-input:focus{border-color:#ff6b35;}
+.total-cell{font-weight:600;color:#e65100;}
+/* ADD ROW + TOTALS */
+.table-footer{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #fde0c0;background:#fffaf5;}
+.add-row-btn{display:flex;align-items:center;gap:6px;padding:7px 16px;background:#fff3e0;border:1.5px solid #ffcc80;border-radius:8px;font-size:13px;color:#e65100;cursor:pointer;font-weight:500;}
+.add-row-btn:hover{background:#ffe0b2;}
+.totals-area{text-align:right;font-size:13px;color:#7d4e2d;}
+.totals-area .grand{font-size:16px;font-weight:700;color:#ff6b35;margin-top:4px;}
+/* ACTION BUTTONS */
+.action-bar{display:flex;gap:10px;margin-top:16px;justify-content:flex-end;flex-wrap:wrap;}
+.btn{padding:10px 22px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Poppins',sans-serif;transition:all .2s;}
+.btn-primary{background:linear-gradient(135deg,#ff6b35,#f7931e);color:#fff;box-shadow:0 4px 14px rgba(255,107,53,.3);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(255,107,53,.4);}
+.btn-outline{background:#fff;border:1.5px solid #f0c080;color:#e65100;}
+.btn-outline:hover{background:#fff3e0;}
+/* EYE ICON (Elite only) */
+.eye-wrap{display:flex;align-items:center;justify-content:flex-end;margin-bottom:8px;}
+.eye-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;background:#fff3e0;border:1.5px solid #ffcc80;border-radius:8px;font-size:12px;font-weight:600;color:#e65100;cursor:pointer;transition:all .2s;}
+.eye-btn:hover{background:linear-gradient(135deg,#ff6b35,#f7931e);color:#fff;border-color:transparent;}
+.eye-btn svg{flex-shrink:0;}
+/* GST row */
+.gst-row td{font-size:12px;color:#a06040;font-style:italic;}
+/* DELETE row btn */
+.del-btn{background:none;border:none;cursor:pointer;color:#ffb0a0;padding:4px;border-radius:6px;line-height:1;}
+.del-btn:hover{color:#e53935;background:#fff0ee;}
+</style>
 </head>
 <body>
-
-<div class="navbar">
-  <h1>Sree Electricals &amp; Electronics</h1>
-  <button class="logout-btn" onclick="logout()">Logout</button>
-</div>
-
-<div class="content">
-  <div class="table-card">
-    <table>
-      <thead>
-        <tr>
-          <th>Sl.No</th><th>Product</th><th>Quantity</th><th>Price (₹)</th><th>Total Price (₹)</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-      <tfoot>
-        <tr>
-          <td colspan="4">Grand Total</td>
-          <td id="grandTotal">₹ 0.00</td>
-        </tr>
-      </tfoot>
-    </table>
-    <div class="paginator" id="paginator"></div>
-    <div class="bottom-actions">
-      <button class="btn-clear" onclick="clearAll()">Clear All</button>
-      <button class="btn-save"  onclick="saveData()">Save</button>
-    </div>
+<header>
+  <div class="logo-circle">
+    <svg width="22" height="22" viewBox="0 0 26 26" fill="none"><path d="M13 2L4 9.5V23h18V9.5L13 2z" fill="rgba(255,255,255,0.3)" stroke="white" stroke-width="1.5"/><path d="M11 13.5h2l-1.5 5.5 6-7.5h-2l1.5-5.5-6 7.5z" fill="white"/></svg>
   </div>
-</div>
+  <h1>Sree Electricals &amp; Electronics</h1>
+  <div class="header-right">
+    <span class="user-badge" id="userBadge">User</span>
+    <span class="billing-badge" id="billingBadge">Billing</span>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</header>
 
-<div class="toast" id="toast"></div>
+<div class="tabs-bar" id="tabsBar"></div>
+
+<div class="content" id="mainContent"></div>
 
 <script>
-  const ROWS_PER_PAGE = 10;
-  const TOTAL_PAGES   = 5;
-  const TOTAL_ROWS    = ROWS_PER_PAGE * TOTAL_PAGES;
-  let currentPage = 1;
-  let allData = Array.from({length:TOTAL_ROWS}, ()=>({product:'',qty:'',price:''}));
+// ── AUTH GUARD ──
+const token = localStorage.getItem('authToken');
+const authUser = localStorage.getItem('authUser') || 'User';
+const billingType = localStorage.getItem('billingType') || 'billing';
+if (!token) window.location.replace('/login.html');
 
-  function buildTable() {
-    const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = '';
-    const start = (currentPage-1)*ROWS_PER_PAGE;
-    const end   = start+ROWS_PER_PAGE;
-    for(let i=start;i<end;i++){
-      const slNo=i+1; const r=allData[i];
-      const tr=document.createElement('tr');
-      tr.innerHTML=`
-        <td>${slNo}</td>
-        <td><input class="cell-input" type="text" id="product_${i}" placeholder="Enter product name" value="${r.product}" oninput="updateData(${i})"/></td>
-        <td><input class="cell-input qty" type="number" id="qty_${i}" placeholder="0" min="0" value="${r.qty}" oninput="updateData(${i})"/></td>
-        <td><input class="cell-input price" type="number" id="price_${i}" placeholder="0.00" min="0" step="0.01" value="${r.price}" oninput="updateData(${i})"/></td>
-        <td><div class="total-display" id="total_${i}">${calcRowTotal(i)}</div></td>`;
-      tbody.appendChild(tr);
+document.getElementById('userBadge').textContent = authUser;
+const bb = document.getElementById('billingBadge');
+if (billingType === 'elite') { bb.textContent = '⭐ Elite Billing'; bb.classList.add('elite'); }
+else { bb.textContent = 'Billing'; }
+
+// ── PRODUCT DATA ──
+const PRODUCTS = [{"section":"Wires & Cables","product":"0.5 sq mm Wire","brand":"Finolex","spec":"Single Core FR","unit":"90 mtr coil","rate":210.0},{"section":"Wires & Cables","product":"0.5 sq mm Wire","brand":"Havells","spec":"Single Core FRLS","unit":"90 mtr coil","rate":245.0},{"section":"Wires & Cables","product":"0.75 sq mm Wire","brand":"Finolex","spec":"Single Core FR","unit":"90 mtr coil","rate":295.0},{"section":"Wires & Cables","product":"0.75 sq mm Wire","brand":"Polycab","spec":"Single Core FR","unit":"90 mtr coil","rate":310.0},{"section":"Wires & Cables","product":"1.0 sq mm Wire","brand":"Finolex","spec":"Single Core FR","unit":"90 mtr coil","rate":385.0},{"section":"Wires & Cables","product":"1.0 sq mm Wire","brand":"Havells","spec":"Single Core FRLS","unit":"90 mtr coil","rate":420.0},{"section":"Wires & Cables","product":"1.5 sq mm Wire","brand":"Finolex","spec":"Single Core FR","unit":"90 mtr coil","rate":550.0},{"section":"Wires & Cables","product":"1.5 sq mm Wire","brand":"Polycab","spec":"Single Core FR","unit":"90 mtr coil","rate":580.0},{"section":"Wires & Cables","product":"1.5 sq mm Wire","brand":"Havells","spec":"Single Core FRLS","unit":"90 mtr coil","rate":610.0},{"section":"Wires & Cables","product":"2.5 sq mm Wire","brand":"Finolex","spec":"Single Core FR","unit":"90 mtr coil","rate":870.0},{"section":"Wires & Cables","product":"2.5 sq mm Wire","brand":"Polycab","spec":"Single Core FR","unit":"90 mtr coil","rate":895.0},{"section":"Wires & Cables","product":"2.5 sq mm Wire","brand":"Havells","spec":"Single Core FRLS","unit":"90 mtr coil","rate":940.0},{"section":"Wires & Cables","product":"4.0 sq mm Wire","brand":"Finolex","spec":"Single Core FR","unit":"90 mtr coil","rate":1380.0},{"section":"Wires & Cables","product":"4.0 sq mm Wire","brand":"Polycab","spec":"Single Core FR","unit":"90 mtr coil","rate":1420.0},{"section":"Wires & Cables","product":"6.0 sq mm Wire","brand":"Finolex","spec":"Single Core FR","unit":"90 mtr coil","rate":2050.0},{"section":"Wires & Cables","product":"6.0 sq mm Wire","brand":"Havells","spec":"Single Core FRLS","unit":"90 mtr coil","rate":2180.0},{"section":"Wires & Cables","product":"10 sq mm Wire","brand":"Finolex","spec":"Single Core FR","unit":"Per metre","rate":38.0},{"section":"Wires & Cables","product":"16 sq mm Wire","brand":"Polycab","spec":"Single Core FR","unit":"Per metre","rate":58.0},{"section":"Wires & Cables","product":"25 sq mm Wire","brand":"Finolex","spec":"Single Core FR","unit":"Per metre","rate":88.0},{"section":"Wires & Cables","product":"35 sq mm Wire","brand":"Polycab","spec":"Single Core FR","unit":"Per metre","rate":120.0},{"section":"Wires & Cables","product":"2 Core 0.5 sq mm Flex","brand":"Finolex","spec":"Round Flexible","unit":"Per metre","rate":12.0},{"section":"Wires & Cables","product":"2 Core 0.75 sq mm Flex","brand":"Polycab","spec":"Round Flexible","unit":"Per metre","rate":16.0},{"section":"Wires & Cables","product":"2 Core 1.0 sq mm Flex","brand":"Havells","spec":"Round Flexible","unit":"Per metre","rate":21.0},{"section":"Wires & Cables","product":"2 Core 1.5 sq mm Flex","brand":"Finolex","spec":"Round Flexible","unit":"Per metre","rate":28.0},{"section":"Wires & Cables","product":"2 Core 2.5 sq mm Flex","brand":"Polycab","spec":"Round Flexible","unit":"Per metre","rate":42.0},{"section":"Wires & Cables","product":"3 Core 1.0 sq mm Flex","brand":"Finolex","spec":"Round Flexible","unit":"Per metre","rate":30.0},{"section":"Wires & Cables","product":"3 Core 1.5 sq mm Flex","brand":"Havells","spec":"Round Flexible","unit":"Per metre","rate":42.0},{"section":"Wires & Cables","product":"3 Core 2.5 sq mm Flex","brand":"Polycab","spec":"Round Flexible","unit":"Per metre","rate":65.0},{"section":"Wires & Cables","product":"3 Core 4.0 sq mm Flex","brand":"Finolex","spec":"Round Flexible","unit":"Per metre","rate":98.0},{"section":"Wires & Cables","product":"3 Core 6.0 sq mm Flex","brand":"Polycab","spec":"Round Flexible","unit":"Per metre","rate":145.0},{"section":"Wires & Cables","product":"4 Core 1.0 sq mm Flex","brand":"Havells","spec":"Round Flexible","unit":"Per metre","rate":38.0},{"section":"Wires & Cables","product":"4 Core 1.5 sq mm Flex","brand":"Finolex","spec":"Round Flexible","unit":"Per metre","rate":52.0},{"section":"Wires & Cables","product":"4 Core 2.5 sq mm Flex","brand":"Polycab","spec":"Round Flexible","unit":"Per metre","rate":80.0},{"section":"Wires & Cables","product":"5 Core 1.5 sq mm Flex","brand":"Havells","spec":"Round Flexible","unit":"Per metre","rate":65.0},{"section":"Wires & Cables","product":"5 Core 2.5 sq mm Flex","brand":"Finolex","spec":"Round Flexible","unit":"Per metre","rate":98.0},{"section":"Wires & Cables","product":"2 Core 4 sq mm Armoured","brand":"Polycab","spec":"SWA Armoured","unit":"Per metre","rate":145.0},{"section":"Wires & Cables","product":"2 Core 6 sq mm Armoured","brand":"Finolex","spec":"SWA Armoured","unit":"Per metre","rate":198.0},{"section":"Wires & Cables","product":"3.5 Core 10 sq mm Armoured","brand":"KEI","spec":"SWA Armoured","unit":"Per metre","rate":285.0},{"section":"Wires & Cables","product":"3.5 Core 16 sq mm Armoured","brand":"Polycab","spec":"SWA Armoured","unit":"Per metre","rate":420.0},{"section":"Wires & Cables","product":"3.5 Core 25 sq mm Armoured","brand":"KEI","spec":"SWA Armoured","unit":"Per metre","rate":620.0},{"section":"Wires & Cables","product":"3.5 Core 35 sq mm Armoured","brand":"Polycab","spec":"SWA Armoured","unit":"Per metre","rate":850.0},{"section":"Wires & Cables","product":"3.5 Core 50 sq mm Armoured","brand":"KEI","spec":"SWA Armoured","unit":"Per metre","rate":1150.0},{"section":"Wires & Cables","product":"3.5 Core 70 sq mm Armoured","brand":"Polycab","spec":"SWA Armoured","unit":"Per metre","rate":1550.0},{"section":"Wires & Cables","product":"3.5 Core 95 sq mm Armoured","brand":"KEI","spec":"SWA Armoured","unit":"Per metre","rate":2050.0},{"section":"Wires & Cables","product":"3.5 Core 120 sq mm Armoured","brand":"Polycab","spec":"SWA Armoured","unit":"Per metre","rate":2650.0},{"section":"Wires & Cables","product":"3.5 Core 150 sq mm Armoured","brand":"KEI","spec":"SWA Armoured","unit":"Per metre","rate":3250.0},{"section":"Wires & Cables","product":"3.5 Core 185 sq mm Armoured","brand":"Polycab","spec":"SWA Armoured","unit":"Per metre","rate":4100.0},{"section":"Wires & Cables","product":"3.5 Core 240 sq mm Armoured","brand":"KEI","spec":"SWA Armoured","unit":"Per metre","rate":5200.0},{"section":"Wires & Cables","product":"RG6 Coaxial Cable","brand":"Finolex","spec":"CCTV/TV Cable","unit":"Per metre","rate":18.0},{"section":"Wires & Cables","product":"RG11 Coaxial Cable","brand":"Polycab","spec":"CCTV/TV Cable","unit":"Per metre","rate":35.0},{"section":"Wires & Cables","product":"CAT5e LAN Cable","brand":"D-Link","spec":"UTP 4 Pair","unit":"305 mtr box","rate":3800.0},{"section":"Wires & Cables","product":"CAT6 LAN Cable","brand":"D-Link","spec":"UTP 4 Pair","unit":"305 mtr box","rate":5200.0},{"section":"Wires & Cables","product":"CAT6A LAN Cable","brand":"Polycab","spec":"UTP 4 Pair","unit":"305 mtr box","rate":8500.0},{"section":"Wires & Cables","product":"Telephone Cable 2 Pair","brand":"Finolex","spec":"CW1308","unit":"Per metre","rate":8.0},{"section":"Wires & Cables","product":"Telephone Cable 4 Pair","brand":"Finolex","spec":"CW1308","unit":"Per metre","rate":14.0},{"section":"Wires & Cables","product":"Speaker Cable 2 Core","brand":"Anchor","spec":"100/200V","unit":"Per metre","rate":22.0},{"section":"Wires & Cables","product":"HDMI Cable 1.5m","brand":"Belkin","spec":"4K 18Gbps","unit":"Per piece","rate":650.0},{"section":"Wires & Cables","product":"HDMI Cable 3m","brand":"Belkin","spec":"4K 18Gbps","unit":"Per piece","rate":950.0},{"section":"Wires & Cables","product":"Alarm Cable 4 Core","brand":"Finolex","spec":"Security","unit":"Per metre","rate":12.0},{"section":"Switches & Sockets","product":"1 Way Switch 6A","brand":"Anchor Roma","spec":"Modular White","unit":"Per piece","rate":28.0},{"section":"Switches & Sockets","product":"1 Way Switch 6A","brand":"Legrand Lyncus","spec":"Modular White","unit":"Per piece","rate":95.0},{"section":"Switches & Sockets","product":"1 Way Switch 6A","brand":"Havells Crabtree","spec":"Modular","unit":"Per piece","rate":78.0},{"section":"Switches & Sockets","product":"1 Way Switch 6A","brand":"Schneider","spec":"Modular","unit":"Per piece","rate":110.0},{"section":"Switches & Sockets","product":"2 Way Switch 6A","brand":"Anchor Roma","spec":"Modular White","unit":"Per piece","rate":38.0},{"section":"Switches & Sockets","product":"2 Way Switch 6A","brand":"Legrand Lyncus","spec":"Modular White","unit":"Per piece","rate":115.0},{"section":"Switches & Sockets","product":"2 Way Switch 6A","brand":"Havells Crabtree","spec":"Modular","unit":"Per piece","rate":95.0},{"section":"Switches & Sockets","product":"Bell Push 6A","brand":"Anchor Roma","spec":"Modular","unit":"Per piece","rate":22.0},{"section":"Switches & Sockets","product":"Bell Push 6A","brand":"Legrand Lyncus","spec":"Modular","unit":"Per piece","rate":75.0},{"section":"Switches & Sockets","product":"Fan Regulator 5 Step","brand":"Anchor Roma","spec":"Electronic","unit":"Per piece","rate":145.0},{"section":"Switches & Sockets","product":"Fan Regulator 5 Step","brand":"Havells","spec":"Electronic","unit":"Per piece","rate":285.0},{"section":"Switches & Sockets","product":"Dimmer Switch 500W","brand":"Legrand","spec":"Modular","unit":"Per piece","rate":395.0},{"section":"Switches & Sockets","product":"Dimmer Switch 500W","brand":"Schneider","spec":"Modular","unit":"Per piece","rate":425.0},{"section":"Switches & Sockets","product":"5A 2 Pin Socket","brand":"Anchor Roma","spec":"Modular","unit":"Per piece","rate":22.0},{"section":"Switches & Sockets","product":"5A 2 Pin Socket","brand":"Legrand","spec":"Modular","unit":"Per piece","rate":65.0},{"section":"Switches & Sockets","product":"6A 3 Pin Socket","brand":"Anchor Roma","spec":"Modular","unit":"Per piece","rate":32.0},{"section":"Switches & Sockets","product":"6A 3 Pin Socket","brand":"Legrand Lyncus","spec":"Modular","unit":"Per piece","rate":85.0},{"section":"Switches & Sockets","product":"6A 3 Pin Socket","brand":"Havells Crabtree","spec":"Modular","unit":"Per piece","rate":75.0},{"section":"Switches & Sockets","product":"16A 3 Pin Socket","brand":"Anchor Roma","spec":"Modular (AC/Geyser)","unit":"Per piece","rate":58.0},{"section":"Switches & Sockets","product":"16A 3 Pin Socket","brand":"Legrand","spec":"Modular (AC/Geyser)","unit":"Per piece","rate":145.0},{"section":"Switches & Sockets","product":"16A 3 Pin Socket","brand":"Havells","spec":"Modular (AC/Geyser)","unit":"Per piece","rate":125.0},{"section":"Switches & Sockets","product":"32A 3 Pin Socket","brand":"Legrand","spec":"Modular (High Load)","unit":"Per piece","rate":245.0},{"section":"Switches & Sockets","product":"USB Socket 2.4A","brand":"Anchor","spec":"USB A+A","unit":"Per piece","rate":285.0},{"section":"Switches & Sockets","product":"USB Socket Type C","brand":"Legrand","spec":"USB A+C 3A","unit":"Per piece","rate":395.0},{"section":"Switches & Sockets","product":"Universal Socket","brand":"Anchor Roma","spec":"Multi-pin","unit":"Per piece","rate":45.0},{"section":"Switches & Sockets","product":"Extension Board 4 Socket","brand":"Anchor","spec":"6A with Switch","unit":"Per piece","rate":285.0},{"section":"Switches & Sockets","product":"Extension Board 6 Socket","brand":"Belkin","spec":"6A with USB","unit":"Per piece","rate":895.0},{"section":"Switches & Sockets","product":"Extension Board Surge","brand":"APC","spec":"Surge Protector","unit":"Per piece","rate":1250.0},{"section":"Switches & Sockets","product":"1M Modular Plate","brand":"Anchor Roma","spec":"White","unit":"Per piece","rate":18.0},{"section":"Switches & Sockets","product":"2M Modular Plate","brand":"Anchor Roma","spec":"White","unit":"Per piece","rate":25.0},{"section":"Switches & Sockets","product":"3M Modular Plate","brand":"Anchor Roma","spec":"White","unit":"Per piece","rate":32.0},{"section":"Switches & Sockets","product":"4M Modular Plate","brand":"Anchor Roma","spec":"White","unit":"Per piece","rate":38.0},{"section":"Switches & Sockets","product":"6M Modular Plate","brand":"Anchor Roma","spec":"White","unit":"Per piece","rate":48.0},{"section":"Switches & Sockets","product":"8M Modular Plate","brand":"Anchor Roma","spec":"White","unit":"Per piece","rate":62.0},{"section":"Switches & Sockets","product":"12M Modular Plate","brand":"Anchor Roma","spec":"White","unit":"Per piece","rate":85.0},{"section":"Switches & Sockets","product":"1M Plate Legrand","brand":"Legrand Lyncus","spec":"White","unit":"Per piece","rate":55.0},{"section":"Switches & Sockets","product":"2M Plate Legrand","brand":"Legrand Lyncus","spec":"White","unit":"Per piece","rate":75.0},{"section":"Switches & Sockets","product":"3M Plate Legrand","brand":"Legrand Lyncus","spec":"White","unit":"Per piece","rate":98.0},{"section":"Switches & Sockets","product":"6M Plate Legrand","brand":"Legrand Lyncus","spec":"White","unit":"Per piece","rate":145.0},{"section":"Switches & Sockets","product":"Flush Box 1M","brand":"Anchor","spec":"MS Box","unit":"Per piece","rate":22.0},{"section":"Switches & Sockets","product":"Flush Box 2M","brand":"Anchor","spec":"MS Box","unit":"Per piece","rate":28.0},{"section":"Switches & Sockets","product":"Flush Box 3M","brand":"Anchor","spec":"MS Box","unit":"Per piece","rate":35.0},{"section":"Switches & Sockets","product":"Industrial Socket 16A 3P","brand":"Legrand","spec":"IP44 CEE","unit":"Per piece","rate":485.0},{"section":"Switches & Sockets","product":"Industrial Socket 32A 3P","brand":"Legrand","spec":"IP44 CEE","unit":"Per piece","rate":695.0},{"section":"Switches & Sockets","product":"Industrial Socket 63A 3P","brand":"Legrand","spec":"IP44 CEE","unit":"Per piece","rate":1250.0},{"section":"Switches & Sockets","product":"Industrial Plug 16A 3P","brand":"Legrand","spec":"IP44 CEE","unit":"Per piece","rate":285.0},{"section":"Switches & Sockets","product":"Industrial Plug 32A 3P","brand":"Legrand","spec":"IP44 CEE","unit":"Per piece","rate":395.0},{"section":"Switches & Sockets","product":"Industrial Plug 63A 3P","brand":"Legrand","spec":"IP44 CEE","unit":"Per piece","rate":750.0},{"section":"Switches & Sockets","product":"Isolator Switch 32A DP","brand":"Havells","spec":"Surface Mount","unit":"Per piece","rate":385.0},{"section":"Switches & Sockets","product":"Isolator Switch 63A DP","brand":"Havells","spec":"Surface Mount","unit":"Per piece","rate":650.0},{"section":"Switches & Sockets","product":"Isolator Switch 100A TP","brand":"L&T","spec":"Surface Mount","unit":"Per piece","rate":1450.0},{"section":"Lighting","product":"3W LED Bulb","brand":"Philips","spec":"Cool White 6500K","unit":"Per piece","rate":65.0},{"section":"Lighting","product":"5W LED Bulb","brand":"Philips","spec":"Cool/Warm White","unit":"Per piece","rate":85.0},{"section":"Lighting","product":"5W LED Bulb","brand":"Havells","spec":"Cool/Warm White","unit":"Per piece","rate":95.0},{"section":"Lighting","product":"7W LED Bulb","brand":"Philips","spec":"Cool/Warm White","unit":"Per piece","rate":110.0},{"section":"Lighting","product":"7W LED Bulb","brand":"Syska","spec":"Cool/Warm White","unit":"Per piece","rate":95.0},{"section":"Lighting","product":"9W LED Bulb","brand":"Philips","spec":"Cool/Warm White","unit":"Per piece","rate":135.0},{"section":"Lighting","product":"9W LED Bulb","brand":"Havells","spec":"Cool/Warm White","unit":"Per piece","rate":145.0},{"section":"Lighting","product":"12W LED Bulb","brand":"Philips","spec":"Cool/Warm White","unit":"Per piece","rate":175.0},{"section":"Lighting","product":"12W LED Bulb","brand":"Wipro","spec":"Cool/Warm White","unit":"Per piece","rate":165.0},{"section":"Lighting","product":"15W LED Bulb","brand":"Havells","spec":"Cool/Warm White","unit":"Per piece","rate":210.0},{"section":"Lighting","product":"18W LED Bulb","brand":"Philips","spec":"Cool/Warm White","unit":"Per piece","rate":265.0},{"section":"Lighting","product":"20W LED Bulb","brand":"Syska","spec":"Cool White","unit":"Per piece","rate":295.0},{"section":"Lighting","product":"3W LED Spot","brand":"Philips","spec":"3 inch Recessed","unit":"Per piece","rate":145.0},{"section":"Lighting","product":"5W LED Panel Round","brand":"Havells","spec":"4 inch Recessed","unit":"Per piece","rate":185.0},{"section":"Lighting","product":"9W LED Panel Round","brand":"Philips","spec":"4 inch Recessed","unit":"Per piece","rate":225.0},{"section":"Lighting","product":"12W LED Panel Round","brand":"Wipro","spec":"5 inch Recessed","unit":"Per piece","rate":285.0},{"section":"Lighting","product":"15W LED Panel Square","brand":"Philips","spec":"6x6 inch","unit":"Per piece","rate":350.0},{"section":"Lighting","product":"18W LED Panel Square","brand":"Havells","spec":"6x6 inch","unit":"Per piece","rate":420.0},{"section":"Lighting","product":"24W LED Panel Square","brand":"Wipro","spec":"8x8 inch","unit":"Per piece","rate":585.0},{"section":"Lighting","product":"36W LED Panel","brand":"Philips","spec":"600x600mm","unit":"Per piece","rate":1250.0},{"section":"Lighting","product":"40W LED Panel","brand":"Havells","spec":"600x600mm","unit":"Per piece","rate":1350.0},{"section":"Lighting","product":"48W LED Panel","brand":"Wipro","spec":"600x600mm","unit":"Per piece","rate":1650.0},{"section":"Lighting","product":"10W LED Batten 2ft","brand":"Philips","spec":"4000K Neutral","unit":"Per piece","rate":180.0},{"section":"Lighting","product":"10W LED Batten 2ft","brand":"Havells","spec":"6500K Cool","unit":"Per piece","rate":195.0},{"section":"Lighting","product":"18W LED Batten 4ft","brand":"Philips","spec":"4000K Neutral","unit":"Per piece","rate":280.0},{"section":"Lighting","product":"18W LED Batten 4ft","brand":"Havells","spec":"6500K Cool","unit":"Per piece","rate":295.0},{"section":"Lighting","product":"18W LED Batten 4ft","brand":"Syska","spec":"6500K Cool","unit":"Per piece","rate":245.0},{"section":"Lighting","product":"20W LED Batten 4ft","brand":"Wipro","spec":"6500K Cool","unit":"Per piece","rate":310.0},{"section":"Lighting","product":"22W LED Batten 5ft","brand":"Philips","spec":"6500K Cool","unit":"Per piece","rate":395.0},{"section":"Lighting","product":"36W LED Batten 4ft","brand":"Havells","spec":"6500K Cool","unit":"Per piece","rate":520.0},{"section":"Lighting","product":"40W LED Batten 4ft","brand":"Philips","spec":"6500K Cool","unit":"Per piece","rate":580.0},{"section":"Lighting","product":"20W LED Flood Light","brand":"Havells","spec":"IP65 Outdoor","unit":"Per piece","rate":1250.0},{"section":"Lighting","product":"30W LED Flood Light","brand":"Philips","spec":"IP65 Outdoor","unit":"Per piece","rate":1650.0},{"section":"Lighting","product":"50W LED Flood Light","brand":"Havells","spec":"IP65 Outdoor","unit":"Per piece","rate":2450.0},{"section":"Lighting","product":"100W LED Flood Light","brand":"Wipro","spec":"IP65 Outdoor","unit":"Per piece","rate":4500.0},{"section":"Lighting","product":"150W LED Flood Light","brand":"Philips","spec":"IP65 Outdoor","unit":"Per piece","rate":6500.0},{"section":"Lighting","product":"30W LED Street Light","brand":"Wipro","spec":"IP65 AC","unit":"Per piece","rate":2800.0},{"section":"Lighting","product":"45W LED Street Light","brand":"Havells","spec":"IP65 AC","unit":"Per piece","rate":3950.0},{"section":"Lighting","product":"60W LED Street Light","brand":"Philips","spec":"IP65 AC","unit":"Per piece","rate":5200.0},{"section":"Lighting","product":"80W LED Street Light","brand":"Wipro","spec":"IP65 AC","unit":"Per piece","rate":6800.0},{"section":"Lighting","product":"12W LED Garden Light","brand":"Wipro","spec":"IP44 Spike","unit":"Per piece","rate":850.0},{"section":"Lighting","product":"LED Strip 5050 RGB","brand":"Syska","spec":"12V 5mtr IP20","unit":"Per roll","rate":650.0},{"section":"Lighting","product":"LED Strip 5050 WW","brand":"Philips","spec":"12V 5mtr IP20","unit":"Per roll","rate":550.0},{"section":"Lighting","product":"LED Strip 2835 CW","brand":"Havells","spec":"24V 5mtr","unit":"Per roll","rate":480.0},{"section":"Lighting","product":"LED Strip IP65 WW","brand":"Syska","spec":"12V 5mtr Waterproof","unit":"Per roll","rate":850.0},{"section":"Lighting","product":"Neon Flex Red","brand":"Generic","spec":"12V IP65 5mtr","unit":"Per roll","rate":950.0},{"section":"Lighting","product":"Neon Flex Blue","brand":"Generic","spec":"12V IP65 5mtr","unit":"Per roll","rate":950.0},{"section":"Lighting","product":"Neon Flex RGB","brand":"Syska","spec":"12V IP65 5mtr","unit":"Per roll","rate":1650.0},{"section":"Lighting","product":"LED Driver 12V 10W","brand":"Anchor","spec":"SMPS","unit":"Per piece","rate":185.0},{"section":"Lighting","product":"LED Driver 12V 30W","brand":"Anchor","spec":"SMPS","unit":"Per piece","rate":345.0},{"section":"Lighting","product":"LED Driver 24V 60W","brand":"Havells","spec":"SMPS","unit":"Per piece","rate":685.0},{"section":"Lighting","product":"LED Driver 12V 100W","brand":"Generic","spec":"SMPS","unit":"Per piece","rate":850.0},{"section":"MCB & DB Boards","product":"MCB 6A 1P Type B","brand":"Legrand","spec":"4.5kA","unit":"Per piece","rate":165.0},{"section":"MCB & DB Boards","product":"MCB 10A 1P Type B","brand":"Legrand","spec":"4.5kA","unit":"Per piece","rate":165.0},{"section":"MCB & DB Boards","product":"MCB 16A 1P Type B","brand":"Legrand","spec":"4.5kA","unit":"Per piece","rate":165.0},{"section":"MCB & DB Boards","product":"MCB 20A 1P Type B","brand":"Legrand","spec":"4.5kA","unit":"Per piece","rate":175.0},{"section":"MCB & DB Boards","product":"MCB 25A 1P Type B","brand":"Legrand","spec":"4.5kA","unit":"Per piece","rate":185.0},{"section":"MCB & DB Boards","product":"MCB 32A 1P Type B","brand":"Legrand","spec":"4.5kA","unit":"Per piece","rate":195.0},{"section":"MCB & DB Boards","product":"MCB 40A 1P Type C","brand":"Legrand","spec":"6kA","unit":"Per piece","rate":245.0},{"section":"MCB & DB Boards","product":"MCB 63A 1P Type C","brand":"Legrand","spec":"6kA","unit":"Per piece","rate":345.0},{"section":"MCB & DB Boards","product":"MCB 6A 1P","brand":"Havells","spec":"4.5kA","unit":"Per piece","rate":145.0},{"section":"MCB & DB Boards","product":"MCB 16A 1P","brand":"Havells","spec":"4.5kA","unit":"Per piece","rate":145.0},{"section":"MCB & DB Boards","product":"MCB 32A 1P","brand":"Havells","spec":"4.5kA","unit":"Per piece","rate":175.0},{"section":"MCB & DB Boards","product":"MCB 63A 1P","brand":"Havells","spec":"4.5kA","unit":"Per piece","rate":295.0},{"section":"MCB & DB Boards","product":"MCB 16A 2P","brand":"L&T","spec":"4.5kA Double Pole","unit":"Per piece","rate":385.0},{"section":"MCB & DB Boards","product":"MCB 32A 2P","brand":"L&T","spec":"4.5kA Double Pole","unit":"Per piece","rate":450.0},{"section":"MCB & DB Boards","product":"MCB 63A 2P","brand":"Legrand","spec":"6kA Double Pole","unit":"Per piece","rate":685.0},{"section":"MCB & DB Boards","product":"MCB 16A 3P","brand":"Legrand","spec":"4.5kA Triple Pole","unit":"Per piece","rate":545.0},{"section":"MCB & DB Boards","product":"MCB 32A 3P","brand":"Havells","spec":"4.5kA Triple Pole","unit":"Per piece","rate":650.0},{"section":"MCB & DB Boards","product":"MCB 63A 3P","brand":"L&T","spec":"6kA Triple Pole","unit":"Per piece","rate":985.0},{"section":"MCB & DB Boards","product":"MCB 100A 3P","brand":"Legrand","spec":"10kA Triple Pole","unit":"Per piece","rate":1850.0},{"section":"MCB & DB Boards","product":"MCB 125A 3P","brand":"Havells","spec":"10kA Triple Pole","unit":"Per piece","rate":2250.0},{"section":"MCB & DB Boards","product":"RCCB 25A 2P 30mA","brand":"Legrand","spec":"Type AC","unit":"Per piece","rate":850.0},{"section":"MCB & DB Boards","product":"RCCB 40A 2P 30mA","brand":"Legrand","spec":"Type AC","unit":"Per piece","rate":995.0},{"section":"MCB & DB Boards","product":"RCCB 63A 2P 30mA","brand":"Havells","spec":"Type AC","unit":"Per piece","rate":1150.0},{"section":"MCB & DB Boards","product":"RCCB 100A 2P 30mA","brand":"L&T","spec":"Type AC","unit":"Per piece","rate":1850.0},{"section":"MCB & DB Boards","product":"RCCB 25A 4P 30mA","brand":"Legrand","spec":"Type AC 4 Pole","unit":"Per piece","rate":1650.0},{"section":"MCB & DB Boards","product":"RCCB 40A 4P 30mA","brand":"Havells","spec":"Type AC 4 Pole","unit":"Per piece","rate":1950.0},{"section":"MCB & DB Boards","product":"RCCB 63A 4P 30mA","brand":"L&T","spec":"Type AC 4 Pole","unit":"Per piece","rate":2450.0},{"section":"MCB & DB Boards","product":"RCCB 100A 4P 30mA","brand":"Legrand","spec":"Type AC 4 Pole","unit":"Per piece","rate":3250.0},{"section":"MCB & DB Boards","product":"RCBO 16A 1P+N 30mA","brand":"Legrand","spec":"Combined MCB+RCCB","unit":"Per piece","rate":1250.0},{"section":"MCB & DB Boards","product":"RCBO 32A 1P+N 30mA","brand":"Legrand","spec":"Combined MCB+RCCB","unit":"Per piece","rate":1450.0},{"section":"MCB & DB Boards","product":"4 Way SPN DB","brand":"Legrand","spec":"Surface/Flush","unit":"Per piece","rate":1250.0},{"section":"MCB & DB Boards","product":"6 Way SPN DB","brand":"Legrand","spec":"Surface/Flush","unit":"Per piece","rate":1550.0},{"section":"MCB & DB Boards","product":"8 Way SPN DB","brand":"Havells","spec":"Surface/Flush","unit":"Per piece","rate":1850.0},{"section":"MCB & DB Boards","product":"10 Way SPN DB","brand":"L&T","spec":"Surface/Flush","unit":"Per piece","rate":2250.0},{"section":"MCB & DB Boards","product":"12 Way SPN DB","brand":"Legrand","spec":"Surface/Flush","unit":"Per piece","rate":2650.0},{"section":"MCB & DB Boards","product":"16 Way SPN DB","brand":"Havells","spec":"Surface/Flush","unit":"Per piece","rate":3250.0},{"section":"MCB & DB Boards","product":"4 Way TPN DB","brand":"Legrand","spec":"Triple Pole+N","unit":"Per piece","rate":2850.0},{"section":"MCB & DB Boards","product":"8 Way TPN DB","brand":"L&T","spec":"Triple Pole+N","unit":"Per piece","rate":4500.0},{"section":"MCB & DB Boards","product":"12 Way TPN DB","brand":"Legrand","spec":"Triple Pole+N","unit":"Per piece","rate":6500.0},{"section":"MCB & DB Boards","product":"16 Way TPN DB","brand":"Havells","spec":"Triple Pole+N","unit":"Per piece","rate":8500.0},{"section":"MCB & DB Boards","product":"Busbar 3P 63A","brand":"Legrand","spec":"For 12 ways MCB","unit":"Per piece","rate":850.0},{"section":"MCB & DB Boards","product":"Busbar 3P 100A","brand":"L&T","spec":"For 12 ways MCB","unit":"Per piece","rate":1250.0},{"section":"MCB & DB Boards","product":"Neutral Link 12 Way","brand":"Anchor","spec":"Painted","unit":"Per piece","rate":185.0},{"section":"MCB & DB Boards","product":"Earth Link 12 Way","brand":"Anchor","spec":"Painted","unit":"Per piece","rate":185.0},{"section":"MCB & DB Boards","product":"MCCB 100A 3P","brand":"Schneider","spec":"16kA Compact NSX","unit":"Per piece","rate":8500.0},{"section":"MCB & DB Boards","product":"MCCB 160A 3P","brand":"Schneider","spec":"25kA Compact NSX","unit":"Per piece","rate":14500.0},{"section":"MCB & DB Boards","product":"MCCB 250A 3P","brand":"L&T","spec":"25kA","unit":"Per piece","rate":22000.0},{"section":"MCB & DB Boards","product":"MCCB 400A 3P","brand":"L&T","spec":"35kA","unit":"Per piece","rate":38000.0},{"section":"MCB & DB Boards","product":"MCCB 630A 3P","brand":"Schneider","spec":"50kA","unit":"Per piece","rate":65000.0},{"section":"MCB & DB Boards","product":"ACB 800A 3P","brand":"Legrand","spec":"65kA Draw Out","unit":"Per piece","rate":125000.0},{"section":"MCB & DB Boards","product":"ACB 1250A 3P","brand":"Legrand","spec":"65kA Draw Out","unit":"Per piece","rate":185000.0},{"section":"Conduits & Pipes","product":"PVC Pipe 16mm (0.5\")","brand":"Precision","spec":"Light Duty Class B","unit":"3mtr piece","rate":28.0},{"section":"Conduits & Pipes","product":"PVC Pipe 20mm (0.75\")","brand":"Precision","spec":"Light Duty Class B","unit":"3mtr piece","rate":35.0},{"section":"Conduits & Pipes","product":"PVC Pipe 25mm (1\")","brand":"Precision","spec":"Light Duty Class B","unit":"3mtr piece","rate":48.0},{"section":"Conduits & Pipes","product":"PVC Pipe 32mm (1.25\")","brand":"Precision","spec":"Light Duty Class B","unit":"3mtr piece","rate":65.0},{"section":"Conduits & Pipes","product":"PVC Pipe 40mm (1.5\")","brand":"Precision","spec":"Light Duty Class B","unit":"3mtr piece","rate":85.0},{"section":"Conduits & Pipes","product":"PVC Pipe 50mm (2\")","brand":"Precision","spec":"Light Duty Class B","unit":"3mtr piece","rate":125.0},{"section":"Conduits & Pipes","product":"PVC Pipe 16mm (0.5\")","brand":"Astral","spec":"Heavy Duty Class D","unit":"3mtr piece","rate":45.0},{"section":"Conduits & Pipes","product":"PVC Pipe 20mm (0.75\")","brand":"Astral","spec":"Heavy Duty Class D","unit":"3mtr piece","rate":58.0},{"section":"Conduits & Pipes","product":"PVC Pipe 25mm (1\")","brand":"Astral","spec":"Heavy Duty Class D","unit":"3mtr piece","rate":78.0},{"section":"Conduits & Pipes","product":"PVC Pipe 32mm (1.25\")","brand":"Astral","spec":"Heavy Duty Class D","unit":"3mtr piece","rate":105.0},{"section":"Conduits & Pipes","product":"PVC Pipe 40mm (1.5\")","brand":"Astral","spec":"Heavy Duty Class D","unit":"3mtr piece","rate":138.0},{"section":"Conduits & Pipes","product":"PVC Pipe 50mm (2\")","brand":"Astral","spec":"Heavy Duty Class D","unit":"3mtr piece","rate":198.0},{"section":"Conduits & Pipes","product":"PVC Pipe 63mm (2.5\")","brand":"Precision","spec":"Heavy Duty","unit":"3mtr piece","rate":265.0},{"section":"Conduits & Pipes","product":"PVC Pipe 75mm (3\")","brand":"Astral","spec":"Heavy Duty","unit":"3mtr piece","rate":365.0},{"section":"Conduits & Pipes","product":"PVC Pipe 110mm (4\")","brand":"Precision","spec":"Heavy Duty","unit":"3mtr piece","rate":550.0},{"section":"Conduits & Pipes","product":"GI Conduit 20mm (0.75\")","brand":"Steelco","spec":"Light Gauge 1.2mm","unit":"3mtr piece","rate":185.0},{"section":"Conduits & Pipes","product":"GI Conduit 25mm (1\")","brand":"Steelco","spec":"Light Gauge 1.2mm","unit":"3mtr piece","rate":245.0},{"section":"Conduits & Pipes","product":"GI Conduit 32mm (1.25\")","brand":"Steelco","spec":"Light Gauge 1.2mm","unit":"3mtr piece","rate":325.0},{"section":"Conduits & Pipes","product":"GI Conduit 40mm (1.5\")","brand":"Steelco","spec":"Heavy Gauge 1.6mm","unit":"3mtr piece","rate":485.0},{"section":"Conduits & Pipes","product":"GI Conduit 50mm (2\")","brand":"Steelco","spec":"Heavy Gauge 1.6mm","unit":"3mtr piece","rate":650.0},{"section":"Conduits & Pipes","product":"GI Conduit 63mm (2.5\")","brand":"Steelco","spec":"Heavy Gauge 1.6mm","unit":"3mtr piece","rate":850.0},{"section":"Conduits & Pipes","product":"GI Conduit 75mm (3\")","brand":"Steelco","spec":"Heavy Gauge 2.0mm","unit":"3mtr piece","rate":1150.0},{"section":"Conduits & Pipes","product":"GI Conduit 100mm (4\")","brand":"Steelco","spec":"Heavy Gauge 2.0mm","unit":"3mtr piece","rate":1650.0},{"section":"Conduits & Pipes","product":"Flexible Conduit 16mm","brand":"Precision","spec":"PVC Corrugated","unit":"Per metre","rate":12.0},{"section":"Conduits & Pipes","product":"Flexible Conduit 20mm","brand":"Precision","spec":"PVC Corrugated","unit":"Per metre","rate":15.0},{"section":"Conduits & Pipes","product":"Flexible Conduit 25mm","brand":"Precision","spec":"PVC Corrugated","unit":"Per metre","rate":20.0},{"section":"Conduits & Pipes","product":"Flexible Conduit 32mm","brand":"Precision","spec":"PVC Corrugated","unit":"Per metre","rate":28.0},{"section":"Conduits & Pipes","product":"Metallic Flex Conduit 20mm","brand":"Steelco","spec":"Galvanized Steel","unit":"Per metre","rate":45.0},{"section":"Conduits & Pipes","product":"Metallic Flex Conduit 25mm","brand":"Steelco","spec":"Galvanized Steel","unit":"Per metre","rate":58.0},{"section":"Conduits & Pipes","product":"PVC Elbow 20mm","brand":"Precision","spec":"90 Degree","unit":"Per piece","rate":8.0},{"section":"Conduits & Pipes","product":"PVC Elbow 25mm","brand":"Precision","spec":"90 Degree","unit":"Per piece","rate":12.0},{"section":"Conduits & Pipes","product":"PVC Junction Box 20mm","brand":"Precision","spec":"1 Entry","unit":"Per piece","rate":15.0},{"section":"Conduits & Pipes","product":"PVC Junction Box 25mm","brand":"Precision","spec":"4 Entry","unit":"Per piece","rate":22.0},{"section":"Conduits & Pipes","product":"PVC Draw Box 20mm","brand":"Astral","spec":"Surface","unit":"Per piece","rate":35.0},{"section":"Conduits & Pipes","product":"Saddle Clamp 20mm","brand":"Precision","spec":"PVC","unit":"Per piece","rate":3.0},{"section":"Conduits & Pipes","product":"Saddle Clamp 25mm","brand":"Precision","spec":"PVC","unit":"Per piece","rate":4.0},{"section":"Conduits & Pipes","product":"Saddle Clamp 32mm","brand":"Precision","spec":"PVC","unit":"Per piece","rate":5.0},{"section":"Conduits & Pipes","product":"Coupler 20mm","brand":"Precision","spec":"PVC","unit":"Per piece","rate":5.0},{"section":"Conduits & Pipes","product":"Coupler 25mm","brand":"Precision","spec":"PVC","unit":"Per piece","rate":7.0},{"section":"Conduits & Pipes","product":"Coupler 32mm","brand":"Precision","spec":"PVC","unit":"Per piece","rate":9.0},{"section":"Conduits & Pipes","product":"Cable Tray 50x25mm","brand":"Legrand","spec":"Perforated GI","unit":"Per metre","rate":185.0},{"section":"Conduits & Pipes","product":"Cable Tray 100x50mm","brand":"Legrand","spec":"Perforated GI","unit":"Per metre","rate":285.0},{"section":"Conduits & Pipes","product":"Cable Tray 150x50mm","brand":"Legrand","spec":"Perforated GI","unit":"Per metre","rate":385.0},{"section":"Conduits & Pipes","product":"Cable Tray 200x50mm","brand":"Legrand","spec":"Perforated GI","unit":"Per metre","rate":520.0},{"section":"Conduits & Pipes","product":"Cable Tray 300x50mm","brand":"Legrand","spec":"Perforated GI","unit":"Per metre","rate":750.0},{"section":"Conduits & Pipes","product":"Cable Tray 450x100mm","brand":"Legrand","spec":"Perforated GI","unit":"Per metre","rate":1250.0},{"section":"Conduits & Pipes","product":"Cable Raceway 25x16mm","brand":"Legrand","spec":"PVC White","unit":"Per metre","rate":65.0},{"section":"Conduits & Pipes","product":"Cable Raceway 40x25mm","brand":"Legrand","spec":"PVC White","unit":"Per metre","rate":95.0},{"section":"Conduits & Pipes","product":"Cable Raceway 60x40mm","brand":"Legrand","spec":"PVC White","unit":"Per metre","rate":145.0},{"section":"Conduits & Pipes","product":"Cable Raceway 100x60mm","brand":"Legrand","spec":"PVC White","unit":"Per metre","rate":225.0},{"section":"Conduits & Pipes","product":"Mini Raceway 12x8mm","brand":"Legrand","spec":"PVC White","unit":"Per metre","rate":35.0},{"section":"Conduits & Pipes","product":"Cable Tie 100mm","brand":"Panduit","spec":"Nylon White","unit":"Pack 100","rate":65.0},{"section":"Conduits & Pipes","product":"Cable Tie 200mm","brand":"Panduit","spec":"Nylon White","unit":"Pack 100","rate":95.0},{"section":"Conduits & Pipes","product":"Cable Tie 300mm","brand":"Panduit","spec":"Nylon Black UV","unit":"Pack 100","rate":145.0},{"section":"Fans & Exhaust","product":"Ceiling Fan 1200mm","brand":"Havells","spec":"Standard 70W","unit":"Per piece","rate":2250.0},{"section":"Fans & Exhaust","product":"Ceiling Fan 1200mm","brand":"Bajaj","spec":"Standard 75W","unit":"Per piece","rate":1850.0},{"section":"Fans & Exhaust","product":"Ceiling Fan 1200mm","brand":"Orient","spec":"Standard 70W","unit":"Per piece","rate":1950.0},{"section":"Fans & Exhaust","product":"Ceiling Fan 1200mm","brand":"Usha","spec":"Standard 72W","unit":"Per piece","rate":2050.0},{"section":"Fans & Exhaust","product":"Ceiling Fan 1200mm BLDC","brand":"Havells","spec":"BLDC 28W","unit":"Per piece","rate":3850.0},{"section":"Fans & Exhaust","product":"Ceiling Fan 1200mm BLDC","brand":"Orient","spec":"BLDC 26W","unit":"Per piece","rate":3650.0},{"section":"Fans & Exhaust","product":"Ceiling Fan 1200mm BLDC","brand":"Atomberg","spec":"BLDC 28W","unit":"Per piece","rate":4250.0},{"section":"Fans & Exhaust","product":"Ceiling Fan 900mm","brand":"Havells","spec":"Small 50W","unit":"Per piece","rate":1650.0},{"section":"Fans & Exhaust","product":"Ceiling Fan 1400mm","brand":"Usha","spec":"Large 85W","unit":"Per piece","rate":3250.0},{"section":"Fans & Exhaust","product":"Ceiling Fan Decorative","brand":"Havells","spec":"Designer Model","unit":"Per piece","rate":4500.0},{"section":"Fans & Exhaust","product":"Exhaust Fan 6 inch","brand":"Havells","spec":"Ventilair","unit":"Per piece","rate":650.0},{"section":"Fans & Exhaust","product":"Exhaust Fan 6 inch","brand":"Bajaj","spec":"Freshee","unit":"Per piece","rate":545.0},{"section":"Fans & Exhaust","product":"Exhaust Fan 8 inch","brand":"Havells","spec":"Ventilair","unit":"Per piece","rate":850.0},{"section":"Fans & Exhaust","product":"Exhaust Fan 8 inch","brand":"Usha","spec":"Crisp Air","unit":"Per piece","rate":795.0},{"section":"Fans & Exhaust","product":"Exhaust Fan 10 inch","brand":"Havells","spec":"Ventilair","unit":"Per piece","rate":1150.0},{"section":"Fans & Exhaust","product":"Exhaust Fan 12 inch","brand":"Bajaj","spec":"Freshee","unit":"Per piece","rate":1450.0},{"section":"Fans & Exhaust","product":"Exhaust Fan 9 inch","brand":"Crompton","spec":"Brisk Air","unit":"Per piece","rate":950.0},{"section":"Fans & Exhaust","product":"Inline Duct Fan 4 inch","brand":"Vents","spec":"Mixed Flow","unit":"Per piece","rate":1850.0},{"section":"Fans & Exhaust","product":"Inline Duct Fan 6 inch","brand":"Vents","spec":"Mixed Flow","unit":"Per piece","rate":2650.0},{"section":"Fans & Exhaust","product":"Kitchen Hood Fan","brand":"Faber","spec":"Chimney 60cm","unit":"Per piece","rate":8500.0},{"section":"Fans & Exhaust","product":"Table Fan 400mm","brand":"Bajaj","spec":"Ultima","unit":"Per piece","rate":1450.0},{"section":"Fans & Exhaust","product":"Table Fan 400mm","brand":"Orient","spec":"Tornado","unit":"Per piece","rate":1350.0},{"section":"Fans & Exhaust","product":"Pedestal Fan 450mm","brand":"Bajaj","spec":"Esteem","unit":"Per piece","rate":2250.0},{"section":"Fans & Exhaust","product":"Pedestal Fan 450mm","brand":"Havells","spec":"Swing ZX","unit":"Per piece","rate":2650.0},{"section":"Fans & Exhaust","product":"Wall Fan 400mm","brand":"Usha","spec":"Helix","unit":"Per piece","rate":1850.0},{"section":"Fans & Exhaust","product":"Wall Fan 450mm","brand":"Bajaj","spec":"Ultima","unit":"Per piece","rate":2150.0},{"section":"Fans & Exhaust","product":"Tower Fan 40 inch","brand":"Philips","spec":"3 Speed","unit":"Per piece","rate":5500.0},{"section":"Fans & Exhaust","product":"Tower Fan 42 inch","brand":"Orient","spec":"Tornado","unit":"Per piece","rate":6500.0},{"section":"Switches & Protection","product":"Stabilizer 500VA TV","brand":"V-Guard","spec":"Digi 200","unit":"Per piece","rate":1250.0},{"section":"Switches & Protection","product":"Stabilizer 1KVA","brand":"V-Guard","spec":"Crystal Plus","unit":"Per piece","rate":2250.0},{"section":"Switches & Protection","product":"Stabilizer 2KVA","brand":"V-Guard","spec":"Crystal Plus","unit":"Per piece","rate":3250.0},{"section":"Switches & Protection","product":"Stabilizer 3KVA","brand":"Microtek","spec":"EM4160","unit":"Per piece","rate":4500.0},{"section":"Switches & Protection","product":"Stabilizer 4KVA","brand":"V-Guard","spec":"Digi 400","unit":"Per piece","rate":5800.0},{"section":"Switches & Protection","product":"Stabilizer 5KVA","brand":"Microtek","spec":"Digital","unit":"Per piece","rate":7500.0},{"section":"Switches & Protection","product":"Stabilizer 7.5KVA","brand":"V-Guard","spec":"3Ph Input","unit":"Per piece","rate":12500.0},{"section":"Switches & Protection","product":"Stabilizer 10KVA","brand":"Microtek","spec":"3Ph Input","unit":"Per piece","rate":16500.0},{"section":"Switches & Protection","product":"Stabilizer 15KVA","brand":"V-Guard","spec":"3Ph Output","unit":"Per piece","rate":24500.0},{"section":"Switches & Protection","product":"AC Stabilizer 1.5T","brand":"V-Guard","spec":"AI1250","unit":"Per piece","rate":4500.0},{"section":"Switches & Protection","product":"AC Stabilizer 2T","brand":"Microtek","spec":"Digital","unit":"Per piece","rate":5800.0},{"section":"Switches & Protection","product":"UPS 600VA Home","brand":"APC","spec":"Back-UPS BX","unit":"Per piece","rate":3250.0},{"section":"Switches & Protection","product":"UPS 1KVA Home","brand":"APC","spec":"Back-UPS BX","unit":"Per piece","rate":5500.0},{"section":"Switches & Protection","product":"UPS 2KVA Home","brand":"APC","spec":"Smart-UPS","unit":"Per piece","rate":12500.0},{"section":"Switches & Protection","product":"UPS 1KVA 3Ph","brand":"Microtek","spec":"Online UPS","unit":"Per piece","rate":22000.0},{"section":"Switches & Protection","product":"Inverter 850VA","brand":"Luminous","spec":"Eco Volt Neo","unit":"Per piece","rate":3850.0},{"section":"Switches & Protection","product":"Inverter 1500VA","brand":"Luminous","spec":"Cruze","unit":"Per piece","rate":6500.0},{"section":"Switches & Protection","product":"Inverter 2000VA","brand":"Microtek","spec":"Super Power","unit":"Per piece","rate":9500.0},{"section":"Switches & Protection","product":"Inverter 3500VA","brand":"Luminous","spec":"Pro Series","unit":"Per piece","rate":18500.0},{"section":"Switches & Protection","product":"Solar Inverter 1KW","brand":"Luminous","spec":"MPPT","unit":"Per piece","rate":12500.0},{"section":"Switches & Protection","product":"Solar Inverter 5KW","brand":"SolarEdge","spec":"HD Wave","unit":"Per piece","rate":85000.0},{"section":"Switches & Protection","product":"Battery 12V 7Ah","brand":"Exide","spec":"VRLA Sealed","unit":"Per piece","rate":1250.0},{"section":"Switches & Protection","product":"Battery 12V 26Ah","brand":"Amaron","spec":"VRLA Sealed","unit":"Per piece","rate":3500.0},{"section":"Switches & Protection","product":"Battery 12V 42Ah","brand":"Exide","spec":"Tubular Flat","unit":"Per piece","rate":5800.0},{"section":"Switches & Protection","product":"Battery 12V 100Ah Flat","brand":"Luminous","spec":"Flat Plate","unit":"Per piece","rate":9500.0},{"section":"Switches & Protection","product":"Battery 12V 100Ah Tubular","brand":"Exide","spec":"Tall Tubular","unit":"Per piece","rate":11500.0},{"section":"Switches & Protection","product":"Battery 12V 150Ah Tubular","brand":"Amaron","spec":"Tall Tubular","unit":"Per piece","rate":16500.0},{"section":"Switches & Protection","product":"Battery 12V 200Ah Tubular","brand":"Luminous","spec":"Tall Tubular","unit":"Per piece","rate":22000.0},{"section":"Accessories & Tools","product":"Wire Connector 1.5-4mm","brand":"Wago","spec":"Push-in 3 way","unit":"Per piece","rate":18.0},{"section":"Accessories & Tools","product":"Wire Connector 2.5-6mm","brand":"Wago","spec":"Push-in 2 way","unit":"Per piece","rate":22.0},{"section":"Accessories & Tools","product":"Crimping Terminal 1.5mm","brand":"Bootlace","spec":"Copper Ferrule","unit":"Pack 100","rate":85.0},{"section":"Accessories & Tools","product":"Crimping Terminal 2.5mm","brand":"Bootlace","spec":"Copper Ferrule","unit":"Pack 100","rate":110.0},{"section":"Accessories & Tools","product":"Crimping Terminal 4mm","brand":"Bootlace","spec":"Copper Ferrule","unit":"Pack 100","rate":145.0},{"section":"Accessories & Tools","product":"Insulation Tape Black","brand":"3M","spec":"Scotch 33+","unit":"Per roll","rate":45.0},{"section":"Accessories & Tools","product":"Insulation Tape Red","brand":"3M","spec":"Scotch 33+","unit":"Per roll","rate":45.0},{"section":"Accessories & Tools","product":"Self Amalgamating Tape","brand":"3M","spec":"2228 Mastic","unit":"Per roll","rate":285.0},{"section":"Accessories & Tools","product":"Cable Lug 10mm Cu","brand":"Dowell","spec":"Ring Type","unit":"Per piece","rate":15.0},{"section":"Accessories & Tools","product":"Cable Lug 25mm Cu","brand":"Dowell","spec":"Ring Type","unit":"Per piece","rate":28.0},{"section":"Accessories & Tools","product":"Cable Lug 50mm Cu","brand":"Dowell","spec":"Ring Type","unit":"Per piece","rate":55.0},{"section":"Accessories & Tools","product":"Cable Lug 70mm Cu","brand":"Dowell","spec":"Ring Type","unit":"Per piece","rate":75.0},{"section":"Accessories & Tools","product":"Cable Lug 95mm Cu","brand":"Dowell","spec":"Ring Type","unit":"Per piece","rate":105.0},{"section":"Accessories & Tools","product":"Cable Lug 120mm Cu","brand":"Dowell","spec":"Ring Type","unit":"Per piece","rate":145.0},{"section":"Accessories & Tools","product":"Jointing Kit LT MV","brand":"Raychem","spec":"Heat Shrink","unit":"Per kit","rate":850.0},{"section":"Accessories & Tools","product":"Earth Pit GI 40x40mm","brand":"Ennee","spec":"GI Strip 3mtr","unit":"Per piece","rate":1850.0},{"section":"Accessories & Tools","product":"Earth Pit Cu Plate","brand":"Ennee","spec":"600x600x3mm","unit":"Per piece","rate":4500.0},{"section":"Accessories & Tools","product":"Earth Electrode Cu Bond","brand":"Ennee","spec":"3mtr x 17.2mm","unit":"Per piece","rate":3250.0},{"section":"Accessories & Tools","product":"Earth Rod GI 1.5mtr","brand":"Ennee","spec":"17.2mm dia","unit":"Per piece","rate":850.0},{"section":"Accessories & Tools","product":"Earth Strip GI 25x3mm","brand":"Ennee","spec":"ISI","unit":"Per metre","rate":85.0},{"section":"Accessories & Tools","product":"Earth Strip Cu 25x3mm","brand":"Ennee","spec":"ISI","unit":"Per metre","rate":350.0},{"section":"Accessories & Tools","product":"Earthing Compound","brand":"Ennee","spec":"Gel-X","unit":"Per kg","rate":195.0},{"section":"Accessories & Tools","product":"Lightning Arrester","brand":"Ennee","spec":"ESE Type","unit":"Per piece","rate":18500.0},{"section":"Accessories & Tools","product":"Surge Arrester 230V","brand":"Legrand","spec":"Type 2 SPD","unit":"Per piece","rate":2850.0},{"section":"Accessories & Tools","product":"Surge Arrester 400V 3P","brand":"Legrand","spec":"Type 2 SPD","unit":"Per piece","rate":5500.0},{"section":"Accessories & Tools","product":"Screwdriver Set 6pc","brand":"Stanley","spec":"Insulated VDE","unit":"Per set","rate":650.0},{"section":"Accessories & Tools","product":"Pliers Combination 8\"","brand":"Stanley","spec":"VDE 1000V","unit":"Per piece","rate":385.0},{"section":"Accessories & Tools","product":"Wire Stripper","brand":"Knipex","spec":"Auto Strip","unit":"Per piece","rate":1250.0},{"section":"Accessories & Tools","product":"Crimping Tool Ratchet","brand":"Knipex","spec":"For Lugs","unit":"Per piece","rate":1850.0},{"section":"Accessories & Tools","product":"Cable Cutter 16mm","brand":"Knipex","spec":"For Cu/Al","unit":"Per piece","rate":985.0},{"section":"Accessories & Tools","product":"Cable Cutter 50mm","brand":"Knipex","spec":"Heavy Duty","unit":"Per piece","rate":2850.0},{"section":"Accessories & Tools","product":"Voltage Tester Pen","brand":"Fluke","spec":"Digital Non-Contact","unit":"Per piece","rate":1450.0},{"section":"Accessories & Tools","product":"Multimeter Digital","brand":"Fluke","spec":"117 True RMS","unit":"Per piece","rate":8500.0},{"section":"Accessories & Tools","product":"Clamp Meter","brand":"Fluke","spec":"376 FC","unit":"Per piece","rate":18500.0},{"section":"Accessories & Tools","product":"Insulation Tester 1000V","brand":"Fluke","spec":"1587FC","unit":"Per piece","rate":35000.0},{"section":"Accessories & Tools","product":"Earth Tester","brand":"Kyoritsu","spec":"KEW4105A","unit":"Per piece","rate":22000.0},{"section":"Accessories & Tools","product":"Drill Machine 13mm","brand":"Bosch","spec":"GSB 550W","unit":"Per piece","rate":3250.0},{"section":"Accessories & Tools","product":"Drill Machine 13mm Cord","brand":"Bosch","spec":"GSB 750W","unit":"Per piece","rate":4500.0},{"section":"Accessories & Tools","product":"Angle Grinder 4.5\"","brand":"Bosch","spec":"GWS 850C","unit":"Per piece","rate":2850.0},{"section":"Accessories & Tools","product":"Hacksaw Frame","brand":"Stanley","spec":"Adjustable","unit":"Per piece","rate":285.0},{"section":"Accessories & Tools","product":"Fish Tape 15mtr","brand":"Ideal","spec":"Steel","unit":"Per piece","rate":1250.0},{"section":"Accessories & Tools","product":"Pipe Bender Manual","brand":"Generic","spec":"For GI 20-25mm","unit":"Per piece","rate":1850.0},{"section":"Electronics & Automation","product":"Smart Switch 2 Gang","brand":"Anchor","spec":"WiFi App Control","unit":"Per piece","rate":1850.0},{"section":"Electronics & Automation","product":"Smart Switch 4 Gang","brand":"Legrand","spec":"WiFi App Control","unit":"Per piece","rate":2850.0},{"section":"Electronics & Automation","product":"Smart Dimmer Switch","brand":"Havells","spec":"WiFi App Control","unit":"Per piece","rate":2250.0},{"section":"Electronics & Automation","product":"Smart Plug 16A","brand":"Anchor","spec":"WiFi Energy Monitor","unit":"Per piece","rate":1250.0},{"section":"Electronics & Automation","product":"Smart Fan Controller","brand":"Atomberg","spec":"BLDC Fan Module","unit":"Per piece","rate":1650.0},{"section":"Electronics & Automation","product":"Motion Sensor PIR","brand":"Legrand","spec":"360 Degree Ceiling","unit":"Per piece","rate":850.0},{"section":"Electronics & Automation","product":"Motion Sensor Wall","brand":"Schneider","spec":"120 Degree","unit":"Per piece","rate":650.0},{"section":"Electronics & Automation","product":"Photoelectric Sensor","brand":"Legrand","spec":"LDR Dusk-Dawn","unit":"Per piece","rate":485.0},{"section":"Electronics & Automation","product":"Timer Switch Digital","brand":"Havells","spec":"24H Programmable","unit":"Per piece","rate":650.0},{"section":"Electronics & Automation","product":"Timer Switch Weekly","brand":"Legrand","spec":"7 Day Program","unit":"Per piece","rate":1250.0},{"section":"Electronics & Automation","product":"Smart Hub Zigbee","brand":"Philips Hue","spec":"Bridge v2","unit":"Per piece","rate":4500.0},{"section":"Electronics & Automation","product":"Voice Control Module","brand":"Amazon","spec":"Echo Dot 5th Gen","unit":"Per piece","rate":4499.0},{"section":"Electronics & Automation","product":"CCTV Camera 2MP Bullet","brand":"CP Plus","spec":"HD IR 30m","unit":"Per piece","rate":1250.0},{"section":"Electronics & Automation","product":"CCTV Camera 4MP Dome","brand":"Hikvision","spec":"IR 30m IP66","unit":"Per piece","rate":2850.0},{"section":"Electronics & Automation","product":"CCTV Camera 8MP 4K","brand":"Dahua","spec":"Ultra HD IR 40m","unit":"Per piece","rate":5500.0},{"section":"Electronics & Automation","product":"IP Camera 4MP","brand":"Hikvision","spec":"PoE Indoor","unit":"Per piece","rate":3850.0},{"section":"Electronics & Automation","product":"PTZ Camera 2MP","brand":"CP Plus","spec":"20X Optical Zoom","unit":"Per piece","rate":22000.0},{"section":"Electronics & Automation","product":"DVR 4Ch 1080P","brand":"CP Plus","spec":"H.265+ SATA","unit":"Per piece","rate":2850.0},{"section":"Electronics & Automation","product":"DVR 8Ch 1080P","brand":"Hikvision","spec":"H.265+ 2 SATA","unit":"Per piece","rate":4500.0},{"section":"Electronics & Automation","product":"NVR 8Ch 4K","brand":"Dahua","spec":"PoE NVR H.265","unit":"Per piece","rate":7500.0},{"section":"Electronics & Automation","product":"HDD 1TB Surveillance","brand":"WD Purple","spec":"CMR 5400 RPM","unit":"Per piece","rate":3250.0},{"section":"Electronics & Automation","product":"HDD 2TB Surveillance","brand":"Seagate SkyHawk","spec":"CMR","unit":"Per piece","rate":5500.0},{"section":"Electronics & Automation","product":"Video Door Phone","brand":"CP Plus","spec":"2MP WiFi Bell","unit":"Per piece","rate":5500.0},{"section":"Electronics & Automation","product":"Video Door Phone","brand":"Hikvision","spec":"IP HD Camera Bell","unit":"Per piece","rate":7500.0},{"section":"Electronics & Automation","product":"Access Control Biometric","brand":"ZKTeco","spec":"Fingerprint+Card","unit":"Per piece","rate":8500.0},{"section":"Electronics & Automation","product":"Electric Door Lock","brand":"ZKTeco","spec":"Electromagnetic","unit":"Per piece","rate":3250.0},{"section":"Electronics & Automation","product":"WiFi Router Dual Band","brand":"TP-Link","spec":"AC1200","unit":"Per piece","rate":2250.0},{"section":"Electronics & Automation","product":"WiFi Router Tri Band","brand":"TP-Link","spec":"Deco Mesh","unit":"Per piece","rate":6500.0},{"section":"Electronics & Automation","product":"Network Switch 8 Port","brand":"TP-Link","spec":"PoE Gigabit","unit":"Per piece","rate":3250.0},{"section":"Electronics & Automation","product":"Network Switch 16 Port","brand":"D-Link","spec":"Gigabit Unmanaged","unit":"Per piece","rate":4500.0},{"section":"Electronics & Automation","product":"Network Switch 24 Port","brand":"D-Link","spec":"Gigabit Managed","unit":"Per piece","rate":12500.0},{"section":"Electronics & Automation","product":"PoE Switch 8 Port","brand":"TP-Link","spec":"802.3af/at 65W","unit":"Per piece","rate":5500.0},{"section":"Electronics & Automation","product":"OFC Patch Panel 24P","brand":"Molex","spec":"LC Duplex SM","unit":"Per piece","rate":8500.0},{"section":"Electronics & Automation","product":"RJ45 Keystone Cat6","brand":"Panduit","spec":"UTP Unshielded","unit":"Per piece","rate":85.0},{"section":"Electronics & Automation","product":"RJ45 Plug Cat6","brand":"Panduit","spec":"Gold Plated Pack 50","unit":"Per piece","rate":450.0},{"section":"Electronics & Automation","product":"Patch Cord Cat6 1m","brand":"D-Link","spec":"UTP LSZH","unit":"Per piece","rate":185.0},{"section":"Electronics & Automation","product":"Patch Cord Cat6 2m","brand":"D-Link","spec":"UTP LSZH","unit":"Per piece","rate":225.0},{"section":"Electronics & Automation","product":"Patch Cord Cat6 3m","brand":"D-Link","spec":"UTP LSZH","unit":"Per piece","rate":265.0},{"section":"Electronics & Automation","product":"Fiber Optic Pigtail LC","brand":"Generic","spec":"SM 9/125","unit":"Per piece","rate":85.0},{"section":"Electronics & Automation","product":"Media Converter","brand":"D-Link","spec":"100Mbps FE SFP","unit":"Per piece","rate":1850.0},{"section":"Electronics & Automation","product":"Contactor 9A 3P","brand":"Siemens","spec":"3RT AC Coil","unit":"Per piece","rate":850.0},{"section":"Electronics & Automation","product":"Contactor 18A 3P","brand":"L&T","spec":"MNX Series","unit":"Per piece","rate":1250.0},{"section":"Electronics & Automation","product":"Contactor 32A 3P","brand":"Siemens","spec":"3RT AC Coil","unit":"Per piece","rate":1850.0},{"section":"Electronics & Automation","product":"Contactor 63A 3P","brand":"L&T","spec":"MNX Series","unit":"Per piece","rate":3250.0},{"section":"Electronics & Automation","product":"Overload Relay 1-4A","brand":"Siemens","spec":"3RU Bimetallic","unit":"Per piece","rate":650.0},{"section":"Electronics & Automation","product":"Overload Relay 4-13A","brand":"L&T","spec":"MN Series","unit":"Per piece","rate":850.0},{"section":"Electronics & Automation","product":"Overload Relay 10-40A","brand":"Siemens","spec":"3RU Bimetallic","unit":"Per piece","rate":1250.0},{"section":"Electronics & Automation","product":"Star Delta Starter 5HP","brand":"L&T","spec":"Automatic","unit":"Per piece","rate":5500.0},{"section":"Electronics & Automation","product":"Star Delta Starter 10HP","brand":"Siemens","spec":"Automatic","unit":"Per piece","rate":8500.0},{"section":"Electronics & Automation","product":"DOL Starter 3HP","brand":"L&T","spec":"Direct Online","unit":"Per piece","rate":2250.0},{"section":"Electronics & Automation","product":"Soft Starter 5HP","brand":"Schneider","spec":"ATS22","unit":"Per piece","rate":12500.0},{"section":"Electronics & Automation","product":"VFD 1HP","brand":"Schneider","spec":"ATV310","unit":"Per piece","rate":8500.0},{"section":"Electronics & Automation","product":"VFD 5HP","brand":"ABB","spec":"ACH550","unit":"Per piece","rate":22000.0},{"section":"Electronics & Automation","product":"VFD 10HP","brand":"Siemens","spec":"G120","unit":"Per piece","rate":42000.0},{"section":"Electronics & Automation","product":"Relay 230V DPDT","brand":"Omron","spec":"MY2N","unit":"Per piece","rate":285.0},{"section":"Electronics & Automation","product":"Timer Relay 8 Pin","brand":"Omron","spec":"H3Y","unit":"Per piece","rate":450.0},{"section":"Electronics & Automation","product":"PLC Micro 8I/8O","brand":"Siemens","spec":"LOGO 24V","unit":"Per piece","rate":12500.0}];
+const SECTIONS = [...new Set(PRODUCTS.map(p => p.section))];
+
+// ── STATE ──
+let activeSection = SECTIONS[0];
+let rows = {}; // rows[section] = [{id,product,brand,qty,warranty,guarantee,price,total}]
+let gstRate = 0;
+
+SECTIONS.forEach(s => { rows[s] = [newRow()]; });
+
+function newRow() {
+  return { id: Date.now() + Math.random(), product:'', brand:'', qty:1, warranty:'', guarantee:'', price:0, total:0 };
+}
+
+// ── FETCH GST ──
+fetch('/gst', { headers: { 'authorization': token } })
+  .then(r => r.json()).then(d => { gstRate = d.gst || 0; renderSection(); })
+  .catch(() => {});
+
+// ── TABS ──
+function renderTabs() {
+  const bar = document.getElementById('tabsBar');
+  bar.innerHTML = SECTIONS.map(s => `
+    <button class="tab-btn ${s===activeSection?'active':''}" onclick="switchSection('${s}')">${s}</button>
+  `).join('');
+}
+
+function switchSection(s) {
+  activeSection = s;
+  renderTabs();
+  renderSection();
+}
+
+// ── MAIN RENDER ──
+function renderSection() {
+  const isElite = billingType === 'elite';
+  const sRows = rows[activeSection];
+
+  let subtotal = sRows.reduce((a,r) => a + (r.total||0), 0);
+  let gstAmt = +(subtotal * gstRate / 100).toFixed(2);
+  let grand = +(subtotal + gstAmt).toFixed(2);
+
+  document.getElementById('mainContent').innerHTML = `
+    ${isElite ? `
+    <div class="eye-wrap">
+      <button class="eye-btn" onclick="goToScreenC()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Customer History
+      </button>
+    </div>` : ''}
+    <div class="filter-bar">
+      <label>Filter by Section:</label>
+      <select class="filter-select" onchange="switchSection(this.value)">
+        ${SECTIONS.map(s => `<option value="${s}" ${s===activeSection?'selected':''}>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table class="billing-table">
+        <thead>
+          <tr>
+            <th>Sl.No</th>
+            <th>Product</th>
+            <th>Company</th>
+            <th>Quantity</th>
+            <th>Year W/G</th>
+            <th>Price (₹)</th>
+            <th>${isElite ? '<span style="display:flex;align-items:center;gap:6px;">Total Price <button class="eye-btn" style="padding:3px 8px;font-size:11px;" onclick="goToScreenC()"><svg width="14" height="14" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/></svg></button></span>' : 'Total Price'}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="rowsBody">
+          ${sRows.map((r,i) => renderRow(r,i)).join('')}
+        </tbody>
+      </table>
+      <div class="table-footer">
+        <button class="add-row-btn" onclick="addRow()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Row
+        </button>
+        <div class="totals-area">
+          <div>Subtotal: ₹${subtotal.toLocaleString('en-IN',{minimumFractionDigits:2})}</div>
+          ${gstRate>0 ? `<div>GST (${gstRate}%): ₹${gstAmt.toLocaleString('en-IN',{minimumFractionDigits:2})}</div>` : ''}
+          <div class="grand">Grand Total: ₹${grand.toLocaleString('en-IN',{minimumFractionDigits:2})}</div>
+        </div>
+      </div>
+    </div>
+    <div class="action-bar">
+      <button class="btn btn-outline" onclick="clearAll()">Clear All</button>
+      <button class="btn btn-primary" onclick="downloadPDF()">Download PDF</button>
+    </div>
+  `;
+}
+
+function renderRow(r, i) {
+  return `
+    <tr id="row-${r.id}">
+      <td>${i+1}</td>
+      <td class="prod-cell">
+        <input class="prod-input" id="pi-${r.id}" value="${r.product}" placeholder="Search product..." oninput="filterProducts(this, '${r.id}')" autocomplete="off"/>
+        <div class="prod-dropdown" id="pd-${r.id}"></div>
+      </td>
+      <td><input class="edit-input" style="min-width:110px" value="${r.brand}" onchange="updateField('${r.id}','brand',this.value)"/></td>
+      <td><input class="edit-input" style="min-width:60px" type="number" min="1" value="${r.qty}" onchange="updateField('${r.id}','qty',+this.value)"/></td>
+      <td>
+        <div style="display:flex;gap:6px;min-width:130px">
+          <input class="edit-input" style="width:55px" placeholder="W yrs" value="${r.warranty}" onchange="updateField('${r.id}','warranty',this.value)" title="Warranty"/>
+          <input class="edit-input" style="width:55px" placeholder="G yrs" value="${r.guarantee}" onchange="updateField('${r.id}','guarantee',this.value)" title="Guarantee"/>
+        </div>
+      </td>
+      <td><input class="edit-input" style="min-width:80px" type="number" min="0" step="0.01" value="${r.price}" onchange="updateField('${r.id}','price',+this.value)"/></td>
+      <td class="total-cell">₹${(r.total||0).toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
+      <td><button class="del-btn" onclick="deleteRow('${r.id}')" title="Remove">✕</button></td>
+    </tr>
+  `;
+}
+
+// ── PRODUCT SEARCH ──
+function filterProducts(input, rowId) {
+  const val = input.value.toLowerCase().trim();
+  const dd = document.getElementById('pd-' + rowId);
+  if (!val || val.length < 2) { dd.classList.remove('open'); return; }
+  const sect = activeSection;
+  const matches = PRODUCTS.filter(p =>
+    p.section === sect && (p.product.toLowerCase().includes(val) || p.brand.toLowerCase().includes(val))
+  ).slice(0,12);
+  if (!matches.length) { dd.classList.remove('open'); return; }
+  dd.innerHTML = matches.map(p => `
+    <div class="prod-option" onclick="selectProduct('${rowId}',${JSON.stringify(p).replace(/"/g,'&quot;')})">
+      <div class="prod-name">${p.product}</div>
+      <div class="prod-meta">[${p.brand}] · ₹${p.rate} · ${p.unit}</div>
+    </div>
+  `).join('');
+  dd.classList.add('open');
+}
+
+function selectProduct(rowId, p) {
+  const r = rows[activeSection].find(x => x.id == rowId);
+  if (!r) return;
+  r.product = p.product;
+  r.brand = p.brand;
+  r.price = p.rate;
+  r.total = +(r.qty * p.rate).toFixed(2);
+  document.getElementById('pd-' + rowId).classList.remove('open');
+  renderSection();
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.prod-cell')) {
+    document.querySelectorAll('.prod-dropdown').forEach(d => d.classList.remove('open'));
+  }
+});
+
+// ── FIELD UPDATE ──
+function updateField(rowId, field, val) {
+  const r = rows[activeSection].find(x => x.id == rowId);
+  if (!r) return;
+  r[field] = val;
+  if (field === 'qty' || field === 'price') r.total = +(r.qty * r.price).toFixed(2);
+  renderSection();
+}
+
+function addRow() {
+  rows[activeSection].push(newRow());
+  renderSection();
+}
+
+function deleteRow(rowId) {
+  rows[activeSection] = rows[activeSection].filter(r => r.id != rowId);
+  if (!rows[activeSection].length) rows[activeSection].push(newRow());
+  renderSection();
+}
+
+function clearAll() {
+  rows[activeSection] = [newRow()];
+  renderSection();
+}
+
+// ── PDF DOWNLOAD ──
+async function downloadPDF() {
+  const sRows = rows[activeSection].filter(r => r.product);
+  if (!sRows.length) { alert('Add at least one product before downloading.'); return; }
+
+  let subtotal = sRows.reduce((a,r) => a + (r.total||0), 0);
+  let gstAmt = +(subtotal * gstRate / 100).toFixed(2);
+  let grand = +(subtotal + gstAmt).toFixed(2);
+
+  // For Elite billing — save to DB before downloading
+  if (billingType === 'elite') {
+    const custName = prompt('Customer Name (for Elite record):');
+    const custPhone = prompt('Customer Phone (10 digits):');
+    if (custPhone && /^[0-9]{10}$/.test(custPhone)) {
+      try {
+        await fetch('/save-bill', {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', 'authorization': token },
+          body: JSON.stringify({
+            phone: custPhone,
+            name: custName || 'Unknown',
+            section: activeSection,
+            items: sRows,
+            subtotal, gst: gstAmt, grand,
+            billedBy: authUser
+          })
+        });
+      } catch(e) { console.warn('Save failed', e); }
     }
-    buildPaginator();
-    calcGrandTotal();
   }
 
-  function calcRowTotal(i){
-    const qty=parseFloat(allData[i].qty)||0;
-    const price=parseFloat(allData[i].price)||0;
-    return (qty>0&&price>0)?'₹ '+(qty*price).toFixed(2):'—';
-  }
+  // Build printable HTML
+  const tableRows = sRows.map((r,i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td>${r.product}</td>
+      <td>${r.brand}</td>
+      <td>${r.qty}</td>
+      <td>${r.warranty||'-'} / ${r.guarantee||'-'}</td>
+      <td>₹${r.price.toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
+      <td>₹${r.total.toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
+    </tr>
+  `).join('');
 
-  function updateData(i){
-    if(document.getElementById(`product_${i}`)) allData[i].product=document.getElementById(`product_${i}`).value;
-    if(document.getElementById(`qty_${i}`))     allData[i].qty=document.getElementById(`qty_${i}`).value;
-    if(document.getElementById(`price_${i}`))   allData[i].price=document.getElementById(`price_${i}`).value;
-    const el=document.getElementById(`total_${i}`);
-    if(el) el.textContent=calcRowTotal(i);
-    calcGrandTotal();
-  }
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Invoice</title>
+  <style>body{font-family:Arial,sans-serif;padding:30px;color:#222;}
+  h2{color:#ff6b35;margin-bottom:4px;}
+  .sub{color:#888;font-size:12px;margin-bottom:20px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{background:#ff6b35;color:#fff;padding:9px 12px;text-align:left;}
+  td{padding:8px 12px;border-bottom:1px solid #f0e0d0;}
+  tr:nth-child(even) td{background:#fff8f0;}
+  .tot{text-align:right;margin-top:16px;font-size:14px;}
+  .grand{font-size:18px;font-weight:700;color:#ff6b35;}
+  </style></head><body>
+  <h2>Sree Electricals &amp; Electronics</h2>
+  <div class="sub">Section: ${activeSection} | Date: ${new Date().toLocaleDateString('en-IN')} | Billed by: ${authUser}</div>
+  <table><thead><tr><th>Sl</th><th>Product</th><th>Company</th><th>Qty</th><th>W/G</th><th>Price</th><th>Total</th></tr></thead>
+  <tbody>${tableRows}</tbody></table>
+  <div class="tot">
+    <div>Subtotal: ₹${subtotal.toLocaleString('en-IN',{minimumFractionDigits:2})}</div>
+    ${gstRate>0?'<div>GST ('+gstRate+'%): ₹'+gstAmt.toLocaleString('en-IN',{minimumFractionDigits:2})+'</div>':''}
+    <div class="grand">Grand Total: ₹${grand.toLocaleString('en-IN',{minimumFractionDigits:2})}</div>
+  </div>
+  <script>window.onload=()=>{window.print();}<\/script>
+  </body></html>`);
+  win.document.close();
+}
 
-  function calcGrandTotal(){
-    let grand=0;
-    allData.forEach(r=>{
-      const qty=parseFloat(r.qty)||0;
-      const price=parseFloat(r.price)||0;
-      grand+=qty*price;
-    });
-    document.getElementById('grandTotal').textContent='₹ '+grand.toFixed(2);
-  }
+function goToScreenC() { window.location.href = '/screenC.html'; }
 
-  function buildPaginator(){
-    const pg=document.getElementById('paginator');
-    pg.innerHTML='';
-    const prev=document.createElement('button');
-    prev.className='page-btn arrow';
-    prev.textContent='‹';
-    prev.onclick=()=>{if(currentPage>1) goPage(currentPage-1);};
-    pg.appendChild(prev);
-    for(let p=1;p<=TOTAL_PAGES;p++){
-      const btn=document.createElement('button');
-      btn.className='page-btn'+(p===currentPage?' active':'');
-      btn.textContent=p;
-      btn.onclick=()=>goPage(p);
-      pg.appendChild(btn);
-    }
-    const next=document.createElement('button');
-    next.className='page-btn arrow';
-    next.textContent='›';
-    next.onclick=()=>{if(currentPage<TOTAL_PAGES) goPage(currentPage+1);};
-    pg.appendChild(next);
-  }
+function logout() {
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('authUser');
+  localStorage.removeItem('billingType');
+  window.location.replace('/login.html');
+}
 
-  function goPage(p){ syncCurrentPage(); currentPage=p; buildTable(); }
-
-  function syncCurrentPage(){
-    const start=(currentPage-1)*ROWS_PER_PAGE;
-    const end=start+ROWS_PER_PAGE;
-    for(let i=start;i<end;i++){
-      if(document.getElementById(`product_${i}`)){
-        allData[i].product=document.getElementById(`product_${i}`).value;
-        allData[i].qty=document.getElementById(`qty_${i}`).value;
-        allData[i].price=document.getElementById(`price_${i}`).value;
-      }
-    }
-  }
-
-  function saveData(){
-    syncCurrentPage();
-    const filledRows=allData.filter(r=>r.product||r.qty||r.price);
-    if(filledRows.length===0){ showToast('Please enter at least one product!'); return; }
-    sessionStorage.setItem('billData',JSON.stringify(allData));
-    window.location.href='/billing.html';
-  }
-
-  function clearAll(){
-    showToast('Clearing all data...');
-    setTimeout(()=>{
-      allData=Array.from({length:TOTAL_ROWS},()=>({product:'',qty:'',price:''}));
-      currentPage=1;
-      buildTable();
-      document.getElementById('grandTotal').textContent='₹ 0.00';
-      showToast('All data cleared!');
-    },800);
-  }
-
-  function logout(){ sessionStorage.clear(); window.location.href='/login.html'; }
-
-  function showToast(msg){
-    const t=document.getElementById('toast');
-    t.textContent=msg;
-    t.classList.add('show');
-    setTimeout(()=>t.classList.remove('show'),2500);
-  }
-
-  buildTable();
+// ── INIT ──
+renderTabs();
+renderSection();
 </script>
 </body>
 </html>
