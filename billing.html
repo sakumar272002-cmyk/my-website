@@ -5,12 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sree Electricals &amp; Electronics</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-  <script>
-    // ── IMMEDIATE AUTH BLOCK — runs before body renders ──
-    if(!localStorage.getItem('authToken')){
-      window.location.replace('/login.html');
-    }
-  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <style>
@@ -175,7 +169,7 @@
 <div class="navbar">
   <h1>Sree Electricals &amp; Electronics</h1>
   <div class="nav-btns">
-    <button class="btn-back" onclick="window.location.replace('/dashboard.html')">← Back</button>
+    <button class="btn-back" onclick="goBack()">← Back</button>
     <button class="btn-download" onclick="downloadPDF()">⬇ Download PDF</button>
   </div>
 </div>
@@ -240,7 +234,11 @@
 </div>
 
 <script>
-  // ── AUTH GUARD (already handled in <head>) ──
+  // ── Back navigates with token so server guard passes ──
+  function goBack() {
+    const token = localStorage.getItem('authToken');
+    window.location.replace('/dashboard.html?token=' + encodeURIComponent(token));
+  }
 
   const SHOP_NAME    = 'SREE ELECTRICALS & ELECTRONICS';
   const SHOP_ADDRESS = 'Subramaniapuram, Vasudevanallur(p.o), Tenkasi Main Road, Tamil Nadu-627758';
@@ -258,32 +256,48 @@
     return { date, time, full: date + ' ' + time };
   }
 
-  function getBillNo() {
-    // Use sessionStorage so bill numbers don't leak across sessions/users
-    // If this session already has a bill number, reuse it; else generate a new one
-    let existing = sessionStorage.getItem('currentBillNo');
-    if(existing) return existing;
-    // Generate: BILL-YYYYMMDD-HHMM (unique per session, time-based)
+  // ── Fetch sequential bill number from server (BILL-YYYYMMDD-1, -2, -3...) ──
+  async function fetchBillNo() {
+    // If we already fetched one for this page load, reuse it (avoid double-incrementing)
+    const cached = sessionStorage.getItem('currentBillNo');
+    if (cached) return cached;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const r = await fetch('/next-bill-no', {
+        headers: { 'authorization': token }
+      });
+      const d = await r.json();
+      if (d.billNo) {
+        sessionStorage.setItem('currentBillNo', d.billNo);
+        return d.billNo;
+      }
+    } catch(e) {
+      console.warn('Could not fetch bill number from server, using fallback');
+    }
+
+    // Fallback: local timestamp-based (if server unreachable)
     const d = new Date();
-    const stamp = d.getFullYear().toString() +
+    const dateStr = d.getFullYear().toString() +
       (d.getMonth()+1).toString().padStart(2,'0') +
-      d.getDate().toString().padStart(2,'0') + '-' +
-      d.getHours().toString().padStart(2,'0') +
-      d.getMinutes().toString().padStart(2,'0');
-    const billNo = 'BILL-' + stamp;
-    sessionStorage.setItem('currentBillNo', billNo);
-    return billNo;
+      d.getDate().toString().padStart(2,'0');
+    const fallback = 'BILL-' + dateStr + '-' + Date.now().toString().slice(-4);
+    sessionStorage.setItem('currentBillNo', fallback);
+    return fallback;
   }
 
-
-  function loadBill() {
-    const billNo = getBillNo();
+  async function loadBill() {
+    const billNo = await fetchBillNo();
     const dt = nowDateTime();
     document.getElementById('billNo').textContent       = billNo;
     document.getElementById('billDateTime').textContent = dt.full;
 
     const raw = localStorage.getItem('billData');
-    if(!raw){ document.getElementById('billBody').innerHTML='<tr><td colspan="5" style="text-align:center;padding:24px;color:#c49a72;">No data. Go back and enter products.</td></tr>'; return; }
+    if(!raw){
+      document.getElementById('billBody').innerHTML =
+        '<tr><td colspan="5" style="text-align:center;padding:24px;color:#c49a72;">No data. Go back and enter products.</td></tr>';
+      return;
+    }
 
     const allData = JSON.parse(raw);
     const rows = allData.filter(r => r.product && (parseFloat(r.qty)||0)>0 && (parseFloat(r.price)||0)>0);
@@ -291,13 +305,13 @@
     tbody.innerHTML = '';
     let subtotal = 0;
 
-    rows.forEach((r,idx) => {
-      const qty=parseFloat(r.qty)||0;
-      const price=parseFloat(r.price)||0;
-      const total=qty*price;
-      subtotal+=total;
-      const tr=document.createElement('tr');
-      tr.innerHTML=`
+    rows.forEach((r, idx) => {
+      const qty   = parseFloat(r.qty)   || 0;
+      const price = parseFloat(r.price) || 0;
+      const total = qty * price;
+      subtotal += total;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
         <td>${idx+1}</td>
         <td>${r.product}</td>
         <td style="text-align:center">${qty}</td>
@@ -319,43 +333,37 @@
     const custName  = document.getElementById('customerName').value.trim() || 'Walk-in Customer';
     const custPhone = document.getElementById('customerPhone').value.trim();
 
-    const raw   = localStorage.getItem('billData');
-    const all   = JSON.parse(raw||'[]');
-    const rows  = all.filter(r=>r.product&&(parseFloat(r.qty)||0)>0&&(parseFloat(r.price)||0)>0);
-    let grandTotal=0;
-    rows.forEach(r=>{ grandTotal+=(parseFloat(r.qty)||0)*(parseFloat(r.price)||0); });
+    const raw  = localStorage.getItem('billData');
+    const all  = JSON.parse(raw || '[]');
+    const rows = all.filter(r => r.product && (parseFloat(r.qty)||0)>0 && (parseFloat(r.price)||0)>0);
+    let grandTotal = 0;
+    rows.forEach(r => { grandTotal += (parseFloat(r.qty)||0) * (parseFloat(r.price)||0); });
 
     const pw = doc.internal.pageSize.getWidth();
 
-    // ── ORANGE HEADER BAR ──
+    // Header
     doc.setFillColor(255,107,53);
     doc.rect(0,0,pw,32,'F');
-
-    // Shop Name
     doc.setFont('helvetica','bold');
     doc.setFontSize(16);
     doc.setTextColor(255,255,255);
     doc.text(SHOP_NAME, pw/2, 13, {align:'center'});
-
-    // Address
     doc.setFont('helvetica','normal');
     doc.setFontSize(9);
     doc.setTextColor(255,240,220);
     doc.text(SHOP_ADDRESS, pw/2, 20, {align:'center'});
-
-    // Phone right
     doc.text('Ph: '+SHOP_PHONE, pw-14, 27, {align:'right'});
 
-    // ── BILL INFO ──
+    // Bill info
     doc.setFillColor(255,248,240);
     doc.rect(0,32,pw,16,'F');
-
     doc.setFont('helvetica','bold');
     doc.setFontSize(10);
     doc.setTextColor(191,54,12);
-    doc.text('Bill No.  : '+billNo,        14, 40);
-    doc.text('Date & Time : '+dateTime,    14, 47);
-    // ── CUSTOMER NAME ──
+    doc.text('Bill No.     : '+billNo,   14, 40);
+    doc.text('Date & Time  : '+dateTime, 14, 47);
+
+    // Customer
     doc.setFillColor(255,243,224);
     doc.rect(0,48,pw,18,'F');
     doc.setFont('helvetica','bold');
@@ -365,72 +373,55 @@
     doc.setFont('helvetica','normal');
     doc.setTextColor(62,28,0);
     doc.text(custName, 60, 55);
-
     doc.setFont('helvetica','bold');
-    doc.setFontSize(10);
     doc.setTextColor(125,78,45);
     doc.text('Customer Phone :', 14, 63);
     doc.setFont('helvetica','normal');
     doc.setTextColor(62,28,0);
     doc.text(custPhone || '—', 60, 63);
 
-    // Divider
     doc.setDrawColor(255,183,77);
     doc.setLineWidth(0.8);
     doc.line(0,66,pw,66);
 
-    // ── TABLE ──
-    const tableBody = rows.map((r,i)=>{
-      const qty=parseFloat(r.qty)||0;
-      const price=parseFloat(r.price)||0;
+    const tableBody = rows.map((r,i) => {
+      const qty   = parseFloat(r.qty)   || 0;
+      const price = parseFloat(r.price) || 0;
       return [i+1, r.product, qty.toString(), fmt(price), fmt(qty*price)];
     });
 
     doc.autoTable({
       startY: 68,
-      head: [['S.No', 'Product', 'Qty', 'Price (Rs.)', 'Total (Rs.)']],
+      head: [['S.No','Product','Qty','Price (Rs.)','Total (Rs.)']],
       body: tableBody,
       theme: 'grid',
       margin: {left:10, right:10},
       tableWidth: pw - 20,
-      headStyles: {
-        fillColor:[255,107,53], textColor:255,
-        fontStyle:'bold', fontSize:10,
-        halign:'center', cellPadding:{top:6,bottom:6,left:4,right:4},
-        minCellHeight:14, valign:'middle'
-      },
+      headStyles: { fillColor:[255,107,53], textColor:255, fontStyle:'bold', fontSize:10, halign:'center', cellPadding:{top:6,bottom:6,left:4,right:4}, minCellHeight:14, valign:'middle' },
       bodyStyles: { fontSize:10, cellPadding:4, textColor:[90,48,16], valign:'middle' },
       alternateRowStyles: { fillColor:[255,250,245] },
-      columnStyles: {
-        0:{halign:'center', cellWidth:18},
-        1:{halign:'left',   cellWidth:'auto'},
-        2:{halign:'center', cellWidth:18},
-        3:{halign:'right',  cellWidth:42},
-        4:{halign:'right',  cellWidth:46}
-      }
+      columnStyles: { 0:{halign:'center',cellWidth:18}, 1:{halign:'left',cellWidth:'auto'}, 2:{halign:'center',cellWidth:18}, 3:{halign:'right',cellWidth:42}, 4:{halign:'right',cellWidth:46} }
     });
 
-    // ── GRAND TOTAL ──
     const finalY = doc.lastAutoTable.finalY;
     doc.setFillColor(255,243,224);
-    doc.rect(0, finalY, pw, 14,'F');
+    doc.rect(0, finalY, pw, 14, 'F');
     doc.setDrawColor(255,183,77);
     doc.setLineWidth(0.8);
-    doc.line(0,finalY,pw,finalY);
-
+    doc.line(0, finalY, pw, finalY);
     doc.setFont('helvetica','bold');
     doc.setFontSize(12);
     doc.setTextColor(191,54,12);
     doc.text('Grand Total :', 120, finalY+9);
     doc.text(fmt(grandTotal), pw-14, finalY+9, {align:'right'});
-
-    // ── FOOTER ──
     doc.setFont('helvetica','italic');
     doc.setFontSize(9);
     doc.setTextColor(160,96,64);
     doc.text('Thank you for shopping with us!', pw/2, finalY+22, {align:'center'});
 
-    // ── SAVE PDF ──
+    // Clear the cached bill number so next visit gets a new one
+    sessionStorage.removeItem('currentBillNo');
+
     const safeBill = billNo.replace(/[^a-zA-Z0-9]/g,'_');
     const safeName = (custName || 'Walk-in_Customer').replace(/[^a-zA-Z0-9]/g,'_');
     doc.save(safeBill+'_'+safeName+'.pdf');
