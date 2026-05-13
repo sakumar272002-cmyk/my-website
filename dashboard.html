@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sree Electricals &amp; Electronics</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    // ── IMMEDIATE AUTH BLOCK — runs before body renders ──
+    if(!localStorage.getItem('authToken')){
+      window.location.replace('/login.html');
+    }
+  </script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Poppins',sans-serif; background:#fff8f0; min-height:100vh; }
@@ -301,13 +307,6 @@
     t.classList.add('show');
     setTimeout(()=>t.classList.remove('show'),2500);
   }
-
-  // ── AUTH GUARD ──
-  (function(){
-    if(!localStorage.getItem('authToken')){
-      window.location.replace('/login.html');
-    }
-  })();
 
   buildTable();
 </script>

@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sree Electricals &amp; Electronics</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    // ── IMMEDIATE AUTH BLOCK — runs before body renders ──
+    if(!localStorage.getItem('authToken')){
+      window.location.replace('/login.html');
+    }
+  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <style>
@@ -234,12 +240,7 @@
 </div>
 
 <script>
-  // ── AUTH GUARD ──
-  (function(){
-    if(!localStorage.getItem('authToken')){
-      window.location.replace('/login.html');
-    }
-  })();
+  // ── AUTH GUARD (already handled in <head>) ──
 
   const SHOP_NAME    = 'SREE ELECTRICALS & ELECTRONICS';
   const SHOP_ADDRESS = 'Subramaniapuram, Vasudevanallur(p.o), Tenkasi Main Road, Tamil Nadu-627758';
