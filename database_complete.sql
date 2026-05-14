@@ -1,24 +1,25 @@
 -- ═══════════════════════════════════════════════════════════════
 -- SREE ELECTRICALS & ELECTRONICS — Complete Database Setup
--- Run this ONCE in MySQL Workbench on your CleverCloud database
--- Safe to re-run: all INSERTs use INSERT IGNORE
+-- Run this ONCE in MySQL Workbench (CleverCloud)
+-- Safe to re-run: uses CREATE TABLE IF NOT EXISTS + INSERT IGNORE
 -- ═══════════════════════════════════════════════════════════════
 
 USE bgkwzqnaueygs0sltdxg;
 
--- ─── TABLES ──────────────────────────────────────────────────────────
-
+-- ─── TABLE 1: users ──────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS users (
   id       INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(100) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL
 );
 
+-- ─── TABLE 2: settings ───────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS settings (
   id        INT AUTO_INCREMENT PRIMARY KEY,
   gst_value DECIMAL(5,2) NOT NULL DEFAULT 18.00
 );
 
+-- ─── TABLE 3: products ───────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS products (
   id        INT AUTO_INCREMENT PRIMARY KEY,
   section   VARCHAR(100)  NOT NULL,
@@ -34,6 +35,7 @@ CREATE TABLE IF NOT EXISTS products (
   INDEX idx_brand   (brand)
 );
 
+-- ─── TABLE 4: bill_history ───────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS bill_history (
   id             INT AUTO_INCREMENT PRIMARY KEY,
   bill_no        VARCHAR(50)   NOT NULL,
@@ -48,35 +50,25 @@ CREATE TABLE IF NOT EXISTS bill_history (
   INDEX idx_name  (customer_name)
 );
 
+-- ─── TABLE 5: bill_counter ───────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS bill_counter (
   bill_date VARCHAR(8) PRIMARY KEY,
   counter   INT NOT NULL DEFAULT 0
 );
 
 -- ─── USERS ───────────────────────────────────────────────────────────
-
-INSERT IGNORE INTO users (username, password) VALUES ('admin',  'admin123');
-INSERT IGNORE INTO users (username, password) VALUES ('Seeni',  'Seeni@1969');
-INSERT IGNORE INTO users (username, password) VALUES ('Ari',    'Ari@1999');
-INSERT IGNORE INTO users (username, password) VALUES ('Arul',   'Arul@2001');
-INSERT IGNORE INTO users (username, password) VALUES ('Ashok',  'Ashok@2002');
-
--- Remove old test user if exists
+INSERT IGNORE INTO users (username, password) VALUES ('admin', 'admin123');
+INSERT IGNORE INTO users (username, password) VALUES ('Seeni', 'Seeni@1969');
+INSERT IGNORE INTO users (username, password) VALUES ('Ari',   'Ari@1999');
+INSERT IGNORE INTO users (username, password) VALUES ('Arul',  'Arul@2001');
+INSERT IGNORE INTO users (username, password) VALUES ('Ashok', 'Ashok@2002');
 DELETE FROM users WHERE username = 'john';
 
--- ─── SETTINGS ────────────────────────────────────────────────────────
-
+-- ─── SETTINGS (GST) ──────────────────────────────────────────────────
 INSERT INTO settings (gst_value)
 SELECT 18.00 WHERE NOT EXISTS (SELECT 1 FROM settings);
 
 -- ─── PRODUCTS (422 items from Excel price catalog) ────────────────────
--- section  = product category sheet
--- product  = item name
--- brand    = manufacturer/company
--- spec     = specification type
--- unit     = pack unit (Per piece / 90 mtr coil / etc.)
--- price    = rate in ₹
-
 INSERT IGNORE INTO products (section, product, brand, spec, unit, price) VALUES
   ('Wires & Cables', '0.5 sq mm Wire', 'Finolex', 'Single Core FR', '90 mtr coil', 210.0),
   ('Wires & Cables', '0.5 sq mm Wire', 'Havells', 'Single Core FRLS', '90 mtr coil', 245.0),
@@ -501,8 +493,8 @@ INSERT IGNORE INTO products (section, product, brand, spec, unit, price) VALUES
   ('Electronics & Automation', 'Timer Relay 8 Pin', 'Omron', 'H3Y', 'Per piece', 450.0),
   ('Electronics & Automation', 'PLC Micro 8I/8O', 'Siemens', 'LOGO 24V', 'Per piece', 12500.0);
 
-
 -- ─── VERIFY ──────────────────────────────────────────────────────────
+-- Run this separately AFTER the above to confirm everything was inserted
 
 SELECT 'users'        AS tbl, COUNT(*) AS rows FROM users
 UNION ALL
