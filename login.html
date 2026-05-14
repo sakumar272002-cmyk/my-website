@@ -5,15 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sree Electricals &amp; Electronics</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-  <script>
-    // ── IMMEDIATE AUTH GUARD — fires before DOM renders ──
-    // If already logged in, skip login page entirely. Pure sync check — no flicker.
-    (function(){
-      if (localStorage.getItem('authToken')) {
-        window.location.replace('/dashboard.html');
-      }
-    })();
-  </script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Poppins',sans-serif; min-height:100vh; background:#fff8f0; display:flex; flex-direction:column; }
@@ -23,13 +14,12 @@
       padding:14px 40px; display:flex; align-items:center; gap:14px;
       box-shadow:0 4px 20px rgba(255,107,53,0.35);
     }
-    .logo-circle { width:46px; height:46px; background:rgba(255,255,255,0.25); border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid rgba(255,255,255,0.5); flex-shrink:0; font-size:22px; }
+    .logo-circle { width:46px; height:46px; background:rgba(255,255,255,0.25); border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid rgba(255,255,255,0.5); font-size:22px; }
     header h1 { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:white; text-shadow:0 1px 3px rgba(0,0,0,0.15); letter-spacing:0.5px; }
     .header-sub { margin-left:auto; font-size:11px; color:rgba(255,255,255,0.85); letter-spacing:2px; text-transform:uppercase; font-weight:500; }
 
     main { flex:1; display:grid; grid-template-columns:1fr 1fr; }
 
-    /* ── LEFT: LOGIN ── */
     .login-section { display:flex; align-items:center; justify-content:center; padding:40px; background:#fffaf5; position:relative; overflow:hidden; }
     .login-section::before { content:''; position:absolute; width:350px; height:350px; background:radial-gradient(circle,rgba(255,205,60,0.18) 0%,transparent 70%); top:-80px; right:-80px; border-radius:50%; pointer-events:none; }
     .login-section::after  { content:''; position:absolute; width:250px; height:250px; background:radial-gradient(circle,rgba(255,107,53,0.1) 0%,transparent 70%); bottom:-60px; left:-60px; border-radius:50%; pointer-events:none; }
@@ -52,11 +42,11 @@
     .form-group input::placeholder { color:#c49a72; }
     .form-group input:focus { border-color:#ff6b35; background:#fff; box-shadow:0 0 0 4px rgba(255,107,53,0.1); }
 
-    /* ── BILLING TYPE RADIO ── */
+    /* BILLING TYPE RADIO */
     .billing-type-group { margin-bottom:22px; }
     .billing-type-label { display:block; font-size:12px; font-weight:600; color:#7d4e2d; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
     .radio-options { display:flex; gap:12px; }
-    .radio-card { flex:1; position:relative; cursor:pointer; }
+    .radio-card { flex:1; cursor:pointer; }
     .radio-card input[type="radio"] { position:absolute; opacity:0; width:0; height:0; }
     .radio-label {
       display:flex; flex-direction:column; align-items:center; gap:5px;
@@ -67,16 +57,14 @@
     .radio-label .radio-text { font-size:12px; font-weight:600; color:#7d4e2d; }
     .radio-label .radio-desc { font-size:10px; color:#c49a72; }
     .radio-card input[type="radio"]:checked + .radio-label {
-      border-color:#ff6b35;
-      background:linear-gradient(135deg,#fff3e0,#ffe0c0);
+      border-color:#ff6b35; background:linear-gradient(135deg,#fff3e0,#ffe0c0);
       box-shadow:0 0 0 3px rgba(255,107,53,0.14);
     }
     .radio-card input[type="radio"]:checked + .radio-label .radio-text { color:#e65100; }
     .radio-label:hover { border-color:#ffb74d; background:#fff3e0; }
 
     .login-btn {
-      width:100%; padding:14px;
-      background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);
+      width:100%; padding:14px; background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);
       border:none; border-radius:12px; font-family:'Poppins',sans-serif;
       font-size:15px; font-weight:600; color:white; cursor:pointer;
       margin-top:6px; letter-spacing:0.5px; transition:all 0.3s;
@@ -89,7 +77,7 @@
     .message.show { display:block; }
     .message.success { color:#2e7d32; background:#f1f8e9; border-color:#a5d6a7; }
 
-    /* ── RIGHT: SLIDESHOW ── */
+    /* SLIDESHOW */
     .slide-section { background:linear-gradient(160deg,#1a0a00 0%,#2d1500 50%,#1a0800 100%); position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; }
     .slideshow { width:100%; height:100%; position:relative; }
     .slide { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; opacity:0; transform:translateY(16px); transition:opacity 0.6s,transform 0.6s; pointer-events:none; }
@@ -116,7 +104,6 @@
 </header>
 
 <main>
-  <!-- LOGIN -->
   <div class="login-section">
     <div class="login-box">
       <div class="welcome-badge">⚡ Portal</div>
@@ -189,8 +176,7 @@
       <div class="slide" id="slide-1">
         <div class="slide-canvas">
           <svg width="280" height="200" viewBox="0 0 280 200">
-            <circle cx="140" cy="78" r="14" fill="#e65100"/>
-            <circle cx="140" cy="78" r="8" fill="#ff6b35"/>
+            <circle cx="140" cy="78" r="14" fill="#e65100"/><circle cx="140" cy="78" r="8" fill="#ff6b35"/>
             <line x1="140" y1="78" x2="80" y2="122" stroke="#ff9800" stroke-width="3" stroke-linecap="round"/>
             <line x1="140" y1="78" x2="200" y2="122" stroke="#ff9800" stroke-width="3" stroke-linecap="round"/>
             <line x1="140" y1="78" x2="76" y2="58" stroke="#ff9800" stroke-width="3" stroke-linecap="round"/>
@@ -213,9 +199,8 @@
             <rect x="156" y="70" width="32" height="18" rx="5" fill="#ffb74d"/>
             <text x="172" y="83" font-family="monospace" font-size="10" fill="white" text-anchor="middle" font-weight="700">220V</text>
             <rect x="156" y="94" width="32" height="14" rx="4" fill="#fff3e0" stroke="#ffcc80"/>
-            <circle cx="166" cy="101" r="3" fill="#bdbdbd"/>
-            <circle cx="178" cy="101" r="3" fill="#bdbdbd"/>
-            <text x="140" y="170" font-family="Poppins,sans-serif" font-size="12" fill="#ff9800" text-anchor="middle" font-weight="600" letter-spacing="1">SWITCHES &amp; SOCKETS</text>
+            <circle cx="166" cy="101" r="3" fill="#bdbdbd"/><circle cx="178" cy="101" r="3" fill="#bdbdbd"/>
+            <text x="140" y="170" font-family="Poppins,sans-serif" font-size="11" fill="#ff9800" text-anchor="middle" font-weight="600" letter-spacing="1">SWITCHES &amp; SOCKETS</text>
           </svg>
         </div>
         <div class="slide-title">Modular Switches</div>
@@ -244,12 +229,8 @@
           <svg width="280" height="200" viewBox="0 0 280 200">
             <defs><path id="w1" d="M20 98 Q90 43 160 98 Q230 153 268 98"/></defs>
             <path d="M20 91 Q90 36 160 91 Q230 146 268 91 L268 105 Q230 160 160 105 Q90 50 20 105 Z" fill="#e53935" stroke="#c62828" stroke-width="1"/>
-            <circle r="5" fill="white" opacity="0.9">
-              <animateMotion dur="2s" repeatCount="indefinite"><mpath href="#w1"/></animateMotion>
-            </circle>
-            <circle r="4" fill="#ffcd3c">
-              <animateMotion dur="2s" begin="0.7s" repeatCount="indefinite"><mpath href="#w1"/></animateMotion>
-            </circle>
+            <circle r="5" fill="white" opacity="0.9"><animateMotion dur="2s" repeatCount="indefinite"><mpath href="#w1"/></animateMotion></circle>
+            <circle r="4" fill="#ffcd3c"><animateMotion dur="2s" begin="0.7s" repeatCount="indefinite"><mpath href="#w1"/></animateMotion></circle>
             <text x="140" y="155" font-family="Poppins,sans-serif" font-size="12" fill="#ff9800" text-anchor="middle" font-weight="600" letter-spacing="2">CABLES &amp; WIRING</text>
           </svg>
         </div>
@@ -263,14 +244,13 @@
 </main>
 
 <script>
-  // Slideshow
+  // Slideshow setup
   const TOTAL=5; let current=0; let timer;
   const dotsEl=document.getElementById('dots');
   for(let i=0;i<TOTAL;i++){
     const d=document.createElement('div');
     d.className='dot'+(i===0?' active':'');
-    d.onclick=()=>goTo(i);
-    dotsEl.appendChild(d);
+    d.onclick=()=>goTo(i); dotsEl.appendChild(d);
   }
   function goTo(n){
     document.getElementById('slide-'+current).classList.remove('active');
@@ -288,52 +268,69 @@
   function startTimer(){ clearInterval(timer); timer=setInterval(()=>goTo((current+1)%TOTAL),5000); resetBar(); }
   startTimer();
 
+  // ── AUTH GUARD: verify token with server before redirecting ──
+  // This prevents the loop: stale token in localStorage → redirect to dashboard
+  // → dashboard guard fails → back to login → loop.
+  // We verify ONCE on load. If valid, redirect. If not, clear and show form.
+  (async function checkToken(){
+    const token = localStorage.getItem('authToken');
+    if (!token) return; // No token — show login form normally
+    try {
+      const r = await fetch('/verify-token', { headers:{ 'Authorization': token } });
+      const d = await r.json();
+      if (d.valid) {
+        // Token is valid — go straight to dashboard
+        window.location.replace('/dashboard.html');
+      } else {
+        // Token expired or invalid — clear it so form shows cleanly
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('authUser');
+        localStorage.removeItem('billingType');
+      }
+    } catch(e) {
+      // Network error — clear stale token to be safe
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('authUser');
+      localStorage.removeItem('billingType');
+    }
+  })();
+
   // ── LOGIN ──
   async function handleLogin(){
     const u = document.getElementById('username').value.trim();
     const p = document.getElementById('password').value.trim();
     const billingType = document.querySelector('input[name="billingType"]:checked').value;
     const btn = document.getElementById('loginBtn');
-
     if(!u || !p){ showMsg('Please enter both username and password.'); return; }
-
-    btn.disabled = true;
-    btn.textContent = 'Signing in…';
-
+    btn.disabled = true; btn.textContent = 'Signing in…';
     try{
-      const r = await fetch('/login', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
+      const r = await fetch('/login',{
+        method:'POST', headers:{'Content-Type':'application/json'},
         body:JSON.stringify({username:u, password:p, billingType})
       });
       const d = await r.json();
       if(d.success){
-        // Store auth data — this is the ONLY place these are set
         localStorage.setItem('authToken',   d.token);
         localStorage.setItem('authUser',    d.username);
         localStorage.setItem('billingType', billingType);
-        showMsg('Login successful! Redirecting…', 'success');
-        // Use replace so back button won't return to login
-        setTimeout(()=> window.location.replace('/dashboard.html'), 900);
+        showMsg('Login successful! Redirecting…','success');
+        setTimeout(()=> window.location.replace('/dashboard.html'), 800);
       } else {
         showMsg('Invalid username or password.');
-        btn.disabled = false;
-        btn.textContent = 'Sign In →';
+        btn.disabled = false; btn.textContent = 'Sign In →';
       }
-    } catch(e){
+    }catch(e){
       showMsg('Cannot connect to server. Please try again.');
-      btn.disabled = false;
-      btn.textContent = 'Sign In →';
+      btn.disabled = false; btn.textContent = 'Sign In →';
     }
   }
 
-  function showMsg(text, type){
-    const m = document.getElementById('message');
-    m.textContent = text;
-    m.className = 'message show' + (type ? ' '+type : '');
+  function showMsg(text,type){
+    const m=document.getElementById('message');
+    m.textContent=text; m.className='message show'+(type?' '+type:'');
   }
 
-  document.getElementById('password').addEventListener('keydown', e=>{ if(e.key==='Enter') handleLogin(); });
+  document.getElementById('password').addEventListener('keydown',e=>{ if(e.key==='Enter') handleLogin(); });
 </script>
 </body>
 </html>

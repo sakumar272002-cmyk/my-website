@@ -6,9 +6,9 @@
   <title>Sree Electricals &amp; Electronics</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <script>
-    // ── IMMEDIATE AUTH GUARD — fires before any DOM renders ──
-    // Pure localStorage check — no network call, no flicker, no loop.
-    // If no token → go to login. If token exists → page loads normally.
+    // ── IMMEDIATE AUTH GUARD — synchronous, no network call ──
+    // dashboard.html relies on the token being present in localStorage.
+    // If missing → redirect to login instantly before any DOM paints.
     (function(){
       if (!localStorage.getItem('authToken')) {
         window.location.replace('/login.html');
@@ -19,6 +19,7 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Poppins',sans-serif; background:#fff8f0; min-height:100vh; }
 
+    /* NAVBAR */
     .navbar {
       background:linear-gradient(135deg,#ff6b35 0%,#f7931e 50%,#ffcd3c 100%);
       color:white; padding:0 32px; height:60px;
@@ -26,27 +27,33 @@
       box-shadow:0 4px 16px rgba(255,107,53,0.35);
     }
     .navbar h1 { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; letter-spacing:0.5px; text-shadow:0 1px 3px rgba(0,0,0,0.15); }
-    .nav-right { display:flex; align-items:center; gap:14px; }
+    .nav-right { display:flex; align-items:center; gap:12px; }
     .user-chip { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.4); border-radius:24px; padding:5px 14px 5px 8px; }
-    .user-avatar { width:30px; height:30px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; font-size:16px; }
-    .user-name { font-size:13px; font-weight:600; color:white; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .billing-badge { background:rgba(255,255,255,0.25); border:1px solid rgba(255,255,255,0.5); border-radius:12px; padding:3px 10px; font-size:11px; font-weight:600; color:white; letter-spacing:0.5px; }
-    .logout-btn { background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.5); padding:8px 22px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:500; font-family:'Poppins',sans-serif; transition:all 0.2s; }
+    .user-avatar { width:28px; height:28px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; font-size:15px; }
+    .user-name { font-size:13px; font-weight:600; color:white; max-width:130px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .billing-badge { background:rgba(255,255,255,0.25); border:1px solid rgba(255,255,255,0.45); border-radius:12px; padding:3px 10px; font-size:11px; font-weight:600; color:white; letter-spacing:0.4px; white-space:nowrap; }
+    .logout-btn { background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.5); padding:8px 20px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:500; font-family:'Poppins',sans-serif; transition:all 0.2s; }
     .logout-btn:hover { background:rgba(255,255,255,0.35); }
 
-    .content { max-width:1200px; margin:28px auto; padding:0 20px; }
+    .content { max-width:1250px; margin:28px auto; padding:0 20px; }
 
     .table-card { background:white; border-radius:16px; box-shadow:0 4px 24px rgba(255,107,53,0.12); overflow:hidden; border:1px solid #ffe0c0; }
 
     table { width:100%; border-collapse:collapse; }
-    thead th { background:linear-gradient(135deg,#ff6b35,#f7931e); color:white; padding:13px 12px; font-size:12px; font-weight:600; font-family:'Poppins',sans-serif; letter-spacing:0.3px; text-align:left; white-space:nowrap; }
-    thead th:first-child { width:52px; text-align:center; }
+
+    thead th {
+      background:linear-gradient(135deg,#ff6b35,#f7931e);
+      color:white; padding:13px 10px;
+      font-size:12px; font-weight:600; font-family:'Poppins',sans-serif;
+      letter-spacing:0.3px; text-align:left; white-space:nowrap;
+    }
+    thead th:first-child { width:48px; text-align:center; }
 
     tbody tr { border-bottom:1px solid #fff3e8; transition:background 0.12s; }
     tbody tr:nth-child(even) { background:#fffaf5; }
     tbody tr:hover { background:#fff3e0; }
     tbody tr:last-child { border-bottom:none; }
-    tbody td { padding:4px 8px; font-size:13px; color:#5a3010; vertical-align:middle; }
+    tbody td { padding:4px 6px; font-size:13px; color:#5a3010; vertical-align:middle; }
     tbody td:first-child { text-align:center; color:#c49a72; font-size:12px; }
 
     .cell-input {
@@ -63,36 +70,41 @@
     input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
     input[type=number] { -moz-appearance:textfield; }
 
-    /* Product autocomplete */
+    /* Product autocomplete (Elite only) */
     .product-wrap { position:relative; }
     .dropdown-list {
-      position:absolute; top:100%; left:0; right:0; z-index:200;
+      position:absolute; top:calc(100% + 2px); left:0; right:0; z-index:300;
       background:white; border:1.5px solid #ffb74d; border-radius:8px;
-      box-shadow:0 8px 24px rgba(255,107,53,0.18); max-height:200px; overflow-y:auto;
-      display:none;
+      box-shadow:0 8px 24px rgba(255,107,53,0.18); max-height:210px; overflow-y:auto; display:none;
     }
     .dropdown-list.open { display:block; }
-    .dropdown-item {
-      padding:9px 12px; cursor:pointer; font-size:13px; color:#3e1c00;
-      border-bottom:1px solid #fff3e8; transition:background 0.1s;
-      display:flex; flex-direction:column; gap:2px;
-    }
+    .dropdown-item { padding:9px 12px; cursor:pointer; font-size:13px; color:#3e1c00; border-bottom:1px solid #fff3e8; transition:background 0.1s; }
     .dropdown-item:last-child { border-bottom:none; }
     .dropdown-item:hover, .dropdown-item.focused { background:#fff3e0; }
-    .dropdown-item .di-name { font-weight:600; color:#bf360c; }
-    .dropdown-item .di-sub  { font-size:11px; color:#a06040; }
+    .dropdown-item .di-name { font-weight:600; color:#bf360c; display:block; }
+    .dropdown-item .di-sub  { font-size:11px; color:#a06040; display:block; margin-top:2px; }
     .dropdown-no-result { padding:10px 12px; color:#c49a72; font-size:13px; font-style:italic; }
 
-    .total-display { padding:6px 8px; font-size:13px; font-weight:600; color:#e65100; background:#fff3e0; border-radius:7px; text-align:right; min-height:34px; display:flex; align-items:center; justify-content:flex-end; }
+    .total-display {
+      padding:6px 8px; font-size:13px; font-weight:600; color:#e65100;
+      background:#fff3e0; border-radius:7px; text-align:right;
+      min-height:34px; display:flex; align-items:center; justify-content:flex-end;
+    }
 
-    tfoot td { background:linear-gradient(135deg,#fff3e0,#ffe0b2); padding:13px 12px; font-weight:700; font-size:14px; color:#bf360c; border-top:2px solid #ffb74d; font-family:'Playfair Display',serif; }
+    tfoot td {
+      background:linear-gradient(135deg,#fff3e0,#ffe0b2);
+      padding:13px 10px; font-weight:700; font-size:14px; color:#bf360c;
+      border-top:2px solid #ffb74d; font-family:'Playfair Display',serif;
+    }
     tfoot td:last-child { text-align:right; font-size:15px; }
+    tfoot td.eye-cell { text-align:center; }
 
-    /* Eye icon cell */
+    /* Eye icon (Elite only) */
     .eye-cell { text-align:center !important; }
-    .eye-btn { background:none; border:none; cursor:pointer; font-size:20px; padding:4px 6px; border-radius:6px; transition:background 0.15s; line-height:1; }
+    .eye-btn { background:none; border:none; cursor:pointer; font-size:20px; padding:4px; border-radius:6px; transition:background 0.15s; line-height:1; display:block; margin:0 auto; }
     .eye-btn:hover { background:#fff3e0; }
 
+    /* Paginator */
     .paginator { display:flex; justify-content:center; align-items:center; gap:6px; padding:14px 24px; border-top:1px solid #ffe0c0; background:#fffaf5; }
     .page-btn { width:36px; height:36px; border-radius:8px; border:1px solid #ffb74d; background:white; color:#e65100; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center; font-family:'Poppins',sans-serif; }
     .page-btn:hover { background:#fff3e0; border-color:#ff6b35; }
@@ -117,39 +129,22 @@
       <div class="user-avatar">👤</div>
       <span class="user-name" id="navUsername">—</span>
     </div>
-    <span class="billing-badge" id="billingBadge">—</span>
+    <span class="billing-badge" id="billingBadge"></span>
     <button class="logout-btn" onclick="logout()">Logout</button>
   </div>
 </div>
 
 <div class="content">
   <div class="table-card">
-    <table>
-      <thead>
-        <tr>
-          <th>Sl.No</th>
-          <th>Product</th>
-          <th style="width:130px">Company</th>
-          <th style="width:80px;text-align:center">Quantity</th>
-          <th style="width:110px;text-align:center">Year W/G</th>
-          <th style="width:110px;text-align:right">Price (₹)</th>
-          <th style="width:120px;text-align:right">Total (₹)</th>
-          <th style="width:50px;text-align:center" id="eyeColHeader"></th>
-        </tr>
-      </thead>
+    <table id="mainTable">
+      <thead id="tableHead"></thead>
       <tbody id="tableBody"></tbody>
-      <tfoot>
-        <tr>
-          <td colspan="6">Grand Total</td>
-          <td id="grandTotal">₹ 0.00</td>
-          <td></td>
-        </tr>
-      </tfoot>
+      <tfoot id="tableFoot"></tfoot>
     </table>
     <div class="paginator" id="paginator"></div>
     <div class="bottom-actions">
       <button class="btn-clear" onclick="clearAll()">Clear All</button>
-      <button class="btn-save"  onclick="saveData()">Save &amp; Preview Bill</button>
+      <button class="btn-save" onclick="saveData()">Save &amp; Preview Bill</button>
     </div>
   </div>
 </div>
@@ -157,87 +152,130 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── Read auth info from localStorage ──
   const authToken   = localStorage.getItem('authToken');
   const billingType = localStorage.getItem('billingType') || 'billing';
   const isElite     = billingType === 'elite';
 
-  // Show user info
+  // Display user info
   document.getElementById('navUsername').textContent = localStorage.getItem('authUser') || 'User';
   document.getElementById('billingBadge').textContent = isElite ? '👑 Elite Billing' : '🧾 Billing';
 
-  // Show eye icon column header only for elite
-  if (isElite) {
-    document.getElementById('eyeColHeader').textContent = '👁';
-  }
-
-  // ── TABLE DATA ──
+  // ── TABLE CONFIG based on billing mode ──
+  // Elite: Sl.No | Product(search) | Company | Qty | Year W/G | Price | Total | 👁
+  // Billing: Sl.No | Product(text) | Qty | Price | Total
   const ROWS_PER_PAGE = 10;
   const TOTAL_PAGES   = 5;
   const TOTAL_ROWS    = ROWS_PER_PAGE * TOTAL_PAGES;
   let currentPage = 1;
-  let allData = Array.from({length:TOTAL_ROWS}, ()=>({
-    product:'', company:'', qty:'', warranty:'', guarantee:'', price:''
-  }));
+  let allData = Array.from({length:TOTAL_ROWS}, ()=> isElite
+    ? {product:'', company:'', qty:'', warranty:'', guarantee:'', price:''}
+    : {product:'', qty:'', price:''}
+  );
 
-  // ── PRODUCT AUTOCOMPLETE STATE ──
-  let dropdownTimers = {};
-  let activeDropdown = null;
+  // Build header
+  function buildHead(){
+    const thead = document.getElementById('tableHead');
+    if(isElite){
+      thead.innerHTML = `<tr>
+        <th style="width:46px;text-align:center">Sl.No</th>
+        <th>Product</th>
+        <th style="width:130px">Company</th>
+        <th style="width:75px;text-align:center">Qty</th>
+        <th style="width:105px;text-align:center">Year W/G</th>
+        <th style="width:105px;text-align:right">Price</th>
+        <th style="width:115px;text-align:right">Total Price</th>
+        <th style="width:44px;text-align:center">👁</th>
+      </tr>`;
+    } else {
+      thead.innerHTML = `<tr>
+        <th style="width:46px;text-align:center">Sl.No</th>
+        <th>Product</th>
+        <th style="width:85px;text-align:center">Qty</th>
+        <th style="width:115px;text-align:right">Price</th>
+        <th style="width:125px;text-align:right">Total Price</th>
+      </tr>`;
+    }
+  }
 
-  function buildTable() {
+  // Build footer
+  function buildFoot(){
+    const tfoot = document.getElementById('tableFoot');
+    if(isElite){
+      tfoot.innerHTML = `<tr>
+        <td colspan="6" style="text-align:right">Grand Total</td>
+        <td id="grandTotal" style="text-align:right">0.00</td>
+        <td class="eye-cell"></td>
+      </tr>`;
+    } else {
+      tfoot.innerHTML = `<tr>
+        <td colspan="4" style="text-align:right">Grand Total</td>
+        <td id="grandTotal" style="text-align:right">0.00</td>
+      </tr>`;
+    }
+  }
+
+  // Build table rows
+  function buildTable(){
     const tbody = document.getElementById('tableBody');
     tbody.innerHTML = '';
     const start = (currentPage-1)*ROWS_PER_PAGE;
     for(let i=start; i<start+ROWS_PER_PAGE; i++){
-      const r = allData[i];
+      const r = allData[i]; const slNo = i+1;
       const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${i+1}</td>
-        <td>
-          <div class="product-wrap" id="pw_${i}">
-            <input class="cell-input" type="text" id="product_${i}"
-              placeholder="Search product…" value="${esc(r.product)}"
-              oninput="onProductInput(${i})"
-              onkeydown="onProductKey(event,${i})"
-              onfocus="onProductFocus(${i})"
-              onblur="onProductBlur(${i})"
-              autocomplete="off"/>
-            <div class="dropdown-list" id="dd_${i}"></div>
-          </div>
-        </td>
-        <td><input class="cell-input" type="text" id="company_${i}" placeholder="Company" value="${esc(r.company)}" oninput="updateField(${i},'company')"/></td>
-        <td><input class="cell-input center" type="number" id="qty_${i}" placeholder="0" min="0" value="${r.qty}" oninput="updateField(${i},'qty');recalc(${i})"/></td>
-        <td>
-          <div style="display:flex;gap:4px;align-items:center">
-            <input class="cell-input center" type="number" id="warranty_${i}" placeholder="W" min="0" value="${r.warranty}" oninput="updateField(${i},'warranty')" style="width:48%"/>
-            <span style="color:#c49a72;font-size:11px">/</span>
-            <input class="cell-input center" type="number" id="guarantee_${i}" placeholder="G" min="0" value="${r.guarantee}" oninput="updateField(${i},'guarantee')" style="width:48%"/>
-          </div>
-        </td>
-        <td><input class="cell-input right" type="number" id="price_${i}" placeholder="0.00" min="0" step="0.01" value="${r.price}" oninput="updateField(${i},'price');recalc(${i})"/></td>
-        <td><div class="total-display" id="total_${i}">${calcRowTotal(i)}</div></td>
-        <td class="eye-cell">${isElite ? `<button class="eye-btn" title="View customer history" onclick="goHistory()">👁</button>` : ''}</td>`;
+      if(isElite){
+        tr.innerHTML = `
+          <td>${slNo}</td>
+          <td>
+            <div class="product-wrap" id="pw_${i}">
+              <input class="cell-input" type="text" id="product_${i}"
+                placeholder="Search product…" value="${esc(r.product)}"
+                oninput="onProductInput(${i})" onkeydown="onProductKey(event,${i})"
+                onfocus="onProductFocus(${i})" onblur="onProductBlur(${i})" autocomplete="off"/>
+              <div class="dropdown-list" id="dd_${i}"></div>
+            </div>
+          </td>
+          <td><input class="cell-input" type="text" id="company_${i}" placeholder="Company" value="${esc(r.company)}" oninput="setField(${i},'company')"/></td>
+          <td><input class="cell-input center" type="number" id="qty_${i}" placeholder="0" min="0" value="${r.qty}" oninput="setField(${i},'qty');recalc(${i})"/></td>
+          <td>
+            <div style="display:flex;gap:3px;align-items:center">
+              <input class="cell-input center" type="number" id="warranty_${i}" placeholder="W" min="0" value="${r.warranty}" oninput="setField(${i},'warranty')" style="width:50%"/>
+              <span style="color:#c49a72;font-size:11px;flex-shrink:0">/</span>
+              <input class="cell-input center" type="number" id="guarantee_${i}" placeholder="G" min="0" value="${r.guarantee}" oninput="setField(${i},'guarantee')" style="width:50%"/>
+            </div>
+          </td>
+          <td><input class="cell-input right" type="number" id="price_${i}" placeholder="0.00" min="0" step="0.01" value="${r.price}" oninput="setField(${i},'price');recalc(${i})"/></td>
+          <td><div class="total-display" id="total_${i}">${calcRowTotal(i)}</div></td>
+          <td class="eye-cell"><button class="eye-btn" title="Customer history" onclick="goHistory()">👁</button></td>`;
+      } else {
+        // Billing mode: simple text product, no company/warranty columns, no Rs symbol
+        tr.innerHTML = `
+          <td>${slNo}</td>
+          <td><input class="cell-input" type="text" id="product_${i}" placeholder="Enter product name" value="${esc(r.product)}" oninput="setField(${i},'product')"/></td>
+          <td><input class="cell-input center" type="number" id="qty_${i}" placeholder="0" min="0" value="${r.qty}" oninput="setField(${i},'qty');recalc(${i})"/></td>
+          <td><input class="cell-input right" type="number" id="price_${i}" placeholder="0.00" min="0" step="0.01" value="${r.price}" oninput="setField(${i},'price');recalc(${i})"/></td>
+          <td><div class="total-display" id="total_${i}">${calcRowTotal(i)}</div></td>`;
+      }
       tbody.appendChild(tr);
     }
     buildPaginator();
     calcGrandTotal();
   }
 
-  function esc(v){ return String(v||'').replace(/"/g,'&quot;'); }
+  function esc(v){ return String(v||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
 
   function calcRowTotal(i){
     const qty   = parseFloat(allData[i].qty)   || 0;
     const price = parseFloat(allData[i].price) || 0;
-    return (qty>0 && price>0) ? '₹ '+(qty*price).toFixed(2) : '—';
+    return (qty>0 && price>0) ? (qty*price).toFixed(2) : '—';
   }
 
-  function updateField(i, field){
+  function setField(i, field){
     const el = document.getElementById(`${field}_${i}`);
     if(el) allData[i][field] = el.value;
   }
 
   function recalc(i){
-    updateField(i,'qty'); updateField(i,'price');
+    setField(i,'qty'); setField(i,'price');
     const el = document.getElementById(`total_${i}`);
     if(el) el.textContent = calcRowTotal(i);
     calcGrandTotal();
@@ -246,77 +284,68 @@
   function calcGrandTotal(){
     let grand = 0;
     allData.forEach(r=>{ grand += (parseFloat(r.qty)||0)*(parseFloat(r.price)||0); });
-    document.getElementById('grandTotal').textContent = '₹ '+grand.toFixed(2);
+    document.getElementById('grandTotal').textContent = grand.toFixed(2);
   }
 
-  // ── PRODUCT AUTOCOMPLETE ──
+  // ── PRODUCT AUTOCOMPLETE (Elite only) ──
+  let ddTimers = {};
+
   function onProductInput(i){
-    updateField(i,'product');
-    const val = allData[i].product.trim();
-    clearTimeout(dropdownTimers[i]);
-    if(val.length < 1){ closeDropdown(i); return; }
-    dropdownTimers[i] = setTimeout(()=> fetchProducts(i, val), 250);
+    setField(i,'product');
+    const val = (allData[i].product||'').trim();
+    clearTimeout(ddTimers[i]);
+    if(val.length < 1){ closeDD(i); return; }
+    ddTimers[i] = setTimeout(()=> fetchProducts(i, val), 260);
   }
 
   function onProductFocus(i){
-    const val = allData[i].product.trim();
+    const val = (allData[i].product||'').trim();
     if(val.length >= 1) fetchProducts(i, val);
   }
 
-  function onProductBlur(i){
-    // Delay so click on dropdown item fires first
-    setTimeout(()=> closeDropdown(i), 200);
-  }
+  function onProductBlur(i){ setTimeout(()=> closeDD(i), 200); }
 
   function onProductKey(e, i){
     const dd = document.getElementById(`dd_${i}`);
     const items = dd.querySelectorAll('.dropdown-item');
     let focused = dd.querySelector('.dropdown-item.focused');
-    if(e.key === 'ArrowDown'){
+    if(e.key==='ArrowDown'){
       e.preventDefault();
       const next = focused ? focused.nextElementSibling : items[0];
-      if(next && next.classList.contains('dropdown-item')){ if(focused) focused.classList.remove('focused'); next.classList.add('focused'); }
-    } else if(e.key === 'ArrowUp'){
+      if(next?.classList.contains('dropdown-item')){ focused?.classList.remove('focused'); next.classList.add('focused'); }
+    } else if(e.key==='ArrowUp'){
       e.preventDefault();
-      const prev = focused ? focused.previousElementSibling : null;
-      if(prev && prev.classList.contains('dropdown-item')){ focused.classList.remove('focused'); prev.classList.add('focused'); }
-    } else if(e.key === 'Enter'){
-      if(focused){ focused.click(); e.preventDefault(); }
-    } else if(e.key === 'Escape'){
-      closeDropdown(i);
-    }
+      const prev = focused?.previousElementSibling;
+      if(prev?.classList.contains('dropdown-item')){ focused.classList.remove('focused'); prev.classList.add('focused'); }
+    } else if(e.key==='Enter' && focused){ focused.click(); e.preventDefault(); }
+    else if(e.key==='Escape') closeDD(i);
   }
 
   async function fetchProducts(i, search){
     try{
-      const resp = await fetch(`/products?search=${encodeURIComponent(search)}`, {
-        headers:{ 'Authorization': authToken }
-      });
-      const data = await resp.json();
-      renderDropdown(i, data);
-    }catch(e){ closeDropdown(i); }
+      const resp = await fetch(`/products?search=${encodeURIComponent(search)}`,{headers:{'Authorization':authToken}});
+      if(!resp.ok) throw new Error('bad');
+      renderDD(i, await resp.json());
+    }catch(e){ closeDD(i); }
   }
 
-  function renderDropdown(i, products){
+  function renderDD(i, products){
     const dd = document.getElementById(`dd_${i}`);
     if(!dd) return;
-    dd.innerHTML = '';
-    if(!products || products.length === 0){
-      dd.innerHTML = '<div class="dropdown-no-result">No products found</div>';
-      dd.classList.add('open');
-      return;
+    dd.innerHTML='';
+    if(!products?.length){
+      dd.innerHTML='<div class="dropdown-no-result">No products found</div>';
+      dd.classList.add('open'); return;
     }
     products.forEach(p=>{
-      const item = document.createElement('div');
-      item.className = 'dropdown-item';
-      item.innerHTML = `
-        <span class="di-name">${p.name}</span>
-        <span class="di-sub">${p.company||''} ${p.price ? '· ₹'+parseFloat(p.price).toFixed(2) : ''} ${p.warranty ? '· W:'+p.warranty+'yr' : ''} ${p.guarantee ? '· G:'+p.guarantee+'yr' : ''}</span>`;
-      item.onmousedown = ()=> selectProduct(i, p);
+      const item=document.createElement('div');
+      item.className='dropdown-item';
+      const wg = [p.warranty?`W:${p.warranty}yr`:'', p.guarantee?`G:${p.guarantee}yr`:''].filter(Boolean).join(' · ');
+      item.innerHTML=`<span class="di-name">${p.name}</span><span class="di-sub">${[p.company, p.price?p.price:'', wg].filter(Boolean).join(' · ')}</span>`;
+      item.onmousedown=()=> selectProduct(i,p);
       dd.appendChild(item);
     });
     dd.classList.add('open');
-    activeDropdown = i;
   }
 
   function selectProduct(i, p){
@@ -325,82 +354,71 @@
     allData[i].price     = p.price    || '';
     allData[i].warranty  = p.warranty || '';
     allData[i].guarantee = p.guarantee|| '';
-    // Update DOM inputs
-    const fields = ['product','company','price','warranty','guarantee'];
-    fields.forEach(f=>{
-      const el = document.getElementById(`${f}_${i}`);
+    ['product','company','price','warranty','guarantee'].forEach(f=>{
+      const el=document.getElementById(`${f}_${i}`);
       if(el) el.value = allData[i][f];
     });
-    recalc(i);
-    closeDropdown(i);
-    // Focus qty
-    const qtyEl = document.getElementById(`qty_${i}`);
-    if(qtyEl) qtyEl.focus();
+    recalc(i); closeDD(i);
+    document.getElementById(`qty_${i}`)?.focus();
   }
 
-  function closeDropdown(i){
-    const dd = document.getElementById(`dd_${i}`);
+  function closeDD(i){
+    const dd=document.getElementById(`dd_${i}`);
     if(dd){ dd.classList.remove('open'); dd.innerHTML=''; }
-    if(activeDropdown === i) activeDropdown = null;
   }
 
   // ── PAGINATOR ──
   function buildPaginator(){
     const pg = document.getElementById('paginator');
     pg.innerHTML = '';
-    const prev = document.createElement('button');
-    prev.className='page-btn'; prev.textContent='‹'; prev.style.fontSize='18px';
-    prev.onclick=()=>{ if(currentPage>1) goPage(currentPage-1); };
-    pg.appendChild(prev);
+    const mkBtn = (label, onclick, extra='') => {
+      const b=document.createElement('button');
+      b.className='page-btn'+extra; b.innerHTML=label; b.onclick=onclick; return b;
+    };
+    pg.appendChild(mkBtn('‹',()=>{ if(currentPage>1) goPage(currentPage-1); }));
     for(let p=1;p<=TOTAL_PAGES;p++){
-      const btn=document.createElement('button');
-      btn.className='page-btn'+(p===currentPage?' active':'');
-      btn.textContent=p; btn.onclick=()=>goPage(p);
-      pg.appendChild(btn);
+      pg.appendChild(mkBtn(p,()=>goPage(p), p===currentPage?' active':''));
     }
-    const next=document.createElement('button');
-    next.className='page-btn'; next.textContent='›'; next.style.fontSize='18px';
-    next.onclick=()=>{ if(currentPage<TOTAL_PAGES) goPage(currentPage+1); };
-    pg.appendChild(next);
+    pg.appendChild(mkBtn('›',()=>{ if(currentPage<TOTAL_PAGES) goPage(currentPage+1); }));
   }
 
-  function goPage(p){ syncCurrentPage(); currentPage=p; buildTable(); }
+  function goPage(p){ syncPage(); currentPage=p; buildTable(); }
 
-  function syncCurrentPage(){
+  function syncPage(){
     const start=(currentPage-1)*ROWS_PER_PAGE;
+    const fields = isElite
+      ? ['product','company','qty','warranty','guarantee','price']
+      : ['product','qty','price'];
     for(let i=start;i<start+ROWS_PER_PAGE;i++){
-      ['product','company','qty','warranty','guarantee','price'].forEach(f=>{
-        const el=document.getElementById(`${f}_${i}`);
-        if(el) allData[i][f]=el.value;
-      });
+      fields.forEach(f=>{ const el=document.getElementById(`${f}_${i}`); if(el) allData[i][f]=el.value; });
     }
   }
 
   // ── SAVE ──
   function saveData(){
-    syncCurrentPage();
-    const filled = allData.filter(r=>r.product&&(parseFloat(r.qty)||0)>0);
-    if(filled.length===0){ showToast('Please enter at least one product with quantity!'); return; }
+    syncPage();
+    const filled = allData.filter(r=>r.product && (parseFloat(r.qty)||0)>0);
+    if(!filled.length){ showToast('Enter at least one product with quantity!'); return; }
     sessionStorage.setItem('billData', JSON.stringify(allData));
-    sessionStorage.removeItem('currentBillNo'); // force fresh bill number
-    window.location.href='/billing.html';
+    sessionStorage.removeItem('currentBillNo'); // force fresh bill number on billing page
+    window.location.href = '/billing.html';
   }
 
   // ── CLEAR ──
   function clearAll(){
-    showToast('Clearing all data…');
+    showToast('Clearing…');
     setTimeout(()=>{
-      allData=Array.from({length:TOTAL_ROWS},()=>({product:'',company:'',qty:'',warranty:'',guarantee:'',price:''}));
-      currentPage=1; buildTable();
-      document.getElementById('grandTotal').textContent='₹ 0.00';
+      allData = Array.from({length:TOTAL_ROWS},()=> isElite
+        ? {product:'',company:'',qty:'',warranty:'',guarantee:'',price:''}
+        : {product:'',qty:'',price:''}
+      );
+      currentPage=1; buildHead(); buildFoot(); buildTable();
       showToast('All data cleared!');
     },600);
   }
 
-  // ── HISTORY (elite only) ──
-  function goHistory(){
-    window.location.href='/customer-history.html';
-  }
+  // ── HISTORY (Elite only) ──
+  function goHistory(){ window.location.href='/customer-history.html'; }
 
   // ── LOGOUT ──
   function logout(){
@@ -417,6 +435,9 @@
     setTimeout(()=>t.classList.remove('show'),2500);
   }
 
+  // ── INIT ──
+  buildHead();
+  buildFoot();
   buildTable();
 </script>
 </body>

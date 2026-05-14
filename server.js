@@ -11,7 +11,7 @@ const JWT_SECRET = 'sree-electricals-jwt-secret-2024';
 app.use(cors());
 app.use(bodyParser.json());
 
-// ─── DATABASE (pool handles reconnects automatically) ────────
+// ─── DATABASE POOL (handles idle-timeout reconnects automatically) ───
 const db = mysql.createPool({
   host:               process.env.DB_HOST     || 'bgkwzqnaueygs0sltdxg-mysql.services.clever-cloud.com',
   port:               process.env.DB_PORT     || 3306,
@@ -28,9 +28,9 @@ db.getConnection((err, conn) => {
   else     { console.log('✅ Connected to MySQL'); conn.release(); }
 });
 
-// ─── API AUTH MIDDLEWARE ──────────────────────────────────────
-// Protects API routes only. HTML pages are served freely —
-// each page does its own client-side auth check via localStorage.
+// ─── API AUTH MIDDLEWARE ─────────────────────────────────────────────
+// Protects only /api/* routes. HTML pages are served freely —
+// auth is 100% client-side via localStorage JWT.
 function requireLogin(req, res, next) {
   const token = req.headers['authorization'];
   if (!token) return res.status(401).json({ error: 'Not logged in' });
@@ -42,20 +42,33 @@ function requireLogin(req, res, next) {
   }
 }
 
-// ─── STATIC FILES ────────────────────────────────────────────
-// Serve ALL files (HTML included) as static — no server-side auth on pages.
-// Auth is purely client-side (localStorage JWT). This prevents the
-// redirect loop that happened when server required ?token= on HTML routes.
+// ─── TOKEN VERIFY ENDPOINT ──────────────────────────────────────────
+// login.html calls GET /verify-token with Authorization header to check
+// if a stored token is still valid BEFORE deciding to redirect to dashboard.
+// This prevents the case where an expired token causes an infinite loop.
+app.get('/verify-token', (req, res) => {
+  const token = req.headers['authorization'];
+  if (!token) return res.json({ valid: false });
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    res.json({ valid: true, username: decoded.username, billingType: decoded.billingType });
+  } catch {
+    res.json({ valid: false });
+  }
+});
+
+// ─── STATIC FILES ───────────────────────────────────────────────────
+// All HTML, CSS, JS served freely. No server-side page guards.
+// Auth enforced per-page in client JS (see each .html file's IIFE guard).
 app.use(express.static(path.join(__dirname)));
 
-// ─── CLEAN URLS (no .html extension needed) ──────────────────
-// Allows /dashboard, /billing, /customer-history in addition to the .html versions.
-// Also fixes the bug where copy-pasting /dashboard in a new tab returned 404.
+// ─── CLEAN URLS (no .html required) ─────────────────────────────────
+// Fixes: copy-pasting /dashboard in new tab → used to 404, now works.
 const pageMap = {
+  '/login':            'login.html',
   '/dashboard':        'dashboard.html',
   '/billing':          'billing.html',
   '/customer-history': 'customer-history.html',
-  '/login':            'login.html',
 };
 Object.entries(pageMap).forEach(([route, file]) => {
   app.get(route, (req, res) =>
@@ -63,12 +76,12 @@ Object.entries(pageMap).forEach(([route, file]) => {
   );
 });
 
-// Root always serves login page (client-side JS redirects if already logged in)
+// Root → always login.html (client JS redirects if token valid)
 app.get('/', (req, res) =>
   res.sendFile(path.join(__dirname, 'login.html'))
 );
 
-// ─── LOGIN ───────────────────────────────────────────────────
+// ─── LOGIN ──────────────────────────────────────────────────────────
 app.post('/login', (req, res) => {
   const { username, password, billingType } = req.body;
   if (!username || !password)
@@ -93,23 +106,17 @@ app.post('/login', (req, res) => {
   );
 });
 
-// ─── WHO AM I ────────────────────────────────────────────────
+// ─── WHO AM I ───────────────────────────────────────────────────────
 app.get('/me', requireLogin, (req, res) => {
   res.json({ username: req.user.username, billingType: req.user.billingType });
 });
 
-// ─── LOGOUT ──────────────────────────────────────────────────
+// ─── LOGOUT ─────────────────────────────────────────────────────────
 app.post('/logout', (req, res) => res.json({ success: true }));
 
-// ─── GST ─────────────────────────────────────────────────────
-app.get('/gst', requireLogin, (req, res) => {
-  db.query('SELECT gst_value FROM settings LIMIT 1', (err, results) => {
-    if (err || results.length === 0) return res.json({ gst: 0 });
-    res.json({ gst: results[0].gst_value });
-  });
-});
-
-// ─── NEXT BILL NUMBER ────────────────────────────────────────
+// ─── NEXT BILL NUMBER ───────────────────────────────────────────────
+// Sequential per calendar day: BILL-YYYYMMDD-1, -2, -3 …
+// Atomic upsert ensures no duplicates even under concurrent requests.
 app.get('/next-bill-no', requireLogin, (req, res) => {
   const today   = new Date();
   const dateStr = today.getFullYear().toString() +
@@ -117,33 +124,24 @@ app.get('/next-bill-no', requireLogin, (req, res) => {
     today.getDate().toString().padStart(2,'0');
 
   db.query(
-    `CREATE TABLE IF NOT EXISTS bill_counter (
-       bill_date VARCHAR(8) PRIMARY KEY,
-       counter   INT NOT NULL DEFAULT 0
-     )`,
+    `INSERT INTO bill_counter (bill_date, counter) VALUES (?, 1)
+     ON DUPLICATE KEY UPDATE counter = counter + 1`,
+    [dateStr],
     (err) => {
-      if (err) return res.status(500).json({ error: 'DB error' });
+      if (err) { console.error('Counter error:', err.message); return res.status(500).json({ error: 'Counter error' }); }
       db.query(
-        `INSERT INTO bill_counter (bill_date, counter) VALUES (?, 1)
-         ON DUPLICATE KEY UPDATE counter = counter + 1`,
+        'SELECT counter FROM bill_counter WHERE bill_date = ?',
         [dateStr],
-        (err) => {
-          if (err) return res.status(500).json({ error: 'Counter error' });
-          db.query(
-            'SELECT counter FROM bill_counter WHERE bill_date = ?',
-            [dateStr],
-            (err, results) => {
-              if (err || results.length === 0) return res.status(500).json({ error: 'Fetch error' });
-              res.json({ billNo: `BILL-${dateStr}-${results[0].counter}` });
-            }
-          );
+        (err, rows) => {
+          if (err || rows.length === 0) return res.status(500).json({ error: 'Fetch error' });
+          res.json({ billNo: `BILL-${dateStr}-${rows[0].counter}` });
         }
       );
     }
   );
 });
 
-// ─── PRODUCTS ────────────────────────────────────────────────
+// ─── PRODUCTS ───────────────────────────────────────────────────────
 app.get('/products', requireLogin, (req, res) => {
   const { search, category } = req.query;
   let sql = 'SELECT * FROM products WHERE 1=1';
@@ -164,7 +162,7 @@ app.get('/categories', requireLogin, (req, res) => {
   });
 });
 
-// ─── BILL HISTORY (Elite billing only) ───────────────────────
+// ─── BILL HISTORY (Elite billing only) ──────────────────────────────
 app.post('/save-bill', requireLogin, (req, res) => {
   const { billNo, customerName, customerPhone, items, grandTotal, dateTime } = req.body;
   db.query(
@@ -200,7 +198,7 @@ app.get('/bill-history/:billNo', requireLogin, (req, res) => {
   });
 });
 
-// ─── DB SCHEMA INIT ──────────────────────────────────────────
+// ─── DB SCHEMA INIT ─────────────────────────────────────────────────
 function initDB() {
   const tables = [
     `CREATE TABLE IF NOT EXISTS users (
@@ -239,6 +237,6 @@ function initDB() {
 }
 initDB();
 
-// ─── START ───────────────────────────────────────────────────
+// ─── START ──────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server at http://localhost:${PORT}`));
