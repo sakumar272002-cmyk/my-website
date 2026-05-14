@@ -78,20 +78,40 @@
     .message.success { color:#2e7d32; background:#f1f8e9; border-color:#a5d6a7; }
 
     /* SLIDESHOW */
-    .slide-section { background:linear-gradient(160deg,#1a0a00 0%,#2d1500 50%,#1a0800 100%); position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+    .slide-section {
+      background: linear-gradient(160deg, #7a2800 0%, #c44a00 40%, #e65c00 70%, #ff8c00 100%);
+      position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center;
+    }
+    /* decorative circles */
+    .slide-section::before {
+      content:''; position:absolute; width:420px; height:420px; border-radius:50%;
+      background:radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+      top:-120px; right:-120px; pointer-events:none;
+    }
+    .slide-section::after {
+      content:''; position:absolute; width:300px; height:300px; border-radius:50%;
+      background:radial-gradient(circle, rgba(255,205,60,0.12) 0%, transparent 70%);
+      bottom:-80px; left:-80px; pointer-events:none;
+    }
     .slideshow { width:100%; height:100%; position:relative; }
     .slide { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; opacity:0; transform:translateY(16px); transition:opacity 0.6s,transform 0.6s; pointer-events:none; }
     .slide.active { opacity:1; transform:translateY(0); pointer-events:auto; }
-    .slide-canvas { background:rgba(255,255,255,0.04); border:1px solid rgba(255,200,100,0.15); border-radius:24px; padding:24px; margin-bottom:24px; }
-    .slide-title { font-family:'Playfair Display',serif; font-size:24px; font-weight:700; color:white; text-align:center; margin-bottom:8px; }
-    .slide-desc { font-size:13px; color:rgba(255,200,120,0.8); text-align:center; }
+    .slide-canvas {
+      background:rgba(255,255,255,0.10);
+      border:1px solid rgba(255,220,150,0.3);
+      border-radius:24px; padding:24px; margin-bottom:24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      backdrop-filter: blur(2px);
+    }
+    .slide-title { font-family:'Playfair Display',serif; font-size:24px; font-weight:700; color:white; text-align:center; margin-bottom:8px; text-shadow:0 2px 8px rgba(0,0,0,0.2); }
+    .slide-desc { font-size:13px; color:rgba(255,240,200,0.9); text-align:center; }
     .slide-dots { position:absolute; bottom:50px; left:50%; transform:translateX(-50%); display:flex; gap:8px; }
-    .dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.25); cursor:pointer; transition:all 0.3s; }
-    .dot.active { background:#ff6b35; transform:scale(1.4); }
-    .progress-bar { position:absolute; bottom:0; left:0; height:3px; background:linear-gradient(90deg,#ff6b35,#ffcd3c); width:0; }
-    @keyframes ledBlink { 0%,100%{opacity:1} 50%{opacity:0.55} }
+    .dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.3); cursor:pointer; transition:all 0.3s; }
+    .dot.active { background:white; transform:scale(1.4); }
+    .progress-bar { position:absolute; bottom:0; left:0; height:3px; background:linear-gradient(90deg,#ffcd3c,white); width:0; }
+    @keyframes ledBlink { 0%,100%{opacity:1} 50%{opacity:0.45} }
     .led-blink { animation:ledBlink 1.5s ease-in-out infinite; }
-    @keyframes boltFlash { 0%,100%{opacity:0.9} 50%{opacity:0.2} }
+    @keyframes boltFlash { 0%,100%{opacity:0.9} 50%{opacity:0.15} }
     .bolt-flash { animation:boltFlash 0.8s ease-in-out infinite; }
     @media(max-width:768px){ main{grid-template-columns:1fr;} .slide-section{display:none;} }
   </style>
@@ -160,14 +180,14 @@
       <div class="slide active" id="slide-0">
         <div class="slide-canvas">
           <svg width="280" height="200" viewBox="0 0 280 200">
-            <circle cx="140" cy="88" r="50" fill="#fff3e0" stroke="#ffb74d" stroke-width="2"/>
+            <circle cx="140" cy="88" r="50" fill="white" stroke="#ffb74d" stroke-width="2"/>
             <circle cx="140" cy="88" r="34" fill="#fff8f0" stroke="#ffcc80" stroke-width="1.5"/>
             <path d="M140 57 L148 80 L172 80 L152 95 L160 118 L140 103 L120 118 L128 95 L108 80 L132 80 Z" fill="#ff6b35" opacity="0.9"/>
             <circle cx="140" cy="88" r="10" fill="#ffcd3c" class="led-blink"/>
             <line x1="140" y1="38" x2="140" y2="31" stroke="#ffb74d" stroke-width="2.5" stroke-linecap="round"/>
             <line x1="112" y1="47" x2="107" y2="42" stroke="#ffb74d" stroke-width="2" stroke-linecap="round"/>
             <line x1="168" y1="47" x2="173" y2="42" stroke="#ffb74d" stroke-width="2" stroke-linecap="round"/>
-            <text x="140" y="162" font-family="Poppins,sans-serif" font-size="12" fill="#ff9800" text-anchor="middle" font-weight="600" letter-spacing="2">LED LIGHTING</text>
+            <text x="140" y="162" font-family="Poppins,sans-serif" font-size="12" fill="white" text-anchor="middle" font-weight="600" letter-spacing="2">LED LIGHTING</text>
           </svg>
         </div>
         <div class="slide-title">LED Bulbs &amp; Lights</div>
@@ -176,14 +196,14 @@
       <div class="slide" id="slide-1">
         <div class="slide-canvas">
           <svg width="280" height="200" viewBox="0 0 280 200">
-            <circle cx="140" cy="78" r="14" fill="#e65100"/><circle cx="140" cy="78" r="8" fill="#ff6b35"/>
-            <line x1="140" y1="78" x2="80" y2="122" stroke="#ff9800" stroke-width="3" stroke-linecap="round"/>
-            <line x1="140" y1="78" x2="200" y2="122" stroke="#ff9800" stroke-width="3" stroke-linecap="round"/>
-            <line x1="140" y1="78" x2="76" y2="58" stroke="#ff9800" stroke-width="3" stroke-linecap="round"/>
-            <line x1="140" y1="78" x2="204" y2="58" stroke="#ff9800" stroke-width="3" stroke-linecap="round"/>
-            <ellipse cx="140" cy="78" rx="60" ry="15" fill="none" stroke="#ffb74d" stroke-width="1.5" stroke-dasharray="6,4"/>
+            <circle cx="140" cy="78" r="14" fill="#e65100"/><circle cx="140" cy="78" r="8" fill="#ffcd3c"/>
+            <line x1="140" y1="78" x2="80" y2="122" stroke="white" stroke-width="3" stroke-linecap="round"/>
+            <line x1="140" y1="78" x2="200" y2="122" stroke="white" stroke-width="3" stroke-linecap="round"/>
+            <line x1="140" y1="78" x2="76" y2="58" stroke="white" stroke-width="3" stroke-linecap="round"/>
+            <line x1="140" y1="78" x2="204" y2="58" stroke="white" stroke-width="3" stroke-linecap="round"/>
+            <ellipse cx="140" cy="78" rx="60" ry="15" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-dasharray="6,4"/>
             <rect x="130" y="92" width="20" height="24" rx="4" fill="#bf360c"/>
-            <text x="140" y="158" font-family="Poppins,sans-serif" font-size="12" fill="#ff9800" text-anchor="middle" font-weight="600" letter-spacing="2">CEILING FANS</text>
+            <text x="140" y="158" font-family="Poppins,sans-serif" font-size="12" fill="white" text-anchor="middle" font-weight="600" letter-spacing="2">CEILING FANS</text>
           </svg>
         </div>
         <div class="slide-title">Fans &amp; Ventilation</div>
@@ -192,15 +212,15 @@
       <div class="slide" id="slide-2">
         <div class="slide-canvas">
           <svg width="280" height="200" viewBox="0 0 280 200">
-            <rect x="65" y="48" width="150" height="104" rx="10" fill="#fff3e0" stroke="#ffb74d" stroke-width="2"/>
+            <rect x="65" y="48" width="150" height="104" rx="10" fill="white" stroke="#ffb74d" stroke-width="2"/>
             <rect x="79" y="62" width="122" height="76" rx="7" fill="#fff8f0"/>
             <circle cx="118" cy="94" r="18" fill="none" stroke="#ff6b35" stroke-width="2.5"/>
             <circle cx="118" cy="94" r="6" fill="#ff6b35" class="led-blink"/>
-            <rect x="156" y="70" width="32" height="18" rx="5" fill="#ffb74d"/>
+            <rect x="156" y="70" width="32" height="18" rx="5" fill="#ff6b35"/>
             <text x="172" y="83" font-family="monospace" font-size="10" fill="white" text-anchor="middle" font-weight="700">220V</text>
             <rect x="156" y="94" width="32" height="14" rx="4" fill="#fff3e0" stroke="#ffcc80"/>
             <circle cx="166" cy="101" r="3" fill="#bdbdbd"/><circle cx="178" cy="101" r="3" fill="#bdbdbd"/>
-            <text x="140" y="170" font-family="Poppins,sans-serif" font-size="11" fill="#ff9800" text-anchor="middle" font-weight="600" letter-spacing="1">SWITCHES &amp; SOCKETS</text>
+            <text x="140" y="170" font-family="Poppins,sans-serif" font-size="11" fill="white" text-anchor="middle" font-weight="600" letter-spacing="1">SWITCHES &amp; SOCKETS</text>
           </svg>
         </div>
         <div class="slide-title">Modular Switches</div>
@@ -209,7 +229,7 @@
       <div class="slide" id="slide-3">
         <div class="slide-canvas">
           <svg width="280" height="200" viewBox="0 0 280 200">
-            <rect x="65" y="52" width="150" height="100" rx="10" fill="#fff8f0" stroke="#ffb74d" stroke-width="2"/>
+            <rect x="65" y="52" width="150" height="100" rx="10" fill="white" stroke="#ffb74d" stroke-width="2"/>
             <rect x="138" y="40" width="24" height="14" rx="4" fill="#ffcc80"/>
             <rect x="78" y="65" width="124" height="74" rx="7" fill="#fff3e0"/>
             <rect x="84" y="73" width="20" height="58" rx="4" fill="#66bb6a" class="led-blink"/>
@@ -217,8 +237,8 @@
             <rect x="136" y="89" width="20" height="42" rx="4" fill="#ffa726" class="led-blink" style="animation-delay:0.6s"/>
             <rect x="162" y="109" width="20" height="22" rx="4" fill="#ef5350" class="led-blink" style="animation-delay:0.9s"/>
             <text x="140" y="112" font-family="Playfair Display,serif" font-size="16" font-weight="700" fill="#e65100" text-anchor="middle">75%</text>
-            <path class="bolt-flash" d="M218 65 L208 83 L215 83 L203 103 L217 85 L210 85 Z" fill="#ff9800"/>
-            <text x="140" y="172" font-family="Poppins,sans-serif" font-size="12" fill="#ff9800" text-anchor="middle" font-weight="600" letter-spacing="1">UPS &amp; BATTERY</text>
+            <path class="bolt-flash" d="M218 65 L208 83 L215 83 L203 103 L217 85 L210 85 Z" fill="#ffcd3c"/>
+            <text x="140" y="172" font-family="Poppins,sans-serif" font-size="12" fill="white" text-anchor="middle" font-weight="600" letter-spacing="1">UPS &amp; BATTERY</text>
           </svg>
         </div>
         <div class="slide-title">UPS &amp; Battery Backup</div>
@@ -231,7 +251,7 @@
             <path d="M20 91 Q90 36 160 91 Q230 146 268 91 L268 105 Q230 160 160 105 Q90 50 20 105 Z" fill="#e53935" stroke="#c62828" stroke-width="1"/>
             <circle r="5" fill="white" opacity="0.9"><animateMotion dur="2s" repeatCount="indefinite"><mpath href="#w1"/></animateMotion></circle>
             <circle r="4" fill="#ffcd3c"><animateMotion dur="2s" begin="0.7s" repeatCount="indefinite"><mpath href="#w1"/></animateMotion></circle>
-            <text x="140" y="155" font-family="Poppins,sans-serif" font-size="12" fill="#ff9800" text-anchor="middle" font-weight="600" letter-spacing="2">CABLES &amp; WIRING</text>
+            <text x="140" y="155" font-family="Poppins,sans-serif" font-size="12" fill="white" text-anchor="middle" font-weight="600" letter-spacing="2">CABLES &amp; WIRING</text>
           </svg>
         </div>
         <div class="slide-title">Cables &amp; Wiring</div>
@@ -268,11 +288,10 @@
   function startTimer(){ clearInterval(timer); timer=setInterval(()=>goTo((current+1)%TOTAL),5000); resetBar(); }
   startTimer();
 
-  // Always clear any stale session on login page load
-  localStorage.removeItem('authToken');
-  localStorage.removeItem('authUser');
-  localStorage.removeItem('billingType');
-  sessionStorage.clear();
+  // ── If already logged in → go straight to dashboard ──
+  if(localStorage.getItem('authToken')){
+    window.location.replace('/dashboard.html');
+  }
 
   // ── LOGIN ──
   async function handleLogin(){
