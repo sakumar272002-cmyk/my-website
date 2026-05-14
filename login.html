@@ -151,7 +151,7 @@
         <span class="billing-type-label">Billing Mode</span>
         <div class="radio-options">
           <label class="radio-card">
-            <input type="radio" name="billingType" value="elite" checked/>
+            <input type="radio" name="billingType" value="elite"/>
             <div class="radio-label">
               <span class="radio-icon">👑</span>
               <span class="radio-text">Elite Billing</span>
@@ -297,9 +297,11 @@
   async function handleLogin(){
     const u = document.getElementById('username').value.trim();
     const p = document.getElementById('password').value.trim();
-    const billingType = document.querySelector('input[name="billingType"]:checked').value;
+    const checkedType = document.querySelector('input[name="billingType"]:checked');
     const btn = document.getElementById('loginBtn');
     if(!u || !p){ showMsg('Please enter both username and password.'); return; }
+    if(!checkedType){ showMsg('Please select a Billing Mode.'); return; }
+    const billingType = checkedType.value;
     btn.disabled = true; btn.textContent = 'Signing in…';
     try{
       const r = await fetch('/login',{
