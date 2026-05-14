@@ -268,32 +268,11 @@
   function startTimer(){ clearInterval(timer); timer=setInterval(()=>goTo((current+1)%TOTAL),5000); resetBar(); }
   startTimer();
 
-  // ── AUTH GUARD: verify token with server before redirecting ──
-  // This prevents the loop: stale token in localStorage → redirect to dashboard
-  // → dashboard guard fails → back to login → loop.
-  // We verify ONCE on load. If valid, redirect. If not, clear and show form.
-  (async function checkToken(){
-    const token = localStorage.getItem('authToken');
-    if (!token) return; // No token — show login form normally
-    try {
-      const r = await fetch('/verify-token', { headers:{ 'Authorization': token } });
-      const d = await r.json();
-      if (d.valid) {
-        // Token is valid — go straight to dashboard
-        window.location.replace('/dashboard.html');
-      } else {
-        // Token expired or invalid — clear it so form shows cleanly
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('authUser');
-        localStorage.removeItem('billingType');
-      }
-    } catch(e) {
-      // Network error — clear stale token to be safe
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('authUser');
-      localStorage.removeItem('billingType');
-    }
-  })();
+  // Always clear any stale session on login page load
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('authUser');
+  localStorage.removeItem('billingType');
+  sessionStorage.clear();
 
   // ── LOGIN ──
   async function handleLogin(){

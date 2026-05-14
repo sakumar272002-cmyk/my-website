@@ -76,7 +76,7 @@ Object.entries(pageMap).forEach(([route, file]) => {
   );
 });
 
-// Root → always login.html (client JS redirects if token valid)
+// Root → always login.html — user must login every time
 app.get('/', (req, res) =>
   res.sendFile(path.join(__dirname, 'login.html'))
 );
