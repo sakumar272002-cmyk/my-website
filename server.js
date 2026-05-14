@@ -11,7 +11,8 @@ const JWT_SECRET = 'sree-electricals-jwt-secret-2024';
 app.use(cors());
 app.use(bodyParser.json());
 
-// ─── DATABASE POOL (handles idle-timeout reconnects automatically) ───
+// ─── DATABASE POOL ───────────────────────────────────────────────────
+// Pool handles idle-timeout reconnects automatically (no more ECONNRESET)
 const db = mysql.createPool({
   host:               process.env.DB_HOST     || 'bgkwzqnaueygs0sltdxg-mysql.services.clever-cloud.com',
   port:               process.env.DB_PORT     || 3306,
@@ -28,9 +29,9 @@ db.getConnection((err, conn) => {
   else     { console.log('✅ Connected to MySQL'); conn.release(); }
 });
 
-// ─── API AUTH MIDDLEWARE ─────────────────────────────────────────────
-// Protects only /api/* routes. HTML pages are served freely —
-// auth is 100% client-side via localStorage JWT.
+// ─── AUTH MIDDLEWARE ─────────────────────────────────────────────────
+// All HTML pages served freely — auth enforced client-side via localStorage JWT.
+// Only /api calls are protected here.
 function requireLogin(req, res, next) {
   const token = req.headers['authorization'];
   if (!token) return res.status(401).json({ error: 'Not logged in' });
@@ -42,10 +43,8 @@ function requireLogin(req, res, next) {
   }
 }
 
-// ─── TOKEN VERIFY ENDPOINT ──────────────────────────────────────────
-// login.html calls GET /verify-token with Authorization header to check
-// if a stored token is still valid BEFORE deciding to redirect to dashboard.
-// This prevents the case where an expired token causes an infinite loop.
+// ─── TOKEN VERIFY ────────────────────────────────────────────────────
+// Called by login.html to check if existing token is valid before redirecting.
 app.get('/verify-token', (req, res) => {
   const token = req.headers['authorization'];
   if (!token) return res.json({ valid: false });
@@ -57,18 +56,19 @@ app.get('/verify-token', (req, res) => {
   }
 });
 
-// ─── STATIC FILES ───────────────────────────────────────────────────
-// All HTML, CSS, JS served freely. No server-side page guards.
-// Auth enforced per-page in client JS (see each .html file's IIFE guard).
+// ─── STATIC FILES ────────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname)));
 
-// ─── CLEAN URLS (no .html required) ─────────────────────────────────
-// Fixes: copy-pasting /dashboard in new tab → used to 404, now works.
+// ─── CLEAN URLS (no .html needed) ────────────────────────────────────
 const pageMap = {
-  '/login':            'login.html',
-  '/dashboard':        'dashboard.html',
-  '/billing':          'billing.html',
-  '/customer-history': 'customer-history.html',
+  '/':                   'login.html',
+  '/login':              'login.html',
+  '/dashboard':          'dashboard.html',
+  '/billing':            'billing.html',
+  '/elite-dashboard':    'elite-dashboard.html',
+  '/elite-billing':      'elite-billing.html',
+  '/elite-history':      'elite-history.html',
+  '/customer-history':   'customer-history.html',
 };
 Object.entries(pageMap).forEach(([route, file]) => {
   app.get(route, (req, res) =>
@@ -76,12 +76,7 @@ Object.entries(pageMap).forEach(([route, file]) => {
   );
 });
 
-// Root → always login.html — user must login every time
-app.get('/', (req, res) =>
-  res.sendFile(path.join(__dirname, 'login.html'))
-);
-
-// ─── LOGIN ──────────────────────────────────────────────────────────
+// ─── LOGIN ───────────────────────────────────────────────────────────
 app.post('/login', (req, res) => {
   const { username, password, billingType } = req.body;
   if (!username || !password)
@@ -98,7 +93,7 @@ app.post('/login', (req, res) => {
           JWT_SECRET,
           { expiresIn: '8h' }
         );
-        res.json({ success: true, token, username });
+        res.json({ success: true, token, username, billingType: billingType || 'billing' });
       } else {
         res.json({ success: false, message: 'Invalid credentials' });
       }
@@ -106,17 +101,17 @@ app.post('/login', (req, res) => {
   );
 });
 
-// ─── WHO AM I ───────────────────────────────────────────────────────
+// ─── WHO AM I ────────────────────────────────────────────────────────
 app.get('/me', requireLogin, (req, res) => {
   res.json({ username: req.user.username, billingType: req.user.billingType });
 });
 
-// ─── LOGOUT ─────────────────────────────────────────────────────────
+// ─── LOGOUT ──────────────────────────────────────────────────────────
 app.post('/logout', (req, res) => res.json({ success: true }));
 
-// ─── NEXT BILL NUMBER ───────────────────────────────────────────────
+// ─── NEXT BILL NUMBER ────────────────────────────────────────────────
 // Sequential per calendar day: BILL-YYYYMMDD-1, -2, -3 …
-// Atomic upsert ensures no duplicates even under concurrent requests.
+// Atomic upsert ensures no duplicates under concurrent requests.
 app.get('/next-bill-no', requireLogin, (req, res) => {
   const today   = new Date();
   const dateStr = today.getFullYear().toString() +
@@ -141,30 +136,37 @@ app.get('/next-bill-no', requireLogin, (req, res) => {
   );
 });
 
-// ─── PRODUCTS ───────────────────────────────────────────────────────
+// ─── PRODUCTS (Elite Dashboard — search & filter) ────────────────────
+// GET /products?search=bulb&section=Lighting
 app.get('/products', requireLogin, (req, res) => {
-  const { search, category } = req.query;
+  const { search, section } = req.query;
   let sql = 'SELECT * FROM products WHERE 1=1';
   const params = [];
-  if (search)   { sql += ' AND (name LIKE ? OR company LIKE ?)'; params.push(`%${search}%`, `%${search}%`); }
-  if (category) { sql += ' AND category = ?'; params.push(category); }
-  sql += ' ORDER BY name LIMIT 50';
+  if (search)  { sql += ' AND (product LIKE ? OR brand LIKE ?)'; params.push(`%${search}%`, `%${search}%`); }
+  if (section && section !== 'All') { sql += ' AND section = ?'; params.push(section); }
+  sql += ' ORDER BY product LIMIT 50';
   db.query(sql, params, (err, results) => {
-    if (err) return res.status(500).json({ error: 'DB error' });
+    if (err) { console.error('Products error:', err.message); return res.status(500).json({ error: 'DB error' }); }
     res.json(results);
   });
 });
 
-app.get('/categories', requireLogin, (req, res) => {
-  db.query('SELECT DISTINCT category FROM products ORDER BY category', (err, results) => {
+// GET /sections — all distinct product sections for filter dropdown
+app.get('/sections', requireLogin, (req, res) => {
+  db.query('SELECT DISTINCT section FROM products ORDER BY section', (err, results) => {
     if (err) return res.status(500).json({ error: 'DB error' });
-    res.json(results.map(r => r.category));
+    res.json(results.map(r => r.section));
   });
 });
 
-// ─── BILL HISTORY (Elite billing only) ──────────────────────────────
+// ─── BILL HISTORY (Elite Billing — save & retrieve) ──────────────────
+
+// POST /save-bill — save a completed bill to history
 app.post('/save-bill', requireLogin, (req, res) => {
   const { billNo, customerName, customerPhone, items, grandTotal, dateTime } = req.body;
+  if (!billNo || !customerName)
+    return res.status(400).json({ error: 'billNo and customerName are required' });
+
   db.query(
     `INSERT INTO bill_history
       (bill_no, customer_name, customer_phone, items_json, grand_total, bill_datetime, created_by)
@@ -177,19 +179,25 @@ app.post('/save-bill', requireLogin, (req, res) => {
   );
 });
 
+// GET /bill-history?phone=9876543210 OR ?name=Seeni
 app.get('/bill-history', requireLogin, (req, res) => {
   const { phone, name } = req.query;
+  if (!phone && !name)
+    return res.status(400).json({ error: 'Provide phone or name' });
+
   let sql = 'SELECT * FROM bill_history WHERE 1=1';
   const params = [];
   if (phone) { sql += ' AND customer_phone = ?'; params.push(phone); }
   if (name)  { sql += ' AND customer_name LIKE ?'; params.push(`%${name}%`); }
   sql += ' ORDER BY bill_datetime DESC';
+
   db.query(sql, params, (err, results) => {
-    if (err) return res.status(500).json({ error: 'DB error' });
+    if (err) { console.error('Bill history error:', err.message); return res.status(500).json({ error: 'DB error' }); }
     res.json(results);
   });
 });
 
+// GET /bill-history/:billNo — single bill preview
 app.get('/bill-history/:billNo', requireLogin, (req, res) => {
   db.query('SELECT * FROM bill_history WHERE bill_no = ?', [req.params.billNo], (err, results) => {
     if (err) return res.status(500).json({ error: 'DB error' });
@@ -198,26 +206,60 @@ app.get('/bill-history/:billNo', requireLogin, (req, res) => {
   });
 });
 
-// ─── DB SCHEMA INIT ─────────────────────────────────────────────────
+// ─── GST ─────────────────────────────────────────────────────────────
+app.get('/gst', requireLogin, (req, res) => {
+  db.query('SELECT gst_value FROM settings LIMIT 1', (err, results) => {
+    if (err || results.length === 0) return res.json({ gst: 0 });
+    res.json({ gst: results[0].gst_value });
+  });
+});
+
+// ─── DB SCHEMA AUTO-INIT ─────────────────────────────────────────────
+// Runs on every server start. All CREATE TABLE IF NOT EXISTS — safe to re-run.
 function initDB() {
   const tables = [
+
+    // Users — login credentials
     `CREATE TABLE IF NOT EXISTS users (
        id       INT AUTO_INCREMENT PRIMARY KEY,
        username VARCHAR(100) NOT NULL UNIQUE,
        password VARCHAR(255) NOT NULL
      )`,
+
+    // Settings — GST and other config
+    `CREATE TABLE IF NOT EXISTS settings (
+       id        INT AUTO_INCREMENT PRIMARY KEY,
+       gst_value DECIMAL(5,2) NOT NULL DEFAULT 18.00
+     )`,
+
+    // Products — all 422 items from the Excel price catalog
+    // section  = sheet name (e.g. "Lighting", "Fans & Exhaust")
+    // product  = item name
+    // brand    = company/manufacturer
+    // spec     = specification type
+    // unit     = pack/unit (e.g. "Per piece", "90 mtr coil")
+    // price    = rate in ₹
+    // warranty = warranty years (editable per bill row)
+    // guarantee= guarantee years (editable per bill row)
     `CREATE TABLE IF NOT EXISTS products (
        id        INT AUTO_INCREMENT PRIMARY KEY,
-       name      VARCHAR(255) NOT NULL,
-       company   VARCHAR(255),
-       category  VARCHAR(100),
-       price     DECIMAL(10,2) DEFAULT 0,
-       warranty  INT DEFAULT 0,
-       guarantee INT DEFAULT 0
+       section   VARCHAR(100)  NOT NULL,
+       product   VARCHAR(255)  NOT NULL,
+       brand     VARCHAR(100)  NOT NULL,
+       spec      VARCHAR(255)  DEFAULT '',
+       unit      VARCHAR(100)  DEFAULT '',
+       price     DECIMAL(10,2) NOT NULL DEFAULT 0,
+       warranty  VARCHAR(50)   DEFAULT '',
+       guarantee VARCHAR(50)   DEFAULT '',
+       INDEX idx_product (product),
+       INDEX idx_section (section),
+       INDEX idx_brand   (brand)
      )`,
+
+    // Bill history — saved bills for customer lookup (Elite billing only)
     `CREATE TABLE IF NOT EXISTS bill_history (
        id             INT AUTO_INCREMENT PRIMARY KEY,
-       bill_no        VARCHAR(50)  NOT NULL,
+       bill_no        VARCHAR(50)   NOT NULL,
        customer_name  VARCHAR(255),
        customer_phone VARCHAR(15),
        items_json     TEXT,
@@ -228,15 +270,27 @@ function initDB() {
        INDEX idx_phone (customer_phone),
        INDEX idx_name  (customer_name)
      )`,
+
+    // Bill counter — sequential bill numbers per day
     `CREATE TABLE IF NOT EXISTS bill_counter (
        bill_date VARCHAR(8) PRIMARY KEY,
        counter   INT NOT NULL DEFAULT 0
      )`,
   ];
-  tables.forEach(sql => db.query(sql, err => { if (err) console.error('Schema init:', err.message); }));
+
+  tables.forEach(sql =>
+    db.query(sql, err => { if (err) console.error('Schema init error:', err.message); })
+  );
+
+  // Insert default GST only if settings is empty
+  db.query(
+    `INSERT INTO settings (gst_value) SELECT 18.00 WHERE NOT EXISTS (SELECT 1 FROM settings)`,
+    err => { if (err) console.error('GST seed error:', err.message); }
+  );
 }
+
 initDB();
 
-// ─── START ──────────────────────────────────────────────────────────
+// ─── START ───────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server at http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
