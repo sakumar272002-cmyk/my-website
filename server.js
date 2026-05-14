@@ -20,14 +20,18 @@ const db = mysql.createPool({
   password:           process.env.DB_PASSWORD || 'i6AZV2A3QoiqjQT9i3QI',
   database:           process.env.DB_NAME     || 'bgkwzqnaueygs0sltdxg',
   waitForConnections: true,
-  connectionLimit:    4,
-  queueLimit:         0
+  connectionLimit:    3,
+  queueLimit:         0,
+  enableKeepAlive:    true,
+  keepAliveInitialDelay: 0
 });
 
-db.getConnection((err, conn) => {
-  if (err) console.error('❌ DB connection failed:', err.message);
-  else     { console.log('✅ Connected to MySQL'); conn.release(); }
-});
+setTimeout(() => {
+  db.getConnection((err, conn) => {
+    if (err) console.error('❌ DB connection failed:', err.message);
+    else     { console.log('✅ Connected to MySQL'); conn.release(); }
+  });
+}, 3000);
 
 // ─── AUTH MIDDLEWARE ─────────────────────────────────────────────────
 // All HTML pages served freely — auth enforced client-side via localStorage JWT.
@@ -289,7 +293,9 @@ function initDB() {
   );
 }
 
-initDB();
+// Delay schema init by 3s — gives old Render instance time to shut down
+// and release its DB connections before new instance tries to connect
+setTimeout(initDB, 3000);
 
 // ─── START ───────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
