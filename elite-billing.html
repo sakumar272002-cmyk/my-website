@@ -55,6 +55,9 @@
     .totals-section{padding:14px 26px;background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-top:2px solid #ffb74d;display:flex;justify-content:flex-end;}
     .grand-total-box{display:flex;justify-content:space-between;width:260px;font-size:16px;font-weight:700;color:#bf360c;font-family:'Playfair Display',serif;}
     .thank-you{text-align:center;padding:12px;font-size:12px;color:#a06040;border-top:1px dashed #ffb74d;font-style:italic;}
+    .eye-header{display:flex;align-items:center;justify-content:flex-end;gap:6px;}
+    .eye-btn-header{background:none;border:none;cursor:pointer;font-size:20px;padding:2px 4px;border-radius:6px;transition:all 0.15s;line-height:1;color:white;}
+    .eye-btn-header:hover{background:rgba(255,255,255,0.3);transform:scale(1.15);}
 
     /* SAVE TO DB */
     .save-bar{background:white;border-radius:12px;padding:16px 20px;margin-bottom:20px;box-shadow:0 2px 12px rgba(255,107,53,0.1);border:1px solid #ffe0c0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
@@ -76,7 +79,7 @@
 <div class="content">
   <!-- SAVE TO DB BAR -->
   <div class="save-bar">
-    <span class="save-bar-title">💾 Save this bill to customer history</span>
+    <span class="save-bar-title">💾 Bill history is auto-saved to DB when you Download PDF (with valid name &amp; phone)</span>
     <div style="display:flex;align-items:center;gap:10px;">
       <span class="save-status" id="saveStatus">✅ Saved to history!</span>
       <button class="save-btn" onclick="saveToDB()">Save to History</button>
@@ -108,7 +111,7 @@
     <table>
       <thead>
         <tr>
-          <th>Sl.No</th><th>Product</th><th>Company</th><th>Qty</th><th>Year W/G</th><th>Price (₹)</th><th>Total (₹)</th>
+          <th>Sl.No</th><th>Product</th><th>Company</th><th>Qty</th><th>Year W/G<br/><small style="font-size:9px;font-weight:400;opacity:0.85;">W=Warranty G=Guarantee</small></th><th>Price (₹)</th><th><div class="eye-header"><span>Total (₹)</span><button class="eye-btn-header" onclick="window.location.href='/elite-history.html'" title="Customer History">👁️</button></div></th>
         </tr>
       </thead>
       <tbody id="billBody"></tbody>
@@ -207,7 +210,8 @@ function downloadAndSave(){
 
   const billNo=document.getElementById('billNo').textContent;
   const dateTime=document.getElementById('billDateTime').textContent;
-  const custName=document.getElementById('customerName').value.trim()||'Walk-in Customer';
+  const custNameRaw=document.getElementById('customerName').value.trim();
+  const custName=custNameRaw||'Walk-in Customer';
   const custPhone=document.getElementById('customerPhone').value.trim();
   const raw=sessionStorage.getItem('eliteBillData');
   const allData=JSON.parse(raw||'[]');
@@ -263,6 +267,31 @@ function downloadAndSave(){
   const safeBill=billNo.replace(/[^a-zA-Z0-9]/g,'_');
   const safeName=(custName||'Walk-in').replace(/[^a-zA-Z0-9]/g,'_');
   doc.save(safeBill+'_'+safeName+'.pdf');
+
+  // Auto-save to history DB after PDF download
+  if(custPhone && /^\d{10}$/.test(custPhone) && custNameRaw){
+    autoSaveToDB(custNameRaw, custPhone, billNo, dateTime, rows, grandTotal);
+  }
+}
+
+async function autoSaveToDB(name, phone, billNo, billDatetime, rows, grandTotal){
+  const payload = {
+    phone, customer_name: name,
+    bill_no: billNo, bill_datetime: billDatetime,
+    bill_data: rows, grand_total: grandTotal
+  };
+  try{
+    const res = await fetch('/elite/save-bill', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':authToken},
+      body: JSON.stringify(payload)
+    });
+    const d = await res.json();
+    if(d.success){
+      document.getElementById('saveStatus').style.display='inline';
+      setTimeout(()=>{ document.getElementById('saveStatus').style.display='none'; },3000);
+    }
+  } catch(e){ /* silent fail on auto-save */ }
 }
 
 loadBill();

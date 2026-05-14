@@ -83,7 +83,7 @@
         <label>Filter by Customer Name</label>
         <input type="text" class="filter-input" id="filterName" placeholder="Enter customer name"/>
       </div>
-      <button class="btn-search" onclick="searchBills()">Search &amp; Save</button>
+      <button class="btn-search" onclick="searchBills()">🔍 Search</button>
     </div>
   </div>
 
@@ -184,7 +184,7 @@ function previewBill(idx){
       <div class="meta-item"><strong>Phone:</strong> ${b.phone}</div>
     </div>
     <table class="modal-table">
-      <thead><tr><th>Sl.No</th><th>Product</th><th>Company</th><th>Qty</th><th>Year W/G</th><th>Price (₹)</th><th>Total (₹)</th></tr></thead>
+      <thead><tr><th>Sl.No</th><th>Product</th><th>Company</th><th>Qty</th><th>Year W/G<br/><small style="font-size:9px;font-weight:400;">W=Warranty G=Guarantee</small></th><th>Price (₹)</th><th>Total (₹)</th></tr></thead>
       <tbody>${items.map((r,i)=>`
         <tr>
           <td>${i+1}</td><td>${r.product}</td><td>${r.company||'—'}</td>
