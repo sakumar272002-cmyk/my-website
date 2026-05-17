@@ -56,8 +56,8 @@
 <div class="navbar">
   <h1>Sree Electricals &amp; Electronics</h1>
   <div class="nav-btns">
-    <button class="btn-back" onclick="window.location.replace('/elite-dashboard.html')">← Back</button>
-    <button class="btn-history" onclick="window.location.href='/elite-history.html'">👁️ History</button>
+    <button class="btn-back" onclick="window.location.replace('/elite-dashboard')">← Back</button>
+    <button class="btn-history" onclick="window.location.href='/elite-history'">👁️ History</button>
     <button class="btn-download" onclick="downloadPDF()">⬇ Download PDF</button>
   </div>
 </div>
@@ -145,7 +145,8 @@ async function loadBill(){
   const billNo=await fetchBillNo();
   document.getElementById('billNo').textContent=billNo;
   document.getElementById('billDT').textContent=nowDT();
-  const raw=localStorage.getItem('eliteBillData');
+  // Dashboard writes to localStorage; fall back to sessionStorage for compat
+  const raw=localStorage.getItem('eliteBillData')||sessionStorage.getItem('eliteBillData');
   if(!raw){document.getElementById('billBody').innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:#c49a72;">No data. Go back and enter products.</td></tr>';return;}
   const rows=JSON.parse(raw).filter(r=>r.product&&(parseFloat(r.qty)||0)>0&&(parseFloat(r.price)||0)>0);
   let sub=0;const tbody=document.getElementById('billBody');tbody.innerHTML='';
