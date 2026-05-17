@@ -140,26 +140,21 @@ app.get('/next-bill-no', requireLogin, (req, res) => {
   );
 });
 
-// ─── PRODUCTS (Elite Dashboard — search & filter) ────────────────────
-// GET /products?search=bulb&section=Lighting
+// ─── PRODUCTS (Elite Dashboard — searches elite_products table) ──────
+// Table schema: elite_products(id, product_name, company, price)
+// GET /products?search=bulb
 app.get('/products', requireLogin, (req, res) => {
-  const { search, section } = req.query;
-  let sql = 'SELECT * FROM products WHERE 1=1';
+  const { search } = req.query;
+  let sql    = 'SELECT id, product_name, company, price FROM elite_products WHERE 1=1';
   const params = [];
-  if (search)  { sql += ' AND (product LIKE ? OR brand LIKE ?)'; params.push(`%${search}%`, `%${search}%`); }
-  if (section && section !== 'All') { sql += ' AND section = ?'; params.push(section); }
-  sql += ' ORDER BY product LIMIT 50';
+  if (search) {
+    sql += ' AND (product_name LIKE ? OR company LIKE ?)';
+    params.push(`%${search}%`, `%${search}%`);
+  }
+  sql += ' ORDER BY product_name LIMIT 50';
   db.query(sql, params, (err, results) => {
     if (err) { console.error('Products error:', err.message); return res.status(500).json({ error: 'DB error' }); }
     res.json(results);
-  });
-});
-
-// GET /sections — all distinct product sections for filter dropdown
-app.get('/sections', requireLogin, (req, res) => {
-  db.query('SELECT DISTINCT section FROM products ORDER BY section', (err, results) => {
-    if (err) return res.status(500).json({ error: 'DB error' });
-    res.json(results.map(r => r.section));
   });
 });
 
@@ -173,9 +168,9 @@ app.post('/save-bill', requireLogin, (req, res) => {
 
   db.query(
     `INSERT INTO bill_history
-      (bill_no, customer_name, customer_phone, items_json, grand_total, bill_datetime, created_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [billNo, customerName, customerPhone || null, JSON.stringify(items), grandTotal, dateTime, req.user.username],
+      (bill_no, customer_name, customer_phone, items_json, grand_total, bill_datetime)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [billNo, customerName, customerPhone || null, JSON.stringify(items), grandTotal, dateTime],
     (err) => {
       if (err) { console.error('Save bill error:', err.message); return res.status(500).json({ error: 'DB error' }); }
       res.json({ success: true });

@@ -63,10 +63,9 @@
 </div>
 <div class="content">
   <div class="save-bar">
-    <span class="save-bar-title">💾 Save this bill to customer history</span>
+    <span class="save-bar-title">📥 Bill is automatically saved to history when you download PDF</span>
     <div class="save-group">
-      <span class="save-status" id="saveStatus">✅ Saved successfully!</span>
-      <button class="save-btn" onclick="saveToDB()">Save to History</button>
+      <span class="save-status" id="saveStatus">✅ Saved to history!</span>
     </div>
   </div>
   <div class="bill-card">
@@ -113,26 +112,40 @@
 </div>
 <script>
 const authToken=localStorage.getItem('authToken');
-if(!authToken)window.location.replace('/login.html');
+if(!authToken) window.location.replace('/login.html');
+
 const SHOP_NAME='SREE ELECTRICALS & ELECTRONICS';
 const SHOP_ADDR='Subramaniapuram, Vasudevanallur(p.o), Tenkasi Main Road, Tamil Nadu-627758';
 const SHOP_PHONE='+91 9976142451 / +91 9360550626';
+
 function nowDT(){
   const d=new Date();
   const date=d.getDate().toString().padStart(2,'0')+'/'+(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getFullYear();
   let h=d.getHours(),m=d.getMinutes();const ap=h>=12?'PM':'AM';h=h%12||12;
   return date+' '+h.toString().padStart(2,'0')+':'+m.toString().padStart(2,'0')+' '+ap;
 }
-function getBillNo(){
-  let b=sessionStorage.getItem('eliteBillNo');if(b)return b;
+
+// Fetch sequential bill number from server
+async function fetchBillNo(){
+  const cached=sessionStorage.getItem('eliteBillNo');
+  if(cached) return cached;
+  try{
+    const r=await fetch('/next-bill-no',{headers:{'authorization':authToken}});
+    const d=await r.json();
+    if(d.billNo){ sessionStorage.setItem('eliteBillNo',d.billNo); return d.billNo; }
+  }catch(e){}
+  // fallback
   const d=new Date();
-  b='EBILL-'+d.getFullYear()+(d.getMonth()+1).toString().padStart(2,'0')+d.getDate().toString().padStart(2,'0')+'-'+d.getHours().toString().padStart(2,'0')+d.getMinutes().toString().padStart(2,'0');
-  sessionStorage.setItem('eliteBillNo',b);return b;
+  const fb='EBILL-'+d.getFullYear()+(d.getMonth()+1).toString().padStart(2,'0')+d.getDate().toString().padStart(2,'0')+'-'+Date.now().toString().slice(-4);
+  sessionStorage.setItem('eliteBillNo',fb);
+  return fb;
 }
-function loadBill(){
-  document.getElementById('billNo').textContent=getBillNo();
+
+async function loadBill(){
+  const billNo=await fetchBillNo();
+  document.getElementById('billNo').textContent=billNo;
   document.getElementById('billDT').textContent=nowDT();
-  const raw=sessionStorage.getItem('eliteBillData');
+  const raw=localStorage.getItem('eliteBillData');
   if(!raw){document.getElementById('billBody').innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:#c49a72;">No data. Go back and enter products.</td></tr>';return;}
   const rows=JSON.parse(raw).filter(r=>r.product&&(parseFloat(r.qty)||0)>0&&(parseFloat(r.price)||0)>0);
   let sub=0;const tbody=document.getElementById('billBody');tbody.innerHTML='';
@@ -144,34 +157,37 @@ function loadBill(){
   });
   document.getElementById('grandTotal').textContent='₹ '+sub.toFixed(2);
 }
-async function saveToDB(){
+
+// Save bill to DB3 — called automatically on PDF download
+async function saveBillToDB(billNo, name, phone, items, grand, dateTime){
+  if(!name || !/^\d{10}$/.test(phone)) return; // skip if no valid customer info
+  try{
+    await fetch('/save-bill',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','authorization':authToken},
+      body:JSON.stringify({billNo, customerName:name, customerPhone:phone, items, grandTotal:grand, dateTime})
+    });
+  }catch(e){ console.warn('Could not save bill to history:', e); }
+}
+
+async function downloadPDF(){
   const name=document.getElementById('custName').value.trim();
   const phone=document.getElementById('custPhone').value.trim();
-  if(!name){alert('Please enter customer name.');return;}
-  if(!/^\d{10}$/.test(phone)){alert('Please enter a valid 10-digit phone number.');return;}
-  const raw=sessionStorage.getItem('eliteBillData');
-  const rows=JSON.parse(raw||'[]').filter(r=>r.product&&(parseFloat(r.qty)||0)>0&&(parseFloat(r.price)||0)>0);
-  let grand=0;rows.forEach(r=>{grand+=(parseFloat(r.qty)||0)*(parseFloat(r.price)||0);});
-  try{
-    const res=await fetch('/save-bill',{method:'POST',headers:{'Content-Type':'application/json','Authorization':authToken},
-      body:JSON.stringify({billNo:document.getElementById('billNo').textContent,customerName:name,customerPhone:phone,items:rows,grandTotal:grand,dateTime:document.getElementById('billDT').textContent})});
-    const d=await res.json();
-    if(d.success!==false){const s=document.getElementById('saveStatus');s.style.display='inline';setTimeout(()=>s.style.display='none',3000);}
-    else alert('Save failed: '+(d.error||'Unknown'));
-  }catch(e){alert('Cannot connect to server.');}
-}
-function downloadPDF(){
+
+  // Validate before download
+  if(!name){ alert('Please enter customer name before downloading.'); return; }
+  if(!/^\d{10}$/.test(phone)){ alert('Please enter a valid 10-digit phone number before downloading.'); return; }
+
   const{jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const pw=doc.internal.pageSize.getWidth();
   const Rs=v=>'Rs. '+parseFloat(v).toFixed(2);
   const billNo=document.getElementById('billNo').textContent;
   const dt=document.getElementById('billDT').textContent;
-  const name=document.getElementById('custName').value.trim()||'Walk-in Customer';
-  const phone=document.getElementById('custPhone').value.trim();
-  const raw=sessionStorage.getItem('eliteBillData');
+  const raw=localStorage.getItem('eliteBillData');
   const rows=JSON.parse(raw||'[]').filter(r=>r.product&&(parseFloat(r.qty)||0)>0&&(parseFloat(r.price)||0)>0);
   let grand=0;rows.forEach(r=>{grand+=(parseFloat(r.qty)||0)*(parseFloat(r.price)||0);});
+
   doc.setFillColor(255,107,53);doc.rect(0,0,pw,34,'F');
   doc.setFont('helvetica','bold');doc.setFontSize(15);doc.setTextColor(255,255,255);
   doc.text(SHOP_NAME,pw/2,14,{align:'center'});
@@ -186,7 +202,7 @@ function downloadPDF(){
   doc.setFont('helvetica','bold');doc.setTextColor(125,78,45);
   doc.text('Customer Name :',14,55);doc.text('Phone :',14,63);
   doc.setFont('helvetica','normal');doc.setTextColor(62,28,0);
-  doc.text(name,60,55);doc.text(phone||'—',60,63);
+  doc.text(name,60,55);doc.text(phone,60,63);
   doc.setDrawColor(255,183,77);doc.setLineWidth(0.8);doc.line(0,66,pw,66);
   const body=rows.map((r,i)=>{const q=parseFloat(r.qty)||0,p=parseFloat(r.price)||0;return[i+1,r.product,r.company||'—',r.wg||'—',q,Rs(p),Rs(q*p)];});
   doc.autoTable({startY:68,head:[['#','Product','Company','W/G','Qty','Price (Rs.)','Total (Rs.)']],body,theme:'grid',margin:{left:10,right:10},tableWidth:pw-20,headStyles:{fillColor:[255,107,53],textColor:255,fontStyle:'bold',fontSize:9,halign:'center',cellPadding:{top:5,bottom:5,left:3,right:3},minCellHeight:12,valign:'middle'},bodyStyles:{fontSize:9,cellPadding:4,textColor:[90,48,16],valign:'middle'},alternateRowStyles:{fillColor:[255,250,245]},columnStyles:{0:{halign:'center',cellWidth:12},2:{halign:'center',cellWidth:26},3:{halign:'center',cellWidth:18},4:{halign:'center',cellWidth:14},5:{halign:'right',cellWidth:30},6:{halign:'right',cellWidth:34}}});
@@ -197,8 +213,21 @@ function downloadPDF(){
   doc.text('Grand Total :',120,fy+9);doc.text(Rs(grand),pw-14,fy+9,{align:'right'});
   doc.setFont('helvetica','italic');doc.setFontSize(9);doc.setTextColor(160,96,64);
   doc.text('Thank you for shopping with us!',pw/2,fy+22,{align:'center'});
+
+  // ── AUTO-SAVE TO DB3 on download ──
+  await saveBillToDB(billNo, name, phone, rows, grand, dt);
+
+  // Clear cached bill number so next bill gets new sequential number
+  sessionStorage.removeItem('eliteBillNo');
+
   doc.save(billNo.replace(/[^a-zA-Z0-9]/g,'_')+'_'+name.replace(/[^a-zA-Z0-9]/g,'_')+'.pdf');
+
+  // Show saved confirmation
+  const s=document.getElementById('saveStatus');
+  s.style.display='inline';
+  setTimeout(()=>s.style.display='none',3000);
 }
+
 loadBill();
 </script>
 </body>
