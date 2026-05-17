@@ -14,54 +14,45 @@
     .navbar h1{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;}
     .btn-back{background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.5);padding:7px 18px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:500;font-family:'Poppins',sans-serif;}
     .btn-back:hover{background:rgba(255,255,255,0.35);}
-
     .content{max-width:1100px;margin:28px auto;padding:0 16px;}
-
-    /* FILTER CARD */
     .filter-card{background:white;border-radius:14px;padding:24px 28px;margin-bottom:22px;box-shadow:0 2px 16px rgba(255,107,53,0.1);border:1px solid #ffe0c0;}
-    .filter-card h2{font-family:'Playfair Display',serif;font-size:18px;color:#3e1c00;margin-bottom:18px;}
+    .filter-card h2{font-family:'Playfair Display',serif;font-size:18px;color:#3e1c00;margin-bottom:16px;}
     .filter-row{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;}
     .filter-group{display:flex;flex-direction:column;gap:6px;flex:1;min-width:180px;}
     .filter-group label{font-size:11px;font-weight:600;color:#7d4e2d;text-transform:uppercase;letter-spacing:1px;}
     .filter-input{border:1.5px solid #ffb74d;border-radius:9px;padding:9px 14px;font-size:13px;font-family:'Poppins',sans-serif;color:#3e1c00;background:#fff8f0;outline:none;transition:all 0.2s;}
     .filter-input:focus{border-color:#ff6b35;background:white;box-shadow:0 0 0 3px rgba(255,107,53,0.1);}
     .filter-input::placeholder{color:#c49a72;}
-    .divider{font-size:13px;font-weight:600;color:#a06040;align-self:center;padding-bottom:2px;}
-    .btn-search{background:linear-gradient(135deg,#ff6b35,#f7931e);color:white;border:none;padding:10px 26px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;box-shadow:0 3px 12px rgba(255,107,53,0.3);transition:all 0.2s;white-space:nowrap;}
+    .or-label{font-size:13px;font-weight:600;color:#a06040;align-self:center;padding-bottom:4px;}
+    .btn-search{background:linear-gradient(135deg,#ff6b35,#f7931e);color:white;border:none;padding:10px 26px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;box-shadow:0 3px 12px rgba(255,107,53,0.3);white-space:nowrap;}
     .btn-search:hover{transform:translateY(-1px);}
-
-    /* RESULTS */
     .results-card{background:white;border-radius:14px;box-shadow:0 4px 24px rgba(255,107,53,0.12);overflow:hidden;border:1px solid #ffe0c0;display:none;}
     .results-header{background:linear-gradient(135deg,#ff6b35,#f7931e);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
     .results-header h3{font-family:'Playfair Display',serif;font-size:16px;color:white;}
     .results-count{font-size:12px;color:rgba(255,255,255,0.85);}
-
     table{width:100%;border-collapse:collapse;}
-    thead th{background:#fff3e0;color:#bf360c;padding:11px 14px;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;text-align:left;border-bottom:2px solid #ffb74d;}
+    thead th{background:#fff3e0;color:#bf360c;padding:11px 14px;font-size:12px;font-weight:600;text-align:left;border-bottom:2px solid #ffb74d;}
     tbody tr{border-bottom:1px solid #fff3e8;transition:background 0.1s;}
     tbody tr:hover{background:#fff8f0;}
     tbody td{padding:11px 14px;font-size:13px;color:#5a3010;}
-    .preview-link{color:#ff6b35;font-weight:600;text-decoration:none;cursor:pointer;background:none;border:none;font-family:'Poppins',sans-serif;font-size:13px;}
-    .preview-link:hover{text-decoration:underline;}
+    .preview-btn{color:#ff6b35;font-weight:600;cursor:pointer;background:none;border:none;font-family:'Poppins',sans-serif;font-size:13px;text-decoration:underline;}
     .no-results{text-align:center;padding:36px;color:#c49a72;font-size:14px;}
     .total-badge{display:inline-block;background:#fff3e0;color:#e65100;font-weight:700;padding:3px 10px;border-radius:8px;font-size:13px;}
-
-    /* PREVIEW MODAL */
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;}
     .modal-overlay.show{display:flex;}
-    .modal{background:white;border-radius:16px;max-width:780px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
-    .modal-header{background:linear-gradient(135deg,#ff6b35,#f7931e);padding:16px 22px;display:flex;justify-content:space-between;align-items:center;border-radius:16px 16px 0 0;}
-    .modal-header h3{font-family:'Playfair Display',serif;font-size:17px;color:white;}
+    .modal{background:white;border-radius:16px;max-width:800px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+    .modal-head{background:linear-gradient(135deg,#ff6b35,#f7931e);padding:16px 22px;display:flex;justify-content:space-between;align-items:center;border-radius:16px 16px 0 0;}
+    .modal-head h3{font-family:'Playfair Display',serif;font-size:17px;color:white;}
     .modal-close{background:none;border:none;color:white;font-size:22px;cursor:pointer;line-height:1;padding:2px 6px;}
     .modal-close:hover{background:rgba(255,255,255,0.2);border-radius:6px;}
     .modal-body{padding:20px 22px;}
-    .modal-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;}
+    .modal-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
     .meta-item{font-size:12px;color:#5a3010;}.meta-item strong{color:#bf360c;}
-    .modal-table{width:100%;border-collapse:collapse;margin-bottom:14px;}
-    .modal-table th{background:#fff3e0;color:#bf360c;padding:8px 10px;font-size:11px;font-weight:600;border-bottom:2px solid #ffb74d;text-align:left;}
-    .modal-table td{padding:8px 10px;font-size:12px;color:#5a3010;border-bottom:1px solid #fff3e8;}
+    .modal-tbl{width:100%;border-collapse:collapse;margin-bottom:14px;}
+    .modal-tbl th{background:#fff3e0;color:#bf360c;padding:8px 10px;font-size:11px;font-weight:600;border-bottom:2px solid #ffb74d;text-align:left;}
+    .modal-tbl td{padding:8px 10px;font-size:12px;color:#5a3010;border-bottom:1px solid #fff3e8;}
     .modal-total{text-align:right;font-size:15px;font-weight:700;color:#bf360c;font-family:'Playfair Display',serif;padding:10px 0;}
-    .btn-pdf{background:linear-gradient(135deg,#ff6b35,#f7931e);color:white;border:none;padding:9px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;margin-top:8px;}
+    .btn-pdf{background:linear-gradient(135deg,#ff6b35,#f7931e);color:white;border:none;padding:9px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;}
   </style>
 </head>
 <body>
@@ -69,24 +60,22 @@
   <h1>Customer History — Elite Billing</h1>
   <button class="btn-back" onclick="window.location.replace('/elite-dashboard.html')">← Back to Dashboard</button>
 </div>
-
 <div class="content">
   <div class="filter-card">
     <h2>🔍 Search Customer Bills</h2>
     <div class="filter-row">
       <div class="filter-group">
-        <label>Filter by Phone Number</label>
+        <label>Phone Number</label>
         <input type="text" class="filter-input" id="filterPhone" placeholder="10-digit phone number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"/>
       </div>
-      <div class="divider">— OR —</div>
+      <div class="or-label">— OR —</div>
       <div class="filter-group">
-        <label>Filter by Customer Name</label>
+        <label>Customer Name</label>
         <input type="text" class="filter-input" id="filterName" placeholder="Enter customer name"/>
       </div>
-      <button class="btn-search" onclick="searchBills()">🔍 Search</button>
+      <button class="btn-search" onclick="searchBills()">Search</button>
     </div>
   </div>
-
   <div class="results-card" id="resultsCard">
     <div class="results-header">
       <h3 id="resultsTitle">Bill History</h3>
@@ -107,140 +96,106 @@
     </table>
   </div>
 </div>
-
-<!-- PREVIEW MODAL -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
-  <div class="modal" id="modal">
-    <div class="modal-header">
+<div class="modal-overlay" id="modalOverlay" onclick="outsideClose(event)">
+  <div class="modal">
+    <div class="modal-head">
       <h3 id="modalTitle">Bill Preview</h3>
-      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+      <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body" id="modalBody"></div>
   </div>
 </div>
-
 <script>
-const authToken = localStorage.getItem('authToken');
-if(!authToken) window.location.replace('/login.html');
-
-let currentBills = [];
-
+const authToken=localStorage.getItem('authToken');
+if(!authToken)window.location.replace('/login.html');
+let bills=[];
 async function searchBills(){
-  const phone = document.getElementById('filterPhone').value.trim();
-  const name  = document.getElementById('filterName').value.trim();
-  if(!phone && !name){ alert('Please enter a phone number or customer name.'); return; }
-
+  const phone=document.getElementById('filterPhone').value.trim();
+  const name=document.getElementById('filterName').value.trim();
+  if(!phone&&!name){alert('Please enter a phone number or customer name.');return;}
   try{
-    const params = new URLSearchParams();
-    if(phone) params.append('phone', phone);
-    if(name)  params.append('name',  name);
-
-    const res = await fetch('/elite/bills?'+params.toString(), {
-      headers:{'Authorization': authToken}
-    });
-    const d = await res.json();
-    if(!d.success){ alert('Error: '+(d.error||'Failed to fetch')); return; }
-    currentBills = d.bills;
-    renderResults(currentBills, phone||name);
-  } catch(e){ alert('Cannot connect to server.'); }
+    const p=new URLSearchParams();
+    if(phone)p.append('phone',phone);
+    if(name)p.append('name',name);
+    const res=await fetch('/bill-history?'+p.toString(),{headers:{'Authorization':authToken}});
+    const d=await res.json();
+    if(!Array.isArray(d)){alert('Error fetching bills.');return;}
+    bills=d;renderResults(bills,phone||name);
+  }catch(e){alert('Cannot connect to server.');}
 }
-
-function renderResults(bills, query){
-  const card = document.getElementById('resultsCard');
-  const tbody = document.getElementById('resultsBody');
-  const title = document.getElementById('resultsTitle');
-  const count = document.getElementById('resultsCount');
-
+function renderResults(data,query){
+  const card=document.getElementById('resultsCard');
   card.style.display='block';
-  title.textContent = `Bills for: "${query}"`;
-  count.textContent = `${bills.length} bill${bills.length!==1?'s':''} found`;
-
-  if(!bills.length){
-    tbody.innerHTML='<tr><td colspan="6" class="no-results">No bills found for this customer.</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = bills.map((b,i)=>`
+  document.getElementById('resultsTitle').textContent='Bills for: "'+query+'"';
+  document.getElementById('resultsCount').textContent=data.length+' bill'+(data.length!==1?'s':'')+' found';
+  const tbody=document.getElementById('resultsBody');
+  if(!data.length){tbody.innerHTML='<tr><td colspan="6" class="no-results">No bills found for this customer.</td></tr>';return;}
+  tbody.innerHTML=data.map((b,i)=>`
     <tr>
       <td>${i+1}</td>
-      <td>${b.phone}</td>
+      <td>${b.customer_phone||'—'}</td>
       <td>${b.customer_name}</td>
       <td>${b.bill_datetime}</td>
       <td><span class="total-badge">₹ ${parseFloat(b.grand_total).toFixed(2)}</span></td>
-      <td><button class="preview-link" onclick="previewBill(${i})">🔗 Preview Bill</button></td>
+      <td><button class="preview-btn" onclick="previewBill(${i})">🔗 Preview Bill</button></td>
     </tr>`).join('');
 }
-
 function previewBill(idx){
-  const b = currentBills[idx];
-  const items = typeof b.bill_data === 'string' ? JSON.parse(b.bill_data) : b.bill_data;
-  const overlay = document.getElementById('modalOverlay');
-  document.getElementById('modalTitle').textContent = b.bill_no;
-  document.getElementById('modalBody').innerHTML = `
+  const b=bills[idx];
+  const items=typeof b.items_json==='string'?JSON.parse(b.items_json):b.items_json;
+  document.getElementById('modalTitle').textContent=b.bill_no;
+  document.getElementById('modalBody').innerHTML=`
     <div class="modal-meta">
       <div class="meta-item"><strong>Bill No:</strong> ${b.bill_no}</div>
       <div class="meta-item"><strong>Date:</strong> ${b.bill_datetime}</div>
       <div class="meta-item"><strong>Customer:</strong> ${b.customer_name}</div>
-      <div class="meta-item"><strong>Phone:</strong> ${b.phone}</div>
+      <div class="meta-item"><strong>Phone:</strong> ${b.customer_phone||'—'}</div>
     </div>
-    <table class="modal-table">
-      <thead><tr><th>Sl.No</th><th>Product</th><th>Company</th><th>Qty</th><th>Year W/G<br/><small style="font-size:9px;font-weight:400;">W=Warranty G=Guarantee</small></th><th>Price (₹)</th><th>Total (₹)</th></tr></thead>
-      <tbody>${items.map((r,i)=>`
-        <tr>
-          <td>${i+1}</td><td>${r.product}</td><td>${r.company||'—'}</td>
-          <td style="text-align:center">${r.qty}</td>
-          <td style="text-align:center">${r.wg||'—'}</td>
-          <td style="text-align:right">₹ ${parseFloat(r.price).toFixed(2)}</td>
-          <td style="text-align:right;font-weight:600;color:#e65100;">₹ ${(parseFloat(r.qty)*parseFloat(r.price)).toFixed(2)}</td>
-        </tr>`).join('')}
-      </tbody>
+    <table class="modal-tbl">
+      <thead><tr><th>#</th><th>Product</th><th>Company</th><th>W/G</th><th style="text-align:center">Qty</th><th style="text-align:right">Price (₹)</th><th style="text-align:right">Total (₹)</th></tr></thead>
+      <tbody>${(items||[]).map((r,i)=>{
+        const q=parseFloat(r.qty)||0,p=parseFloat(r.price)||0;
+        return`<tr><td>${i+1}</td><td>${r.product}</td><td>${r.company||'—'}</td><td style="text-align:center">${r.wg||'—'}</td><td style="text-align:center">${q}</td><td style="text-align:right">₹ ${p.toFixed(2)}</td><td style="text-align:right;font-weight:600;color:#e65100">₹ ${(q*p).toFixed(2)}</td></tr>`;
+      }).join('')}</tbody>
     </table>
     <div class="modal-total">Grand Total: ₹ ${parseFloat(b.grand_total).toFixed(2)}</div>
-    <button class="btn-pdf" onclick="downloadPreviewPDF(${idx})">⬇ Download PDF</button>`;
-  overlay.classList.add('show');
+    <button class="btn-pdf" onclick="dlPDF(${idx})">⬇ Download PDF</button>`;
+  document.getElementById('modalOverlay').classList.add('show');
 }
-
-function closeModal(e){ if(e.target===document.getElementById('modalOverlay')) closeModalDirect(); }
-function closeModalDirect(){ document.getElementById('modalOverlay').classList.remove('show'); }
-
-function downloadPreviewPDF(idx){
-  const b = currentBills[idx];
-  const items = typeof b.bill_data === 'string' ? JSON.parse(b.bill_data) : b.bill_data;
-  const {jsPDF}=window.jspdf;
+function outsideClose(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('show');}
+function dlPDF(idx){
+  const b=bills[idx];
+  const items=typeof b.items_json==='string'?JSON.parse(b.items_json):b.items_json;
+  const{jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const pw=doc.internal.pageSize.getWidth();
-  const fmt=v=>'Rs. '+parseFloat(v).toFixed(2);
-
-  doc.setFillColor(255,107,53); doc.rect(0,0,pw,34,'F');
-  doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.setTextColor(255,255,255);
-  doc.text('SREE ELECTRICALS & ELECTRONICS',pw/2,15,{align:'center'});
-  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(255,240,220);
-  doc.text('Subramaniapuram, Vasudevanallur(p.o), Tenkasi Main Road, Tamil Nadu-627758',pw/2,22,{align:'center'});
+  const Rs=v=>'Rs. '+parseFloat(v).toFixed(2);
+  doc.setFillColor(255,107,53);doc.rect(0,0,pw,34,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(15);doc.setTextColor(255,255,255);
+  doc.text('SREE ELECTRICALS & ELECTRONICS',pw/2,14,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(255,240,220);
+  doc.text('Subramaniapuram, Vasudevanallur(p.o), Tenkasi Main Road, Tamil Nadu-627758',pw/2,21,{align:'center'});
   doc.text('Ph: +91 9976142451 / +91 9360550626',pw-14,29,{align:'right'});
-
-  doc.setFillColor(255,248,240); doc.rect(0,34,pw,16,'F');
-  doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(191,54,12);
-  doc.text('Bill No. : '+b.bill_no,14,42);
-  doc.text('Date & Time : '+b.bill_datetime,14,49);
-
-  doc.setFillColor(255,243,224); doc.rect(0,50,pw,18,'F');
-  doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(125,78,45);
-  doc.text('Customer Name :',14,57); doc.text('Phone :',14,65);
-  doc.setFont('helvetica','normal'); doc.setTextColor(62,28,0);
-  doc.text(b.customer_name,60,57); doc.text(b.phone,60,65);
-
-  doc.setDrawColor(255,183,77); doc.line(0,68,pw,68);
-  const tableBody=items.map((r,i)=>[i+1,r.product,r.company||'—',r.qty,r.wg||'—',fmt(r.price),fmt(parseFloat(r.qty)*parseFloat(r.price))]);
-  doc.autoTable({startY:70,head:[['#','Product','Company','Qty','Year W/G','Price','Total']],body:tableBody,theme:'grid',margin:{left:10,right:10},tableWidth:pw-20,headStyles:{fillColor:[255,107,53],textColor:255,fontStyle:'bold',fontSize:9,halign:'center',cellPadding:4},bodyStyles:{fontSize:9,cellPadding:4,textColor:[90,48,16]},columnStyles:{0:{halign:'center',cellWidth:14},2:{halign:'center',cellWidth:28},3:{halign:'center',cellWidth:14},4:{halign:'center',cellWidth:22},5:{halign:'right',cellWidth:32},6:{halign:'right',cellWidth:36}}});
+  doc.setFontSize(8);doc.text('ELITE BILLING',14,10);
+  doc.setFillColor(255,248,240);doc.rect(0,34,pw,14,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(191,54,12);
+  doc.text('Bill No. : '+b.bill_no,14,42);doc.text('Date & Time : '+b.bill_datetime,pw/2,42);
+  doc.setFillColor(255,243,224);doc.rect(0,48,pw,18,'F');
+  doc.setFont('helvetica','bold');doc.setTextColor(125,78,45);
+  doc.text('Customer Name :',14,55);doc.text('Phone :',14,63);
+  doc.setFont('helvetica','normal');doc.setTextColor(62,28,0);
+  doc.text(b.customer_name,60,55);doc.text(b.customer_phone||'—',60,63);
+  doc.setDrawColor(255,183,77);doc.setLineWidth(0.8);doc.line(0,66,pw,66);
+  const body=(items||[]).map((r,i)=>{const q=parseFloat(r.qty)||0,p=parseFloat(r.price)||0;return[i+1,r.product,r.company||'—',r.wg||'—',q,Rs(p),Rs(q*p)];});
+  doc.autoTable({startY:68,head:[['#','Product','Company','W/G','Qty','Price','Total']],body,theme:'grid',margin:{left:10,right:10},tableWidth:pw-20,headStyles:{fillColor:[255,107,53],textColor:255,fontStyle:'bold',fontSize:9,halign:'center',cellPadding:4},bodyStyles:{fontSize:9,cellPadding:4,textColor:[90,48,16]},columnStyles:{0:{halign:'center',cellWidth:12},2:{halign:'center',cellWidth:26},3:{halign:'center',cellWidth:18},4:{halign:'center',cellWidth:14},5:{halign:'right',cellWidth:30},6:{halign:'right',cellWidth:34}}});
   const fy=doc.lastAutoTable.finalY;
-  doc.setFillColor(255,243,224); doc.rect(0,fy,pw,14,'F');
-  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(191,54,12);
-  doc.text('Grand Total :',120,fy+9); doc.text(fmt(b.grand_total),pw-14,fy+9,{align:'right'});
+  doc.setFillColor(255,243,224);doc.rect(0,fy,pw,13,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(191,54,12);
+  doc.text('Grand Total :',120,fy+9);doc.text(Rs(b.grand_total),pw-14,fy+9,{align:'right'});
   doc.save(b.bill_no+'_'+b.customer_name.replace(/\s+/g,'_')+'.pdf');
 }
-
-// Allow Enter key on filter inputs
-document.addEventListener('keydown',e=>{ if(e.key==='Enter') searchBills(); });
+document.addEventListener('keydown',e=>{if(e.key==='Enter')searchBills();});
 </script>
 </body>
 </html>

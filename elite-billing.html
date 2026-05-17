@@ -12,59 +12,44 @@
     body{font-family:'Poppins',sans-serif;background:#fff8f0;min-height:100vh;}
     .navbar{background:linear-gradient(135deg,#ff6b35 0%,#f7931e 50%,#ffcd3c 100%);color:white;padding:0 28px;height:60px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 16px rgba(255,107,53,0.35);}
     .navbar h1{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;}
-    .nav-btns{display:flex;gap:10px;}
-    .btn-back{background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.5);padding:7px 18px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:500;font-family:'Poppins',sans-serif;transition:all 0.2s;}
+    .nav-btns{display:flex;gap:10px;align-items:center;}
+    .btn-back{background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.5);padding:7px 18px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:500;font-family:'Poppins',sans-serif;}
     .btn-back:hover{background:rgba(255,255,255,0.35);}
-    .btn-download{background:white;color:#e65100;border:none;padding:7px 18px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.15);transition:all 0.2s;}
-    .btn-download:hover{background:#fff3e0;transform:translateY(-1px);}
-
-    .content{max-width:920px;margin:28px auto;padding:0 16px;}
+    .btn-history{background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.4);padding:7px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-family:'Poppins',sans-serif;display:flex;align-items:center;gap:6px;}
+    .btn-history:hover{background:rgba(255,255,255,0.28);}
+    .btn-download{background:white;color:#e65100;border:none;padding:7px 18px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
+    .btn-download:hover{background:#fff3e0;}
+    .content{max-width:960px;margin:24px auto;padding:0 16px;}
+    .save-bar{background:white;border-radius:12px;padding:14px 20px;margin-bottom:18px;box-shadow:0 2px 12px rgba(255,107,53,0.1);border:1px solid #ffe0c0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+    .save-bar-title{font-size:13px;font-weight:600;color:#7d4e2d;}
+    .save-group{display:flex;align-items:center;gap:10px;}
+    .save-status{font-size:12px;color:#2e7d32;font-weight:600;display:none;}
+    .save-btn{background:linear-gradient(135deg,#ff6b35,#f7931e);color:white;border:none;padding:9px 22px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;box-shadow:0 3px 12px rgba(255,107,53,0.3);}
+    .save-btn:hover{transform:translateY(-1px);}
     .bill-card{background:white;border-radius:16px;box-shadow:0 4px 28px rgba(255,107,53,0.14);overflow:hidden;border:1px solid #ffe0c0;}
-    .bill-header-top{background:linear-gradient(135deg,#ff6b35,#f7931e,#ffcd3c);padding:18px 26px 16px;position:relative;}
-    .shop-name-center{text-align:center;margin-bottom:4px;}
-    .shop-name-center h2{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:white;text-shadow:0 1px 4px rgba(0,0,0,0.2);}
-    .shop-address{text-align:center;font-size:11px;color:rgba(255,255,255,0.9);line-height:1.6;margin-bottom:4px;}
-    .shop-phone{position:absolute;right:26px;top:18px;font-size:11px;color:rgba(255,255,255,0.95);font-weight:500;text-align:right;}
+    .bill-header{background:linear-gradient(135deg,#ff6b35,#f7931e,#ffcd3c);padding:18px 26px 16px;position:relative;}
     .elite-tag{position:absolute;left:26px;top:18px;background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.5);border-radius:12px;padding:3px 10px;font-size:11px;font-weight:600;color:white;letter-spacing:1px;}
-
-    .bill-info-strip{background:#fff8f0;padding:12px 26px;border-bottom:2px solid #ffb74d;display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-    .info-row{font-size:12px;color:#5a3010;}.info-row strong{color:#bf360c;font-weight:600;}
-
-    .customer-row{background:#fff3e0;padding:9px 26px;border-bottom:1px solid #ffe0c0;display:flex;align-items:center;gap:10px;}
-    .customer-label{font-size:12px;font-weight:600;color:#7d4e2d;white-space:nowrap;min-width:130px;}
-    .customer-input{flex:1;border:1.5px solid #ffb74d;border-radius:8px;padding:7px 12px;font-size:13px;font-family:'Poppins',sans-serif;color:#3e1c00;background:white;outline:none;transition:all 0.2s;}
-    .customer-input:focus{border-color:#ff6b35;box-shadow:0 0 0 3px rgba(255,107,53,0.1);}
-    .customer-input::placeholder{color:#c49a72;}
-
+    .shop-phone{position:absolute;right:26px;top:18px;font-size:11px;color:rgba(255,255,255,0.95);font-weight:500;text-align:right;}
+    .shop-name{text-align:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:white;text-shadow:0 1px 4px rgba(0,0,0,0.2);margin-bottom:4px;}
+    .shop-addr{text-align:center;font-size:11px;color:rgba(255,255,255,0.9);}
+    .bill-info{background:#fff8f0;padding:11px 26px;border-bottom:2px solid #ffb74d;display:flex;gap:40px;}
+    .info-item{font-size:12px;color:#5a3010;}.info-item strong{color:#bf360c;font-weight:600;}
+    .cust-row{background:#fff3e0;padding:9px 26px;border-bottom:1px solid #ffe0c0;display:flex;align-items:center;gap:10px;}
+    .cust-label{font-size:12px;font-weight:600;color:#7d4e2d;white-space:nowrap;min-width:140px;}
+    .cust-input{flex:1;border:1.5px solid #ffb74d;border-radius:8px;padding:7px 12px;font-size:13px;font-family:'Poppins',sans-serif;color:#3e1c00;background:white;outline:none;transition:all 0.2s;}
+    .cust-input:focus{border-color:#ff6b35;box-shadow:0 0 0 3px rgba(255,107,53,0.1);}
+    .cust-input::placeholder{color:#c49a72;}
     table{width:100%;border-collapse:collapse;}
-    thead th{background:linear-gradient(135deg,#ff6b35,#f7931e);color:white;padding:11px 12px;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;text-align:left;}
-    thead th:first-child{width:50px;text-align:center;}
-    thead th:nth-child(3){width:110px;text-align:center;}
-    thead th:nth-child(4){width:100px;text-align:center;}
-    thead th:nth-child(5){width:110px;text-align:right;}
-    thead th:last-child{width:130px;text-align:right;}
+    thead th{background:linear-gradient(135deg,#ff6b35,#f7931e);color:white;padding:10px 12px;font-size:12px;font-weight:600;text-align:left;}
+    thead th.c{text-align:center;}thead th.r{text-align:right;}
     tbody tr{border-bottom:1px solid #fff3e8;}
     tbody tr:nth-child(even){background:#fffaf5;}
-    tbody td{padding:10px 12px;font-size:13px;color:#5a3010;}
-    tbody td:first-child{text-align:center;color:#c49a72;}
-    tbody td:nth-child(3){text-align:center;}
-    tbody td:nth-child(4){text-align:center;}
-    tbody td:nth-child(5){text-align:right;}
-    tbody td:last-child{text-align:right;font-weight:600;color:#e65100;}
-
-    .totals-section{padding:14px 26px;background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-top:2px solid #ffb74d;display:flex;justify-content:flex-end;}
-    .grand-total-box{display:flex;justify-content:space-between;width:260px;font-size:16px;font-weight:700;color:#bf360c;font-family:'Playfair Display',serif;}
-    .thank-you{text-align:center;padding:12px;font-size:12px;color:#a06040;border-top:1px dashed #ffb74d;font-style:italic;}
-    .eye-header{display:flex;align-items:center;justify-content:flex-end;gap:6px;}
-    .eye-btn-header{background:none;border:none;cursor:pointer;font-size:20px;padding:2px 4px;border-radius:6px;transition:all 0.15s;line-height:1;color:white;}
-    .eye-btn-header:hover{background:rgba(255,255,255,0.3);transform:scale(1.15);}
-
-    /* SAVE TO DB */
-    .save-bar{background:white;border-radius:12px;padding:16px 20px;margin-bottom:20px;box-shadow:0 2px 12px rgba(255,107,53,0.1);border:1px solid #ffe0c0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-    .save-bar-title{font-size:13px;font-weight:600;color:#7d4e2d;}
-    .save-btn{background:linear-gradient(135deg,#ff6b35,#f7931e);color:white;border:none;padding:9px 22px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;box-shadow:0 3px 12px rgba(255,107,53,0.3);transition:all 0.2s;}
-    .save-btn:hover{transform:translateY(-1px);}
-    .save-status{font-size:12px;color:#2e7d32;font-weight:600;display:none;}
+    tbody td{padding:9px 12px;font-size:13px;color:#5a3010;}
+    tbody td.c{text-align:center;}tbody td.r{text-align:right;font-weight:600;color:#e65100;}
+    tbody td.sl{text-align:center;color:#c49a72;font-size:12px;}
+    .totals-row{padding:13px 26px;background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-top:2px solid #ffb74d;display:flex;justify-content:flex-end;}
+    .grand-box{display:flex;justify-content:space-between;width:260px;font-size:16px;font-weight:700;color:#bf360c;font-family:'Playfair Display',serif;}
+    .thank-you{text-align:center;padding:11px;font-size:12px;color:#a06040;border-top:1px dashed #ffb74d;font-style:italic;}
   </style>
 </head>
 <body>
@@ -72,53 +57,53 @@
   <h1>Sree Electricals &amp; Electronics</h1>
   <div class="nav-btns">
     <button class="btn-back" onclick="window.location.replace('/elite-dashboard.html')">← Back</button>
-    <button class="btn-download" onclick="downloadAndSave()">⬇ Download PDF</button>
+    <button class="btn-history" onclick="window.location.href='/elite-history.html'">👁️ History</button>
+    <button class="btn-download" onclick="downloadPDF()">⬇ Download PDF</button>
   </div>
 </div>
-
 <div class="content">
-  <!-- SAVE TO DB BAR -->
   <div class="save-bar">
-    <span class="save-bar-title">💾 Bill history is auto-saved to DB when you Download PDF (with valid name &amp; phone)</span>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <span class="save-status" id="saveStatus">✅ Saved to history!</span>
+    <span class="save-bar-title">💾 Save this bill to customer history</span>
+    <div class="save-group">
+      <span class="save-status" id="saveStatus">✅ Saved successfully!</span>
       <button class="save-btn" onclick="saveToDB()">Save to History</button>
     </div>
   </div>
-
-  <div class="bill-card" id="billCard">
-    <div class="bill-header-top">
+  <div class="bill-card">
+    <div class="bill-header">
       <div class="elite-tag">👑 ELITE</div>
       <div class="shop-phone">📞 +91 9976142451<br/>+91 9360550626</div>
-      <div class="shop-name-center"><h2>SREE ELECTRICALS &amp; ELECTRONICS</h2></div>
-      <div class="shop-address">Subramaniapuram, Vasudevanallur(p.o), Tenkasi Main Road, Tamil Nadu - 627758</div>
+      <div class="shop-name">SREE ELECTRICALS &amp; ELECTRONICS</div>
+      <div class="shop-addr">Subramaniapuram, Vasudevanallur(p.o), Tenkasi Main Road, Tamil Nadu - 627758</div>
     </div>
-
-    <div class="bill-info-strip">
-      <div class="info-row"><strong>Bill No. : </strong><span id="billNo">—</span></div>
-      <div class="info-row"><strong>Date &amp; Time : </strong><span id="billDateTime">—</span></div>
+    <div class="bill-info">
+      <div class="info-item"><strong>Bill No : </strong><span id="billNo">—</span></div>
+      <div class="info-item"><strong>Date &amp; Time : </strong><span id="billDT">—</span></div>
     </div>
-
-    <div class="customer-row">
-      <div class="customer-label">Customer Name :</div>
-      <input type="text" class="customer-input" id="customerName" placeholder="Enter customer name"/>
+    <div class="cust-row">
+      <div class="cust-label">Customer Name :</div>
+      <input type="text" class="cust-input" id="custName" placeholder="Enter customer name"/>
     </div>
-    <div class="customer-row">
-      <div class="customer-label">Phone Number :</div>
-      <input type="text" class="customer-input" id="customerPhone" placeholder="10-digit phone number" maxlength="10"/>
+    <div class="cust-row">
+      <div class="cust-label">Phone Number :</div>
+      <input type="text" class="cust-input" id="custPhone" placeholder="10-digit phone number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"/>
     </div>
-
     <table>
       <thead>
         <tr>
-          <th>Sl.No</th><th>Product</th><th>Company</th><th>Qty</th><th>Year W/G<br/><small style="font-size:9px;font-weight:400;opacity:0.85;">W=Warranty G=Guarantee</small></th><th>Price (₹)</th><th><div class="eye-header"><span>Total (₹)</span><button class="eye-btn-header" onclick="window.location.href='/elite-history.html'" title="Customer History">👁️</button></div></th>
+          <th style="width:46px" class="c">Sl.No</th>
+          <th>Product Name</th>
+          <th style="width:120px">Company</th>
+          <th style="width:90px" class="c">W / G</th>
+          <th style="width:60px" class="c">Qty</th>
+          <th style="width:110px" class="r">Price (₹)</th>
+          <th style="width:120px" class="r">Total (₹)</th>
         </tr>
       </thead>
       <tbody id="billBody"></tbody>
     </table>
-
-    <div class="totals-section">
-      <div class="grand-total-box">
+    <div class="totals-row">
+      <div class="grand-box">
         <span>Grand Total</span>
         <span id="grandTotal">₹ 0.00</span>
       </div>
@@ -126,174 +111,94 @@
     <div class="thank-you">Thank you for shopping with us! We appreciate your business.</div>
   </div>
 </div>
-
 <script>
-const authToken = localStorage.getItem('authToken');
-if(!authToken) window.location.replace('/login.html');
-
-const SHOP_NAME    = 'SREE ELECTRICALS & ELECTRONICS';
-const SHOP_ADDRESS = 'Subramaniapuram, Vasudevanallur(p.o), Tenkasi Main Road, Tamil Nadu-627758';
-const SHOP_PHONE   = '+91 9976142451 / +91 9360550626';
-
-function nowDateTime(){
+const authToken=localStorage.getItem('authToken');
+if(!authToken)window.location.replace('/login.html');
+const SHOP_NAME='SREE ELECTRICALS & ELECTRONICS';
+const SHOP_ADDR='Subramaniapuram, Vasudevanallur(p.o), Tenkasi Main Road, Tamil Nadu-627758';
+const SHOP_PHONE='+91 9976142451 / +91 9360550626';
+function nowDT(){
   const d=new Date();
   const date=d.getDate().toString().padStart(2,'0')+'/'+(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getFullYear();
-  let h=d.getHours(),m=d.getMinutes(); const ampm=h>=12?'PM':'AM';
-  h=h%12||12;
-  const time=h.toString().padStart(2,'0')+':'+m.toString().padStart(2,'0')+' '+ampm;
-  return {date,time,full:date+' '+time};
+  let h=d.getHours(),m=d.getMinutes();const ap=h>=12?'PM':'AM';h=h%12||12;
+  return date+' '+h.toString().padStart(2,'0')+':'+m.toString().padStart(2,'0')+' '+ap;
 }
-
 function getBillNo(){
-  let ex=sessionStorage.getItem('eliteBillNo'); if(ex) return ex;
+  let b=sessionStorage.getItem('eliteBillNo');if(b)return b;
   const d=new Date();
-  const stamp='EBILL-'+d.getFullYear().toString()+(d.getMonth()+1).toString().padStart(2,'0')+d.getDate().toString().padStart(2,'0')+'-'+d.getHours().toString().padStart(2,'0')+d.getMinutes().toString().padStart(2,'0');
-  sessionStorage.setItem('eliteBillNo',stamp); return stamp;
+  b='EBILL-'+d.getFullYear()+(d.getMonth()+1).toString().padStart(2,'0')+d.getDate().toString().padStart(2,'0')+'-'+d.getHours().toString().padStart(2,'0')+d.getMinutes().toString().padStart(2,'0');
+  sessionStorage.setItem('eliteBillNo',b);return b;
 }
-
 function loadBill(){
-  const billNo=getBillNo(); const dt=nowDateTime();
-  document.getElementById('billNo').textContent=billNo;
-  document.getElementById('billDateTime').textContent=dt.full;
+  document.getElementById('billNo').textContent=getBillNo();
+  document.getElementById('billDT').textContent=nowDT();
   const raw=sessionStorage.getItem('eliteBillData');
-  if(!raw){ document.getElementById('billBody').innerHTML='<tr><td colspan="7" style="text-align:center;padding:20px;color:#c49a72;">No data. Go back and enter products.</td></tr>'; return; }
-  const allData=JSON.parse(raw);
-  const rows=allData.filter(r=>r.product&&(parseFloat(r.qty)||0)>0&&(parseFloat(r.price)||0)>0);
-  const tbody=document.getElementById('billBody'); tbody.innerHTML='';
-  let subtotal=0;
-  rows.forEach((r,idx)=>{
-    const qty=parseFloat(r.qty)||0, price=parseFloat(r.price)||0, total=qty*price;
-    subtotal+=total;
+  if(!raw){document.getElementById('billBody').innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:#c49a72;">No data. Go back and enter products.</td></tr>';return;}
+  const rows=JSON.parse(raw).filter(r=>r.product&&(parseFloat(r.qty)||0)>0&&(parseFloat(r.price)||0)>0);
+  let sub=0;const tbody=document.getElementById('billBody');tbody.innerHTML='';
+  rows.forEach((r,i)=>{
+    const q=parseFloat(r.qty)||0,p=parseFloat(r.price)||0,t=q*p;sub+=t;
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${idx+1}</td><td>${r.product}</td><td>${r.company||'—'}</td><td style="text-align:center">${qty}</td><td style="text-align:center">${r.wg||'—'}</td><td style="text-align:right">₹ ${price.toFixed(2)}</td><td style="text-align:right;font-weight:600;color:#e65100;">₹ ${total.toFixed(2)}</td>`;
+    tr.innerHTML=`<td class="sl">${i+1}</td><td>${r.product}</td><td>${r.company||'—'}</td><td class="c">${r.wg||'—'}</td><td class="c">${q}</td><td class="r">₹ ${p.toFixed(2)}</td><td class="r">₹ ${t.toFixed(2)}</td>`;
     tbody.appendChild(tr);
   });
-  document.getElementById('grandTotal').textContent='₹ '+subtotal.toFixed(2);
+  document.getElementById('grandTotal').textContent='₹ '+sub.toFixed(2);
 }
-
 async function saveToDB(){
-  const name = document.getElementById('customerName').value.trim();
-  const phone = document.getElementById('customerPhone').value.trim();
-  if(!name){ alert('Please enter customer name.'); return; }
-  if(!/^\d{10}$/.test(phone)){ alert('Please enter a valid 10-digit phone number.'); return; }
-
+  const name=document.getElementById('custName').value.trim();
+  const phone=document.getElementById('custPhone').value.trim();
+  if(!name){alert('Please enter customer name.');return;}
+  if(!/^\d{10}$/.test(phone)){alert('Please enter a valid 10-digit phone number.');return;}
   const raw=sessionStorage.getItem('eliteBillData');
-  const allData=JSON.parse(raw||'[]');
-  const rows=allData.filter(r=>r.product&&(parseFloat(r.qty)||0)>0&&(parseFloat(r.price)||0)>0);
-  let grandTotal=0; rows.forEach(r=>{ grandTotal+=(parseFloat(r.qty)||0)*(parseFloat(r.price)||0); });
-
-  const payload = {
-    phone, customer_name: name,
-    bill_no: document.getElementById('billNo').textContent,
-    bill_datetime: document.getElementById('billDateTime').textContent,
-    bill_data: rows, grand_total: grandTotal
-  };
-
+  const rows=JSON.parse(raw||'[]').filter(r=>r.product&&(parseFloat(r.qty)||0)>0&&(parseFloat(r.price)||0)>0);
+  let grand=0;rows.forEach(r=>{grand+=(parseFloat(r.qty)||0)*(parseFloat(r.price)||0);});
   try{
-    const res = await fetch('/elite/save-bill', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':authToken},
-      body: JSON.stringify(payload)
-    });
-    const d = await res.json();
-    if(d.success){
-      document.getElementById('saveStatus').style.display='inline';
-      setTimeout(()=>{ document.getElementById('saveStatus').style.display='none'; },3000);
-    } else { alert('Save failed: '+(d.error||'Unknown error')); }
-  } catch(e){ alert('Cannot connect to server.'); }
+    const res=await fetch('/save-bill',{method:'POST',headers:{'Content-Type':'application/json','Authorization':authToken},
+      body:JSON.stringify({billNo:document.getElementById('billNo').textContent,customerName:name,customerPhone:phone,items:rows,grandTotal:grand,dateTime:document.getElementById('billDT').textContent})});
+    const d=await res.json();
+    if(d.success!==false){const s=document.getElementById('saveStatus');s.style.display='inline';setTimeout(()=>s.style.display='none',3000);}
+    else alert('Save failed: '+(d.error||'Unknown'));
+  }catch(e){alert('Cannot connect to server.');}
 }
-
-function downloadAndSave(){
-  const {jsPDF}=window.jspdf;
+function downloadPDF(){
+  const{jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  function fmt(v){ return 'Rs. '+parseFloat(v).toFixed(2); }
-
-  const billNo=document.getElementById('billNo').textContent;
-  const dateTime=document.getElementById('billDateTime').textContent;
-  const custNameRaw=document.getElementById('customerName').value.trim();
-  const custName=custNameRaw||'Walk-in Customer';
-  const custPhone=document.getElementById('customerPhone').value.trim();
-  const raw=sessionStorage.getItem('eliteBillData');
-  const allData=JSON.parse(raw||'[]');
-  const rows=allData.filter(r=>r.product&&(parseFloat(r.qty)||0)>0&&(parseFloat(r.price)||0)>0);
-  let grandTotal=0; rows.forEach(r=>{ grandTotal+=(parseFloat(r.qty)||0)*(parseFloat(r.price)||0); });
   const pw=doc.internal.pageSize.getWidth();
-
-  doc.setFillColor(255,107,53); doc.rect(0,0,pw,34,'F');
-  doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(255,255,255);
-  doc.text('👑 ELITE BILLING',14,10);
-  doc.setFontSize(15); doc.text(SHOP_NAME,pw/2,15,{align:'center'});
-  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(255,240,220);
-  doc.text(SHOP_ADDRESS,pw/2,22,{align:'center'});
+  const Rs=v=>'Rs. '+parseFloat(v).toFixed(2);
+  const billNo=document.getElementById('billNo').textContent;
+  const dt=document.getElementById('billDT').textContent;
+  const name=document.getElementById('custName').value.trim()||'Walk-in Customer';
+  const phone=document.getElementById('custPhone').value.trim();
+  const raw=sessionStorage.getItem('eliteBillData');
+  const rows=JSON.parse(raw||'[]').filter(r=>r.product&&(parseFloat(r.qty)||0)>0&&(parseFloat(r.price)||0)>0);
+  let grand=0;rows.forEach(r=>{grand+=(parseFloat(r.qty)||0)*(parseFloat(r.price)||0);});
+  doc.setFillColor(255,107,53);doc.rect(0,0,pw,34,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(15);doc.setTextColor(255,255,255);
+  doc.text(SHOP_NAME,pw/2,14,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(255,240,220);
+  doc.text(SHOP_ADDR,pw/2,21,{align:'center'});
   doc.text('Ph: '+SHOP_PHONE,pw-14,29,{align:'right'});
-
-  doc.setFillColor(255,248,240); doc.rect(0,34,pw,16,'F');
-  doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(191,54,12);
-  doc.text('Bill No. : '+billNo,14,42);
-  doc.text('Date & Time : '+dateTime,14,49);
-
-  doc.setFillColor(255,243,224); doc.rect(0,50,pw,18,'F');
-  doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(125,78,45);
-  doc.text('Customer Name  :',14,57); doc.text('Phone :',14,65);
-  doc.setFont('helvetica','normal'); doc.setTextColor(62,28,0);
-  doc.text(custName,60,57); doc.text(custPhone||'—',60,65);
-
-  doc.setDrawColor(255,183,77); doc.setLineWidth(0.8); doc.line(0,68,pw,68);
-
-  const tableBody=rows.map((r,i)=>{
-    const qty=parseFloat(r.qty)||0, price=parseFloat(r.price)||0;
-    return [i+1,r.product,r.company||'—',qty.toString(),r.wg||'—',fmt(price),fmt(qty*price)];
-  });
-
-  doc.autoTable({
-    startY:70,
-    head:[['S.No','Product','Company','Qty','Year W/G','Price (Rs.)','Total (Rs.)']],
-    body:tableBody,
-    theme:'grid',margin:{left:10,right:10},tableWidth:pw-20,
-    headStyles:{fillColor:[255,107,53],textColor:255,fontStyle:'bold',fontSize:9,halign:'center',cellPadding:{top:5,bottom:5,left:3,right:3},minCellHeight:13,valign:'middle'},
-    bodyStyles:{fontSize:9,cellPadding:4,textColor:[90,48,16],valign:'middle'},
-    alternateRowStyles:{fillColor:[255,250,245]},
-    columnStyles:{0:{halign:'center',cellWidth:14},1:{halign:'left',cellWidth:'auto'},2:{halign:'center',cellWidth:28},3:{halign:'center',cellWidth:14},4:{halign:'center',cellWidth:22},5:{halign:'right',cellWidth:32},6:{halign:'right',cellWidth:36}}
-  });
-
-  const finalY=doc.lastAutoTable.finalY;
-  doc.setFillColor(255,243,224); doc.rect(0,finalY,pw,14,'F');
-  doc.setDrawColor(255,183,77); doc.line(0,finalY,pw,finalY);
-  doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(191,54,12);
-  doc.text('Grand Total :',120,finalY+9); doc.text(fmt(grandTotal),pw-14,finalY+9,{align:'right'});
-  doc.setFont('helvetica','italic'); doc.setFontSize(9); doc.setTextColor(160,96,64);
-  doc.text('Thank you for shopping with us!',pw/2,finalY+22,{align:'center'});
-
-  const safeBill=billNo.replace(/[^a-zA-Z0-9]/g,'_');
-  const safeName=(custName||'Walk-in').replace(/[^a-zA-Z0-9]/g,'_');
-  doc.save(safeBill+'_'+safeName+'.pdf');
-
-  // Auto-save to history DB after PDF download
-  if(custPhone && /^\d{10}$/.test(custPhone) && custNameRaw){
-    autoSaveToDB(custNameRaw, custPhone, billNo, dateTime, rows, grandTotal);
-  }
+  doc.setFontSize(8);doc.text('ELITE BILLING',14,10);
+  doc.setFillColor(255,248,240);doc.rect(0,34,pw,14,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(191,54,12);
+  doc.text('Bill No. : '+billNo,14,42);doc.text('Date & Time : '+dt,pw/2,42);
+  doc.setFillColor(255,243,224);doc.rect(0,48,pw,18,'F');
+  doc.setFont('helvetica','bold');doc.setTextColor(125,78,45);
+  doc.text('Customer Name :',14,55);doc.text('Phone :',14,63);
+  doc.setFont('helvetica','normal');doc.setTextColor(62,28,0);
+  doc.text(name,60,55);doc.text(phone||'—',60,63);
+  doc.setDrawColor(255,183,77);doc.setLineWidth(0.8);doc.line(0,66,pw,66);
+  const body=rows.map((r,i)=>{const q=parseFloat(r.qty)||0,p=parseFloat(r.price)||0;return[i+1,r.product,r.company||'—',r.wg||'—',q,Rs(p),Rs(q*p)];});
+  doc.autoTable({startY:68,head:[['#','Product','Company','W/G','Qty','Price (Rs.)','Total (Rs.)']],body,theme:'grid',margin:{left:10,right:10},tableWidth:pw-20,headStyles:{fillColor:[255,107,53],textColor:255,fontStyle:'bold',fontSize:9,halign:'center',cellPadding:{top:5,bottom:5,left:3,right:3},minCellHeight:12,valign:'middle'},bodyStyles:{fontSize:9,cellPadding:4,textColor:[90,48,16],valign:'middle'},alternateRowStyles:{fillColor:[255,250,245]},columnStyles:{0:{halign:'center',cellWidth:12},2:{halign:'center',cellWidth:26},3:{halign:'center',cellWidth:18},4:{halign:'center',cellWidth:14},5:{halign:'right',cellWidth:30},6:{halign:'right',cellWidth:34}}});
+  const fy=doc.lastAutoTable.finalY;
+  doc.setFillColor(255,243,224);doc.rect(0,fy,pw,13,'F');
+  doc.setDrawColor(255,183,77);doc.line(0,fy,pw,fy);
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(191,54,12);
+  doc.text('Grand Total :',120,fy+9);doc.text(Rs(grand),pw-14,fy+9,{align:'right'});
+  doc.setFont('helvetica','italic');doc.setFontSize(9);doc.setTextColor(160,96,64);
+  doc.text('Thank you for shopping with us!',pw/2,fy+22,{align:'center'});
+  doc.save(billNo.replace(/[^a-zA-Z0-9]/g,'_')+'_'+name.replace(/[^a-zA-Z0-9]/g,'_')+'.pdf');
 }
-
-async function autoSaveToDB(name, phone, billNo, billDatetime, rows, grandTotal){
-  const payload = {
-    phone, customer_name: name,
-    bill_no: billNo, bill_datetime: billDatetime,
-    bill_data: rows, grand_total: grandTotal
-  };
-  try{
-    const res = await fetch('/elite/save-bill', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':authToken},
-      body: JSON.stringify(payload)
-    });
-    const d = await res.json();
-    if(d.success){
-      document.getElementById('saveStatus').style.display='inline';
-      setTimeout(()=>{ document.getElementById('saveStatus').style.display='none'; },3000);
-    }
-  } catch(e){ /* silent fail on auto-save */ }
-}
-
 loadBill();
 </script>
 </body>
