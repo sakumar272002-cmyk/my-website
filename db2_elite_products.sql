@@ -1,10 +1,4 @@
--- ═══════════════════════════════════════════════════════════════
--- ELITE PRODUCTS — Run this in bgkwzqnaueygs0sltdxg (same DB as server.js)
--- Open MySQL Workbench → connect to: bgkwzqnaueygs0sltdxg-mysql.services.clever-cloud.com
--- User: utkpn8wzxl290hqx  |  DB: bgkwzqnaueygs0sltdxg
--- ═══════════════════════════════════════════════════════════════
-
-USE bgkwzqnaueygs0sltdxg;   -- ← MUST match server.js DB_NAME
+USE bgkwzqnaueygs0sltdxg;
 
 CREATE TABLE IF NOT EXISTS elite_products (
   id           INT AUTO_INCREMENT PRIMARY KEY,
@@ -15,24 +9,6 @@ CREATE TABLE IF NOT EXISTS elite_products (
   INDEX idx_company      (company)
 );
 
--- Also create bill_counter and bill_history if not already present
-CREATE TABLE IF NOT EXISTS bill_counter (
-  bill_date DATE        NOT NULL PRIMARY KEY,
-  counter   INT         NOT NULL DEFAULT 0
-);
-
-CREATE TABLE IF NOT EXISTS bill_history (
-  id               INT AUTO_INCREMENT PRIMARY KEY,
-  bill_no          VARCHAR(50)    NOT NULL UNIQUE,
-  customer_name    VARCHAR(255)   NOT NULL,
-  customer_phone   VARCHAR(20),
-  items_json       LONGTEXT,
-  grand_total      DECIMAL(12,2)  NOT NULL DEFAULT 0,
-  bill_datetime    VARCHAR(50),
-  created_at       TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
-);
-
--- ─── Seed elite_products ─────────────────────────────────────
 INSERT IGNORE INTO elite_products (product_name, company, price) VALUES
 ('0.5 sq mm Wire', 'Finolex', 210.00),
 ('0.5 sq mm Wire', 'Havells', 245.00),
@@ -91,7 +67,5 @@ INSERT IGNORE INTO elite_products (product_name, company, price) VALUES
 ('Smart Switch 2 Gang', 'Anchor', 1850.00),
 ('Motion Sensor PIR', 'Legrand', 850.00);
 
--- ─── Verify ──────────────────────────────────────────────────
-SELECT COUNT(*) AS elite_products_count FROM elite_products;
-SELECT COUNT(*) AS bill_counter_exists   FROM bill_counter;
-SELECT COUNT(*) AS bill_history_exists   FROM bill_history;
+-- Verify
+SELECT COUNT(*) AS total FROM elite_products;
