@@ -14,16 +14,19 @@ app.use(bodyParser.json());
 // ─── DATABASE POOL ───────────────────────────────────────────────────
 // Pool handles idle-timeout reconnects automatically (no more ECONNRESET)
 const db = mysql.createPool({
-  host:               process.env.DB_HOST     || 'bgkwzqnaueygs0sltdxg-mysql.services.clever-cloud.com',
-  port:               process.env.DB_PORT     || 3306,
-  user:               process.env.DB_USER     || 'utkpn8wzxl290hqx',
-  password:           process.env.DB_PASSWORD || 'i6AZV2A3QoiqjQT9i3QI',
-  database:           process.env.DB_NAME     || 'bgkwzqnaueygs0sltdxg',
+  host: process.env.DB_HOST || 'bgkwzqnaueygs0sltdxg-mysql.services.clever-cloud.com',
+  port: process.env.DB_PORT || 3306,
+  user: process.env.DB_USER || 'utkpn8wzxl290hqx',
+  password: process.env.DB_PASSWORD || 'i6AZV2A3QoiqjQT9i3QI',
+  database: process.env.DB_NAME || 'bgkwzqnaueygs0sltdxg',
+
   waitForConnections: true,
-  connectionLimit:    3,
-  queueLimit:         0,
-  enableKeepAlive:    true,
-  keepAliveInitialDelay: 0
+  connectionLimit: 10,
+  queueLimit: 0,
+
+  connectTimeout: 10000,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000
 });
 
 setTimeout(() => {

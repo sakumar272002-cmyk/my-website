@@ -261,55 +261,6 @@
     <span id="dbMsg">Connecting to database…</span>
   </div>
 
-  <!-- SECTION FILTER -->
-  <div class="filter-bar">
-    <label for="secFilter">Filter by Section:</label>
-    <select class="filter-select" id="secFilter" onchange="onSectionChange()">
-      <option value="">All Sections</option>
-    </select>
-  </div>
-
-  <!-- TABLE -->
-  <div class="table-card">
-    <table>
-      <colgroup>
-        <col class="c-sl">
-        <col class="c-prod">
-        <col class="c-comp">
-        <col class="c-qty">
-        <col class="c-wg">
-        <col class="c-price">
-        <col class="c-total">
-      </colgroup>
-      <thead>
-        <tr>
-          <th class="tc">Sl.No</th>
-          <th>Product</th>
-          <th>Company</th>
-          <th class="tc">Qty</th>
-          <th class="tc">W / G</th>
-          <th class="tr">Price (₹)</th>
-          <th class="tr">
-            <div class="th-total-inner">
-              <span>Total Price (₹)</span>
-              <button class="btn-eye" onclick="goHistory()" title="Customer History">👁️</button>
-            </div>
-          </th>
-        </tr>
-      </thead>
-      <tbody id="tBody"></tbody>
-      <tfoot>
-        <tr>
-          <td colspan="6">Grand Total</td>
-          <td class="tr" id="grandTotal">₹ 0.00</td>
-        </tr>
-      </tfoot>
-    </table>
-    <div class="paginator" id="pgBar"></div>
-    <div class="bottom-actions">
-      <button class="btn-clear" onclick="clearAll()">Clear All</button>
-      <button class="btn-save"  onclick="saveBill()">Save &amp; Bill</button>
-    </div>
   </div>
 
 </div>
@@ -660,7 +611,7 @@ function toast(msg) {
 // ═══════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════
-loadSections();
+dbOk('✅ Database connected');
 buildTable();
 </script>
 </body>
