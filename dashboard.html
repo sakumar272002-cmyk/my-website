@@ -70,21 +70,6 @@
     input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
     input[type=number] { -moz-appearance:textfield; }
 
-    /* Product autocomplete (Elite only) */
-    .product-wrap { position:relative; }
-    .dropdown-list {
-      position:absolute; top:calc(100% + 2px); left:0; right:0; z-index:300;
-      background:white; border:1.5px solid #ffb74d; border-radius:8px;
-      box-shadow:0 8px 24px rgba(255,107,53,0.18); max-height:210px; overflow-y:auto; display:none;
-    }
-    .dropdown-list.open { display:block; }
-    .dropdown-item { padding:9px 12px; cursor:pointer; font-size:13px; color:#3e1c00; border-bottom:1px solid #fff3e8; transition:background 0.1s; }
-    .dropdown-item:last-child { border-bottom:none; }
-    .dropdown-item:hover, .dropdown-item.focused { background:#fff3e0; }
-    .dropdown-item .di-name { font-weight:600; color:#bf360c; display:block; }
-    .dropdown-item .di-sub  { font-size:11px; color:#a06040; display:block; margin-top:2px; }
-    .dropdown-no-result { padding:10px 12px; color:#c49a72; font-size:13px; font-style:italic; }
-
     .total-display {
       padding:6px 8px; font-size:13px; font-weight:600; color:#e65100;
       background:#fff3e0; border-radius:7px; text-align:right;
@@ -97,13 +82,6 @@
       border-top:2px solid #ffb74d; font-family:'Playfair Display',serif;
     }
     tfoot td:last-child { text-align:right; font-size:15px; }
-    tfoot td.eye-cell { text-align:center; }
-
-    /* Eye icon (Elite only) */
-    .eye-cell { text-align:center !important; }
-    .eye-btn { background:none; border:none; cursor:pointer; font-size:20px; padding:4px; border-radius:6px; transition:background 0.15s; line-height:1; display:block; margin:0 auto; }
-    .eye-btn:hover { background:#fff3e0; }
-
     /* Paginator */
     .paginator { display:flex; justify-content:center; align-items:center; gap:6px; padding:14px 24px; border-top:1px solid #ffe0c0; background:#fffaf5; }
     .page-btn { width:36px; height:36px; border-radius:8px; border:1px solid #ffb74d; background:white; color:#e65100; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center; font-family:'Poppins',sans-serif; }
@@ -129,7 +107,6 @@
       <div class="user-avatar">👤</div>
       <span class="user-name" id="navUsername">—</span>
     </div>
-    <span class="billing-badge" id="billingBadge"></span>
     <button class="logout-btn" onclick="logout()">Logout</button>
   </div>
 </div>
@@ -152,69 +129,34 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  const authToken   = localStorage.getItem('authToken');
-  const billingType = localStorage.getItem('billingType') || 'billing';
-  const isElite     = billingType === 'elite';
+  const authToken = localStorage.getItem('authToken');
 
   // Display user info
   document.getElementById('navUsername').textContent = localStorage.getItem('authUser') || 'User';
-  document.getElementById('billingBadge').textContent = isElite ? '👑 Elite Billing' : '🧾 Billing';
 
-  // ── TABLE CONFIG based on billing mode ──
-  // Elite: Sl.No | Product(search) | Company | Qty | Year W/G | Price | Total | 👁
-  // Billing: Sl.No | Product(text) | Qty | Price | Total
   const ROWS_PER_PAGE = 10;
   const TOTAL_PAGES   = 5;
   const TOTAL_ROWS    = ROWS_PER_PAGE * TOTAL_PAGES;
   let currentPage = 1;
-  let allData = Array.from({length:TOTAL_ROWS}, ()=> isElite
-    ? {product:'', company:'', qty:'', warranty:'', guarantee:'', price:''}
-    : {product:'', qty:'', price:''}
-  );
+  let allData = Array.from({length:TOTAL_ROWS}, () => ({product:'', qty:'', price:''}));
 
-  // Build header
   function buildHead(){
-    const thead = document.getElementById('tableHead');
-    if(isElite){
-      thead.innerHTML = `<tr>
-        <th style="width:46px;text-align:center">Sl.No</th>
-        <th>Product</th>
-        <th style="width:130px">Company</th>
-        <th style="width:75px;text-align:center">Qty</th>
-        <th style="width:105px;text-align:center">Year W/G</th>
-        <th style="width:105px;text-align:right">Price</th>
-        <th style="width:115px;text-align:right">Total Price</th>
-        <th style="width:44px;text-align:center">👁</th>
-      </tr>`;
-    } else {
-      thead.innerHTML = `<tr>
-        <th style="width:46px;text-align:center">Sl.No</th>
-        <th>Product</th>
-        <th style="width:85px;text-align:center">Qty</th>
-        <th style="width:115px;text-align:right">Price</th>
-        <th style="width:125px;text-align:right">Total Price</th>
-      </tr>`;
-    }
+    document.getElementById('tableHead').innerHTML = `<tr>
+      <th style="width:46px;text-align:center">Sl.No</th>
+      <th>Product</th>
+      <th style="width:85px;text-align:center">Qty</th>
+      <th style="width:115px;text-align:right">Price</th>
+      <th style="width:125px;text-align:right">Total Price</th>
+    </tr>`;
   }
 
-  // Build footer
   function buildFoot(){
-    const tfoot = document.getElementById('tableFoot');
-    if(isElite){
-      tfoot.innerHTML = `<tr>
-        <td colspan="6" style="text-align:right">Grand Total</td>
-        <td id="grandTotal" style="text-align:right">0.00</td>
-        <td class="eye-cell"></td>
-      </tr>`;
-    } else {
-      tfoot.innerHTML = `<tr>
-        <td colspan="4" style="text-align:right">Grand Total</td>
-        <td id="grandTotal" style="text-align:right">0.00</td>
-      </tr>`;
-    }
+    document.getElementById('tableFoot').innerHTML = `<tr>
+      <td colspan="4" style="text-align:right">Grand Total</td>
+      <td id="grandTotal" style="text-align:right">0.00</td>
+    </tr>`;
   }
 
-  // Build table rows
   function buildTable(){
     const tbody = document.getElementById('tableBody');
     tbody.innerHTML = '';
@@ -222,39 +164,12 @@
     for(let i=start; i<start+ROWS_PER_PAGE; i++){
       const r = allData[i]; const slNo = i+1;
       const tr = document.createElement('tr');
-      if(isElite){
-        tr.innerHTML = `
-          <td>${slNo}</td>
-          <td>
-            <div class="product-wrap" id="pw_${i}">
-              <input class="cell-input" type="text" id="product_${i}"
-                placeholder="Search product…" value="${esc(r.product)}"
-                oninput="onProductInput(${i})" onkeydown="onProductKey(event,${i})"
-                onfocus="onProductFocus(${i})" onblur="onProductBlur(${i})" autocomplete="off"/>
-              <div class="dropdown-list" id="dd_${i}"></div>
-            </div>
-          </td>
-          <td><input class="cell-input" type="text" id="company_${i}" placeholder="Company" value="${esc(r.company)}" oninput="setField(${i},'company')"/></td>
-          <td><input class="cell-input center" type="number" id="qty_${i}" placeholder="0" min="0" value="${r.qty}" oninput="setField(${i},'qty');recalc(${i})"/></td>
-          <td>
-            <div style="display:flex;gap:3px;align-items:center">
-              <input class="cell-input center" type="number" id="warranty_${i}" placeholder="W" min="0" value="${r.warranty}" oninput="setField(${i},'warranty')" style="width:50%"/>
-              <span style="color:#c49a72;font-size:11px;flex-shrink:0">/</span>
-              <input class="cell-input center" type="number" id="guarantee_${i}" placeholder="G" min="0" value="${r.guarantee}" oninput="setField(${i},'guarantee')" style="width:50%"/>
-            </div>
-          </td>
-          <td><input class="cell-input right" type="number" id="price_${i}" placeholder="0.00" min="0" step="0.01" value="${r.price}" oninput="setField(${i},'price');recalc(${i})"/></td>
-          <td><div class="total-display" id="total_${i}">${calcRowTotal(i)}</div></td>
-          <td class="eye-cell"><button class="eye-btn" title="Customer history" onclick="goHistory()">👁</button></td>`;
-      } else {
-        // Billing mode: simple text product, no company/warranty columns, no Rs symbol
-        tr.innerHTML = `
-          <td>${slNo}</td>
-          <td><input class="cell-input" type="text" id="product_${i}" placeholder="Enter product name" value="${esc(r.product)}" oninput="setField(${i},'product')"/></td>
-          <td><input class="cell-input center" type="number" id="qty_${i}" placeholder="0" min="0" value="${r.qty}" oninput="setField(${i},'qty');recalc(${i})"/></td>
-          <td><input class="cell-input right" type="number" id="price_${i}" placeholder="0.00" min="0" step="0.01" value="${r.price}" oninput="setField(${i},'price');recalc(${i})"/></td>
-          <td><div class="total-display" id="total_${i}">${calcRowTotal(i)}</div></td>`;
-      }
+      tr.innerHTML = `
+        <td>${slNo}</td>
+        <td><input class="cell-input" type="text" id="product_${i}" placeholder="Enter product name" value="${esc(r.product)}" oninput="setField(${i},'product')"/></td>
+        <td><input class="cell-input center" type="number" id="qty_${i}" placeholder="0" min="0" value="${r.qty}" oninput="setField(${i},'qty');recalc(${i})"/></td>
+        <td><input class="cell-input right" type="number" id="price_${i}" placeholder="0.00" min="0" step="0.01" value="${r.price}" oninput="setField(${i},'price');recalc(${i})"/></td>
+        <td><div class="total-display" id="total_${i}">${calcRowTotal(i)}</div></td>`;
       tbody.appendChild(tr);
     }
     buildPaginator();
@@ -287,87 +202,6 @@
     document.getElementById('grandTotal').textContent = grand.toFixed(2);
   }
 
-  // ── PRODUCT AUTOCOMPLETE (Elite only) ──
-  let ddTimers = {};
-
-  function onProductInput(i){
-    setField(i,'product');
-    const val = (allData[i].product||'').trim();
-    clearTimeout(ddTimers[i]);
-    if(val.length < 1){ closeDD(i); return; }
-    ddTimers[i] = setTimeout(()=> fetchProducts(i, val), 260);
-  }
-
-  function onProductFocus(i){
-    const val = (allData[i].product||'').trim();
-    if(val.length >= 1) fetchProducts(i, val);
-  }
-
-  function onProductBlur(i){ setTimeout(()=> closeDD(i), 200); }
-
-  function onProductKey(e, i){
-    const dd = document.getElementById(`dd_${i}`);
-    const items = dd.querySelectorAll('.dropdown-item');
-    let focused = dd.querySelector('.dropdown-item.focused');
-    if(e.key==='ArrowDown'){
-      e.preventDefault();
-      const next = focused ? focused.nextElementSibling : items[0];
-      if(next?.classList.contains('dropdown-item')){ focused?.classList.remove('focused'); next.classList.add('focused'); }
-    } else if(e.key==='ArrowUp'){
-      e.preventDefault();
-      const prev = focused?.previousElementSibling;
-      if(prev?.classList.contains('dropdown-item')){ focused.classList.remove('focused'); prev.classList.add('focused'); }
-    } else if(e.key==='Enter' && focused){ focused.click(); e.preventDefault(); }
-    else if(e.key==='Escape') closeDD(i);
-  }
-
-  async function fetchProducts(i, search){
-    try{
-      const resp = await fetch(`/products?search=${encodeURIComponent(search)}`,{headers:{'Authorization':authToken}});
-      if(!resp.ok) throw new Error('bad');
-      renderDD(i, await resp.json());
-    }catch(e){ closeDD(i); }
-  }
-
-  function renderDD(i, products){
-    const dd = document.getElementById(`dd_${i}`);
-    if(!dd) return;
-    dd.innerHTML='';
-    if(!products?.length){
-      dd.innerHTML='<div class="dropdown-no-result">No products found</div>';
-      dd.classList.add('open'); return;
-    }
-    products.forEach(p=>{
-      const item=document.createElement('div');
-      item.className='dropdown-item';
-      const wg = [p.warranty?`W:${p.warranty}yr`:'', p.guarantee?`G:${p.guarantee}yr`:''].filter(Boolean).join(' · ');
-      item.innerHTML=`<span class="di-name">${p.name}</span><span class="di-sub">${[p.company, p.price?p.price:'', wg].filter(Boolean).join(' · ')}</span>`;
-      item.onmousedown=()=> selectProduct(i,p);
-      dd.appendChild(item);
-    });
-    dd.classList.add('open');
-  }
-
-  function selectProduct(i, p){
-    allData[i].product   = p.name     || '';
-    allData[i].company   = p.company  || '';
-    allData[i].price     = p.price    || '';
-    allData[i].warranty  = p.warranty || '';
-    allData[i].guarantee = p.guarantee|| '';
-    ['product','company','price','warranty','guarantee'].forEach(f=>{
-      const el=document.getElementById(`${f}_${i}`);
-      if(el) el.value = allData[i][f];
-    });
-    recalc(i); closeDD(i);
-    document.getElementById(`qty_${i}`)?.focus();
-  }
-
-  function closeDD(i){
-    const dd=document.getElementById(`dd_${i}`);
-    if(dd){ dd.classList.remove('open'); dd.innerHTML=''; }
-  }
-
-  // ── PAGINATOR ──
   function buildPaginator(){
     const pg = document.getElementById('paginator');
     pg.innerHTML = '';
@@ -386,41 +220,31 @@
 
   function syncPage(){
     const start=(currentPage-1)*ROWS_PER_PAGE;
-    const fields = isElite
-      ? ['product','company','qty','warranty','guarantee','price']
-      : ['product','qty','price'];
     for(let i=start;i<start+ROWS_PER_PAGE;i++){
-      fields.forEach(f=>{ const el=document.getElementById(`${f}_${i}`); if(el) allData[i][f]=el.value; });
+      ['product','qty','price'].forEach(f=>{
+        const el=document.getElementById(`${f}_${i}`); if(el) allData[i][f]=el.value;
+      });
     }
   }
 
-  // ── SAVE ──
   function saveData(){
     syncPage();
     const filled = allData.filter(r=>r.product && (parseFloat(r.qty)||0)>0);
     if(!filled.length){ showToast('Enter at least one product with quantity!'); return; }
     sessionStorage.setItem('billData', JSON.stringify(allData));
-    sessionStorage.removeItem('currentBillNo'); // force fresh bill number on billing page
+    sessionStorage.removeItem('currentBillNo');
     window.location.href = '/billing.html';
   }
 
-  // ── CLEAR ──
   function clearAll(){
     showToast('Clearing…');
     setTimeout(()=>{
-      allData = Array.from({length:TOTAL_ROWS},()=> isElite
-        ? {product:'',company:'',qty:'',warranty:'',guarantee:'',price:''}
-        : {product:'',qty:'',price:''}
-      );
+      allData = Array.from({length:TOTAL_ROWS},()=>({product:'',qty:'',price:''}));
       currentPage=1; buildHead(); buildFoot(); buildTable();
       showToast('All data cleared!');
     },600);
   }
 
-  // ── HISTORY (Elite only) ──
-  function goHistory(){ window.location.href='/customer-history.html'; }
-
-  // ── LOGOUT ──
   function logout(){
     localStorage.removeItem('authToken');
     localStorage.removeItem('authUser');
@@ -435,10 +259,7 @@
     setTimeout(()=>t.classList.remove('show'),2500);
   }
 
-  // ── INIT ──
   buildHead();
   buildFoot();
   buildTable();
 </script>
-</body>
-</html>

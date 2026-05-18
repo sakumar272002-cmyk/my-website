@@ -29,10 +29,6 @@
     .btn-back:hover { background:rgba(255,255,255,0.35); }
     .btn-download { background:white; color:#e65100; border:none; padding:8px 22px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; font-family:'Poppins',sans-serif; box-shadow:0 2px 8px rgba(0,0,0,0.15); transition:all 0.2s; }
     .btn-download:hover { background:#fff3e0; transform:translateY(-1px); }
-    /* Eye button in navbar (Elite only) */
-    .btn-eye { background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.5); padding:8px 14px; border-radius:8px; cursor:pointer; font-size:18px; transition:all 0.2s; }
-    .btn-eye:hover { background:rgba(255,255,255,0.35); }
-
     .content { max-width:900px; margin:32px auto; padding:0 20px; }
 
     .bill-card { background:white; border-radius:16px; box-shadow:0 4px 28px rgba(255,107,53,0.14); overflow:hidden; border:1px solid #ffe0c0; }
@@ -46,9 +42,6 @@
     .bill-info-strip { background:#fff8f0; padding:14px 28px; border-bottom:2px solid #ffb74d; }
     .info-row { font-size:13px; color:#5a3010; margin-bottom:4px; }
     .info-row strong { color:#bf360c; font-weight:600; }
-    /* Bill no loading state */
-    .bill-no-loading { color:#c49a72; font-style:italic; font-size:12px; }
-
     .customer-row { background:#fff3e0; padding:10px 28px; border-bottom:1px solid #ffe0c0; display:flex; align-items:center; gap:10px; }
     .customer-label { font-size:13px; font-weight:600; color:#7d4e2d; white-space:nowrap; min-width:130px; }
     .customer-input { flex:1; border:1.5px solid #ffb74d; border-radius:8px; padding:8px 14px; font-size:14px; font-family:'Poppins',sans-serif; color:#3e1c00; background:white; outline:none; transition:all 0.2s; }
@@ -83,7 +76,6 @@
   <h1>Sree Electricals &amp; Electronics</h1>
   <div class="nav-btns">
     <button class="btn-back" onclick="window.location.replace('/dashboard.html')">← Back</button>
-    <button class="btn-eye" id="eyeBtn" onclick="goHistory()" title="Customer History" style="display:none">👁</button>
     <button class="btn-download" onclick="downloadPDF()">⬇ Download PDF</button>
   </div>
 </div>
@@ -98,7 +90,7 @@
     </div>
 
     <div class="bill-info-strip">
-      <div class="info-row"><strong>Bill No. : </strong><span id="billNo"><span class="bill-no-loading">Generating…</span></span></div>
+      <div class="info-row"><strong>Bill No. : </strong><span id="billNo">Generating…</span></div>
       <div class="info-row"><strong>Date &amp; Time : </strong><span id="billDateTime">—</span></div>
     </div>
 
@@ -128,18 +120,12 @@
 </div>
 
 <script>
-  const authToken   = localStorage.getItem('authToken');
-  const billingType = localStorage.getItem('billingType') || 'billing';
-  const isElite     = billingType === 'elite';
+  const authToken = localStorage.getItem('authToken');
+  if(!authToken) window.location.replace('/login.html');
 
   const SHOP_NAME    = 'SREE ELECTRICALS & ELECTRONICS';
   const SHOP_ADDRESS = 'Subramaniapuram, Vasudevanallur(p.o), Tenkasi Main Road, Tamil Nadu-627758';
   const SHOP_PHONE   = '+91 9976142451 / +91 9360550626';
-
-  // Show eye button only for elite
-  if (isElite) document.getElementById('eyeBtn').style.display = '';
-
-  function goHistory(){ window.location.href='/customer-history.html'; }
 
   function nowDateTime(){
     const d = new Date();
@@ -151,8 +137,6 @@
     return { date, time, full: date+' '+time };
   }
 
-  // ── BILL NUMBER: sequential from DB (BILL-YYYYMMDD-N) ──
-  // Stored in sessionStorage so navigating back and forward doesn't increment again.
   async function getOrFetchBillNo(){
     const cached = sessionStorage.getItem('currentBillNo');
     if (cached) return cached;
@@ -163,7 +147,6 @@
       sessionStorage.setItem('currentBillNo', d.billNo);
       return d.billNo;
     } catch(e) {
-      // Fallback: timestamp-based if server unreachable
       const d = new Date();
       const fb = 'BILL-' + d.getFullYear() +
         (d.getMonth()+1).toString().padStart(2,'0') +
@@ -175,36 +158,22 @@
     }
   }
 
-  // Build table head based on billing mode
   function buildHead(){
-    const thead = document.getElementById('billHead');
-    if(isElite){
-      thead.innerHTML = `<tr>
-        <th>Sl.No</th><th>Product</th><th style="width:80px;text-align:center">Qty</th>
-        <th style="width:120px;text-align:right">Price</th>
-        <th style="width:130px;text-align:right">Total Price</th>
-      </tr>`;
-    } else {
-      thead.innerHTML = `<tr>
-        <th>Sl.No</th><th>Product</th><th style="width:80px;text-align:center">Qty</th>
-        <th style="width:120px;text-align:right">Price</th>
-        <th style="width:130px;text-align:right">Total Price</th>
-      </tr>`;
-    }
+    document.getElementById('billHead').innerHTML = `<tr>
+      <th>Sl.No</th><th>Product</th>
+      <th style="width:80px;text-align:center">Qty</th>
+      <th style="width:120px;text-align:right">Price</th>
+      <th style="width:130px;text-align:right">Total Price</th>
+    </tr>`;
   }
 
   async function loadBill(){
-    // Set date/time immediately
     const dt = nowDateTime();
     document.getElementById('billDateTime').textContent = dt.full;
-
-    // Fetch bill number from DB
     const billNo = await getOrFetchBillNo();
     document.getElementById('billNo').textContent = billNo;
-
     buildHead();
 
-    // Load bill data from sessionStorage
     const raw = sessionStorage.getItem('billData');
     if(!raw){
       document.getElementById('billBody').innerHTML =
@@ -224,7 +193,6 @@
       const total = qty*price;
       subtotal += total;
       const tr = document.createElement('tr');
-      // No ₹ symbol as per requirement for billing mode; use plain numbers
       tr.innerHTML = `
         <td>${idx+1}</td>
         <td>${r.product}</td>
@@ -254,7 +222,6 @@
 
     const pw = doc.internal.pageSize.getWidth();
 
-    // Header
     doc.setFillColor(255,107,53);
     doc.rect(0,0,pw,32,'F');
     doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(255,255,255);
@@ -263,13 +230,11 @@
     doc.text(SHOP_ADDRESS, pw/2, 20, {align:'center'});
     doc.text('Ph: '+SHOP_PHONE, pw-14, 27, {align:'right'});
 
-    // Bill info
     doc.setFillColor(255,248,240); doc.rect(0,32,pw,16,'F');
     doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(191,54,12);
     doc.text('Bill No.    : '+billNo, 14, 40);
     doc.text('Date & Time : '+dateTime, 14, 47);
 
-    // Customer
     doc.setFillColor(255,243,224); doc.rect(0,48,pw,18,'F');
     doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(125,78,45);
     doc.text('Customer Name  :', 14, 55);
@@ -282,7 +247,6 @@
 
     doc.setDrawColor(255,183,77); doc.setLineWidth(0.8); doc.line(0,66,pw,66);
 
-    // Table — no currency symbol in body
     const tableBody = rows.map((r,i)=>{
       const qty=parseFloat(r.qty)||0, price=parseFloat(r.price)||0;
       return [i+1, r.product, qty.toString(), price.toFixed(2), (qty*price).toFixed(2)];
@@ -315,24 +279,9 @@
     doc.setFont('helvetica','italic'); doc.setFontSize(9); doc.setTextColor(160,96,64);
     doc.text('Thank you for shopping with us!', pw/2, finalY+22, {align:'center'});
 
-    // Save PDF
     const safeBill = billNo.replace(/[^a-zA-Z0-9]/g,'_');
     const safeName = (custName||'Walk-in_Customer').replace(/[^a-zA-Z0-9]/g,'_');
     doc.save(safeBill+'_'+safeName+'.pdf');
-
-    // If Elite, save bill to DB after PDF download
-    if(isElite){
-      try{
-        await fetch('/save-bill',{
-          method:'POST',
-          headers:{'Content-Type':'application/json','Authorization':authToken},
-          body:JSON.stringify({
-            billNo, customerName:custName, customerPhone:custPhone,
-            items:rows, grandTotal, dateTime
-          })
-        });
-      }catch(e){ /* fail silently — bill still downloaded */ }
-    }
   }
 
   loadBill();
