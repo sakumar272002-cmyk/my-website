@@ -262,12 +262,6 @@
   </div>
 
   <!-- SECTION FILTER -->
-  <div class="filter-bar">
-    <label>Filter by Section :</label>
-    <select class="filter-select" id="secFilter" onchange="onSecChange()">
-      <option value="All">All Sections</option>
-    </select>
-  </div>
 
   <!-- TABLE -->
   <div class="table-card">
@@ -331,7 +325,7 @@ const H = { 'Content-Type':'application/json', 'Authorization': TOKEN };
 //  STATE
 // ═══════════════════════════════════════════════
 const ROWS_PER_PAGE = 10, TOTAL_PAGES = 5, TOTAL_ROWS = 50;
-let page = 1, section = 'All';
+let page = 1;
 
 // Each row: product, brand, qty, wg, price  (price = unit price)
 let D = Array.from({length: TOTAL_ROWS}, () =>
@@ -350,9 +344,7 @@ function setDb(cls, msg) {
 // ═══════════════════════════════════════════════
 //  LOAD SECTIONS
 // ═══════════════════════════════════════════════
-async function loadSections() {
-  try {
-    const r = await fetch('/sections', { headers: H });
+function loadSections() { /* sections removed — elite_products has no section column */ }
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const list = await r.json();
     const sel  = document.getElementById('secFilter');
@@ -365,7 +357,6 @@ async function loadSections() {
     dbErr('❌ DB error: ' + e.message);
   }
 }
-function onSecChange() { section = document.getElementById('secFilter').value; }
 
 // ═══════════════════════════════════════════════
 //  FETCH PRODUCTS
@@ -373,7 +364,6 @@ function onSecChange() { section = document.getElementById('secFilter').value; }
 async function fetchProds(q) {
   try {
     const p = new URLSearchParams({ search: q });
-    if (section && section !== 'All') p.append('section', section);
     const r = await fetch('/products?' + p, { headers: H });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.json();
@@ -527,8 +517,8 @@ function renderDrop(res, inp, row) {
       onmousedown="pick(event,${row},${idx})"
       ontouchstart="pick(event,${row},${idx})">
       <div class="di-left">
-        <div class="di-name">${x(p.product)}</div>
-        <div class="di-brand">${x(p.brand||'')}</div>
+        <div class="di-name">${x(p.product_name)}</div>
+        <div class="di-brand">${x(p.company||'')}</div>
       </div>
       <div class="di-price">₹ ${parseFloat(p.price||0).toFixed(2)}</div>
     </div>`).join('');
@@ -547,8 +537,8 @@ function pick(e, row, idx) {
   const p = lastRes[idx]; if (!p) return;
 
   // Fill state
-  D[row].product = p.product;
-  D[row].brand   = p.brand||'';
+  D[row].product = p.product_name;
+  D[row].company = p.company||'';
   D[row].price   = parseFloat(p.price||0);
 
   // Fill DOM
@@ -556,8 +546,8 @@ function pick(e, row, idx) {
   const ciEl  = document.getElementById('ci'+row);
   const priEl = document.getElementById('pri'+row);
 
-  if (piEl)  piEl.value  = p.product;
-  if (ciEl)  ciEl.value  = p.brand||'';
+  if (piEl)  piEl.value  = p.product_name;
+  if (ciEl)  ciEl.value  = p.company||'';
   if (priEl) priEl.value = parseFloat(p.price||0).toFixed(2);
 
   closeDrop(); activeRow = -1;
