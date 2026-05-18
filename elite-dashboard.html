@@ -261,8 +261,8 @@
     <span id="dbMsg">Connecting to database…</span>
   </div>
 
-  <!-- SECTION FILTER -->
-  <div class="filter-bar">
+  <!-- SECTION FILTER (hidden for elite — no sections in elite_products) -->
+  <div class="filter-bar" style="display:none">
     <label for="secFilter">Filter by Section:</label>
     <select class="filter-select" id="secFilter" onchange="onSectionChange()">
       <option value="">All Sections</option>
@@ -348,21 +348,14 @@ function setDb(cls, msg) {
 }
 
 // ═══════════════════════════════════════════════
-//  LOAD SECTIONS
+//  LOAD SECTIONS (elite has no sections — just ping DB)
 // ═══════════════════════════════════════════════
 async function loadSections() {
   try {
-    const r = await fetch('/sections', { headers: H });
+    const r = await fetch('/elite-ping', { headers: H });
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    const list = await r.json();
-    const sel  = document.getElementById('secFilter');
-    if (sel) {
-      list.forEach(s => {
-        const o = document.createElement('option');
-        o.value = s; o.textContent = s; sel.appendChild(o);
-      });
-    }
-    dbOk('✅ Database connected — ' + list.length + ' sections loaded');
+    const data = await r.json();
+    dbOk('✅ Database connected — ' + data.count + ' products available');
   } catch(e) {
     dbErr('❌ DB error: ' + e.message);
   }
@@ -378,10 +371,8 @@ function onSectionChange() {
 
 async function fetchProds(q) {
   try {
-    const section = document.getElementById('secFilter')?.value || '';
-    const params  = new URLSearchParams({ search: q });
-    if (section) params.append('section', section);
-    const r = await fetch('/products?' + params, { headers: H });
+    const params = new URLSearchParams({ search: q });
+    const r = await fetch('/elite-products?' + params, { headers: H });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.json();
     return Array.isArray(data) ? data : [];

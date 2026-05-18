@@ -172,6 +172,32 @@ app.get('/sections', requireLogin, (req, res) => {
   });
 });
 
+// ─── ELITE PRODUCTS ──────────────────────────────────────────────────
+// Table: elite_products (id, product_name, company, price)
+// GET /elite-products?search=bulb
+app.get('/elite-products', requireLogin, (req, res) => {
+  const { search } = req.query;
+  let sql = 'SELECT id, product_name, company, price FROM elite_products WHERE 1=1';
+  const params = [];
+  if (search) {
+    sql += ' AND (product_name LIKE ? OR company LIKE ?)';
+    params.push('%' + search + '%', '%' + search + '%');
+  }
+  sql += ' ORDER BY product_name LIMIT 100';
+  db.query(sql, params, (err, results) => {
+    if (err) { console.error('Elite products error:', err.message); return res.status(500).json({ error: 'DB error' }); }
+    res.json(results);
+  });
+});
+
+// GET /elite-ping — health check for elite dashboard DB status
+app.get('/elite-ping', requireLogin, (req, res) => {
+  db.query('SELECT COUNT(*) AS cnt FROM elite_products', (err, results) => {
+    if (err) { console.error('Elite ping error:', err.message); return res.status(500).json({ error: 'DB error' }); }
+    res.json({ ok: true, count: results[0].cnt });
+  });
+});
+
 // ─── BILL HISTORY (Elite Billing — save & retrieve) ──────────────────
 
 // POST /save-bill — save a completed bill to history
