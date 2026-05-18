@@ -262,6 +262,12 @@
   </div>
 
   <!-- SECTION FILTER -->
+  <div class="filter-bar">
+    <label for="secFilter">Filter by Section:</label>
+    <select class="filter-select" id="secFilter" onchange="onSectionChange()">
+      <option value="">All Sections</option>
+    </select>
+  </div>
 
   <!-- TABLE -->
   <div class="table-card">
@@ -344,14 +350,18 @@ function setDb(cls, msg) {
 // ═══════════════════════════════════════════════
 //  LOAD SECTIONS
 // ═══════════════════════════════════════════════
-function loadSections() { /* sections removed — elite_products has no section column */ }
+async function loadSections() {
+  try {
+    const r = await fetch('/sections', { headers: H });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const list = await r.json();
     const sel  = document.getElementById('secFilter');
-    list.forEach(s => {
-      const o = document.createElement('option');
-      o.value = s; o.textContent = s; sel.appendChild(o);
-    });
+    if (sel) {
+      list.forEach(s => {
+        const o = document.createElement('option');
+        o.value = s; o.textContent = s; sel.appendChild(o);
+      });
+    }
     dbOk('✅ Database connected — ' + list.length + ' sections loaded');
   } catch(e) {
     dbErr('❌ DB error: ' + e.message);
@@ -361,10 +371,17 @@ function loadSections() { /* sections removed — elite_products has no section 
 // ═══════════════════════════════════════════════
 //  FETCH PRODUCTS
 // ═══════════════════════════════════════════════
+function onSectionChange() {
+  // Close any open dropdown when section changes
+  closeDrop();
+}
+
 async function fetchProds(q) {
   try {
-    const p = new URLSearchParams({ search: q });
-    const r = await fetch('/products?' + p, { headers: H });
+    const section = document.getElementById('secFilter')?.value || '';
+    const params  = new URLSearchParams({ search: q });
+    if (section) params.append('section', section);
+    const r = await fetch('/products?' + params, { headers: H });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.json();
     return Array.isArray(data) ? data : [];
@@ -614,7 +631,7 @@ function saveBill() {
   // Pass brand as company key so elite-billing.html can read it
   const payload = D.map(r => ({...r, company: r.brand}));
   localStorage.setItem('eliteBillData', JSON.stringify(payload));
-  window.location.replace('/elite-billing');
+  window.location.href = '/elite-billing.html?token=' + encodeURIComponent(TOKEN);
 }
 
 function clearAll() {
@@ -626,11 +643,13 @@ function clearAll() {
 // ═══════════════════════════════════════════════
 //  NAV / TOAST
 // ═══════════════════════════════════════════════
-function goHistory() { window.location.href = '/elite-history'; }
+function goHistory() {
+  window.location.href = '/elite-history.html?token=' + encodeURIComponent(TOKEN);
+}
 function doLogout() {
   localStorage.removeItem('authToken');
   localStorage.removeItem('authUser');
-  window.location.replace('/login');
+  window.location.replace('/login.html');
 }
 function toast(msg) {
   const t = document.getElementById('toast');
