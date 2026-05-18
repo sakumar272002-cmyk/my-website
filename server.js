@@ -28,8 +28,17 @@ const db = mysql.createPool({
 
 setTimeout(() => {
   db.getConnection((err, conn) => {
-    if (err) console.error('❌ DB connection failed:', err.message);
-    else     { console.log('✅ Connected to MySQL'); conn.release(); }
+    if (err) { console.error('❌ DB connection failed:', err.message); return; }
+    console.log('✅ Connected to MySQL');
+    // Check all required tables exist and log any missing ones
+    const required = ['users', 'settings', 'elite_products', 'bill_counter', 'bill_history'];
+    required.forEach(tbl => {
+      conn.query(`SELECT 1 FROM ${tbl} LIMIT 1`, (e) => {
+        if (e) console.error(`⚠️  Table MISSING or error: ${tbl} — ${e.message}`);
+        else   console.log(`   ✔ Table OK: ${tbl}`);
+      });
+    });
+    conn.release();
   });
 }, 3000);
 
