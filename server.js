@@ -140,21 +140,32 @@ app.get('/next-bill-no', requireLogin, (req, res) => {
   );
 });
 
-// ─── PRODUCTS (Elite Dashboard — searches elite_products table) ──────
-// Table schema: elite_products(id, product_name, company, price)
-// GET /products?search=bulb
+// ─── PRODUCTS (Elite Dashboard — search from products table) ─────────
+// GET /products?search=bulb&section=Lighting
 app.get('/products', requireLogin, (req, res) => {
-  const { search } = req.query;
-  let sql    = 'SELECT id, product_name, company, price FROM elite_products WHERE 1=1';
+  const { search, section } = req.query;
+  let sql = 'SELECT id, section, product AS product_name, brand AS company, price FROM products WHERE 1=1';
   const params = [];
   if (search) {
-    sql += ' AND (product_name LIKE ? OR company LIKE ?)';
+    sql += ' AND (product LIKE ? OR brand LIKE ?)';
     params.push(`%${search}%`, `%${search}%`);
   }
-  sql += ' ORDER BY product_name LIMIT 50';
+  if (section && section !== 'All') {
+    sql += ' AND section = ?';
+    params.push(section);
+  }
+  sql += ' ORDER BY product LIMIT 50';
   db.query(sql, params, (err, results) => {
     if (err) { console.error('Products error:', err.message); return res.status(500).json({ error: 'DB error' }); }
     res.json(results);
+  });
+});
+
+// GET /sections — all distinct sections for filter dropdown
+app.get('/sections', requireLogin, (req, res) => {
+  db.query('SELECT DISTINCT section FROM products ORDER BY section', (err, results) => {
+    if (err) { console.error('Sections error:', err.message); return res.status(500).json({ error: 'DB error' }); }
+    res.json(results.map(r => r.section));
   });
 });
 
