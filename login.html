@@ -288,9 +288,10 @@
   function startTimer(){ clearInterval(timer); timer=setInterval(()=>goTo((current+1)%TOTAL),5000); resetBar(); }
   startTimer();
 
-  // ── If already logged in → go straight to dashboard ──
+  // ── If already logged in → go straight to correct dashboard ──
   if(localStorage.getItem('authToken')){
-    window.location.replace('/dashboard.html');
+    const bt = localStorage.getItem('billingType');
+    window.location.replace(bt === 'elite' ? '/elite-dashboard.html' : '/dashboard.html');
   }
 
   // ── LOGIN ──
@@ -314,7 +315,9 @@
         localStorage.setItem('authUser',    d.username);
         localStorage.setItem('billingType', billingType);
         showMsg('Login successful! Redirecting…','success');
-        setTimeout(()=> window.location.replace('/dashboard.html'), 800);
+        setTimeout(()=> window.location.replace(
+          billingType === 'elite' ? '/elite-dashboard.html' : '/dashboard.html'
+        ), 800);
       } else {
         showMsg('Invalid username or password.');
         btn.disabled = false; btn.textContent = 'Sign In →';
