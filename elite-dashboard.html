@@ -153,7 +153,7 @@
       position:fixed; z-index:99999; display:none;
       background:white; border:1.5px solid #ffb74d;
       border-radius:12px; box-shadow:0 12px 36px rgba(255,107,53,.25);
-      max-height:260px; overflow-y:auto; min-width:360px;
+      max-height:280px; overflow-y:scroll; min-width:360px; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; pointer-events:auto;
     }
     #gDrop.open { display:block; }
 
@@ -568,11 +568,16 @@ function pick(e, row, idx) {
 
 function schedClose() {
   clearTimeout(closeTimer);
-  closeTimer = setTimeout(closeDrop, 200);
+  closeTimer = setTimeout(closeDrop, 350);
 }
 function closeDrop() { gDrop.classList.remove('open'); gDrop.innerHTML=''; }
 
-window.addEventListener('scroll', closeDrop, true);
+// Only close when scrolling OUTSIDE the dropdown (e.g. page scroll)
+// Scrolling INSIDE the dropdown list must NOT close it
+window.addEventListener('scroll', function(e) {
+  if (gDrop.contains(e.target)) return;
+  closeDrop();
+}, true);
 window.addEventListener('resize', closeDrop);
 
 // ═══════════════════════════════════════════════
