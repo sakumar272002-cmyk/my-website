@@ -6,12 +6,22 @@
   <title>Sree Electricals &amp; Electronics</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <script>
-    // ── IMMEDIATE AUTH GUARD — synchronous, no network call ──
-    // dashboard.html relies on the token being present in localStorage.
-    // If missing → redirect to login instantly before any DOM paints.
-    (function(){
-      if (!localStorage.getItem('authToken')) {
-        window.location.replace('/login.html');
+    // ── IMMEDIATE AUTH GUARD — verify token with server before allowing page load ──
+    (async function(){
+      const token = localStorage.getItem('authToken');
+      if (!token) { window.location.replace('/login'); return; }
+      try {
+        const r = await fetch('/verify-token', { headers: { 'Authorization': token } });
+        const d = await r.json();
+        if (!d.valid) {
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('authUser');
+          localStorage.removeItem('billingType');
+          window.location.replace('/login');
+        }
+      } catch(e) {
+        // If server unreachable, block access to be safe
+        window.location.replace('/login');
       }
     })();
   </script>
@@ -300,7 +310,7 @@
     if(!filled.length){ showToast('Enter at least one product with quantity!'); return; }
     sessionStorage.setItem('billData', JSON.stringify(allData));
     sessionStorage.removeItem('currentBillNo');
-    window.location.href = '/billing.html';
+    window.location.href = '/billing';
   }
 
   function clearAll(){
@@ -317,7 +327,8 @@
     localStorage.removeItem('authUser');
     localStorage.removeItem('billingType');
     sessionStorage.clear();
-    window.location.replace('/login.html');
+    fetch('/logout', { method:'POST' }).catch(()=>{});
+    window.location.replace('/login');
   }
 
   function showToast(msg){
