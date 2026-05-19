@@ -192,10 +192,10 @@ app.post('/logout', (req, res) => {
 // Sequential per calendar day: BILL-YYYYMMDD-1, -2, -3 …
 // Atomic upsert ensures no duplicates under concurrent requests.
 app.get('/next-bill-no', requireLogin, (req, res) => {
-  const today   = new Date();
-  const dateStr = today.getFullYear().toString() +
-    (today.getMonth()+1).toString().padStart(2,'0') +
-    today.getDate().toString().padStart(2,'0');
+  const ist     = new Date(Date.now() + 5.5 * 60 * 60 * 1000); // shift UTC → IST
+  const dateStr = ist.getUTCFullYear().toString() +
+    (ist.getUTCMonth()+1).toString().padStart(2,'0') +
+    ist.getUTCDate().toString().padStart(2,'0');
 
   db.query(
     `INSERT INTO bill_counter (bill_date, counter) VALUES (?, 1)
