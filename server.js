@@ -44,6 +44,27 @@ setTimeout(() => {
   });
 }, 3000);
 
+
+// ─── AUTO-CLEANUP: delete bill_history rows older than 2 years ───────
+// Runs once 10 s after startup (DB pool ready), then every 24 hours.
+function purgeOldBills() {
+  db.query(
+    `DELETE FROM bill_history WHERE created_at < DATE_SUB(NOW(), INTERVAL 2 YEAR)`,
+    (err, result) => {
+      if (err) {
+        console.error("\u26a0\ufe0f  Auto-purge error:", err.message);
+      } else {
+        const n = result.affectedRows;
+        if (n > 0) console.log(`\uD83D\uDDD1\uFE0F  Auto-purge: removed ${n} bill(s) older than 2 years`);
+        else        console.log("\uD83D\uDDD1\uFE0F  Auto-purge: no bills older than 2 years");
+      }
+    }
+  );
+}
+setTimeout(() => {
+  purgeOldBills();
+  setInterval(purgeOldBills, 24 * 60 * 60 * 1000);
+}, 10000);
 // ─── AUTH MIDDLEWARE (API) ───────────────────────────────────────────
 // Protects API routes — checks Authorization header OR cookie.
 function requireLogin(req, res, next) {
