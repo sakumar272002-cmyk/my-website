@@ -143,6 +143,8 @@ async function searchBills(){
     const res=await fetch('/bill-history?'+p.toString(),{headers:{'Authorization':authToken}});
     const d=await res.json();
     if(!Array.isArray(d)){alert('Error fetching bills.');return;}
+    // Sort by created_at DESC so latest bill always appears first
+    d.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
     bills=d;renderResults(bills,phone||name);
   }catch(e){alert('Cannot connect to server.');}
 }

@@ -303,7 +303,7 @@ app.get('/bill-history', requireLogin, (req, res) => {
   const params = [];
   if (phone) { sql += ' AND customer_phone = ?'; params.push(phone); }
   if (name)  { sql += ' AND customer_name LIKE ?'; params.push(`%${name}%`); }
-  sql += ' ORDER BY bill_datetime DESC';
+  sql += ' ORDER BY created_at DESC'; // sort by real timestamp, not string field
 
   db.query(sql, params, (err, results) => {
     if (err) { console.error('Bill history error:', err.message); return res.status(500).json({ error: 'DB error' }); }
