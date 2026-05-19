@@ -12,76 +12,89 @@
     /* ── NAVBAR ── */
     .navbar {
       background: linear-gradient(135deg,#ff6b35 0%,#f7931e 55%,#ffcd3c 100%);
-      height: 68px; padding: 0 28px;
+      height: 76px; padding: 0 32px;
       display: flex; align-items: center; justify-content: space-between;
-      box-shadow: 0 4px 18px rgba(255,107,53,.35);
+      box-shadow: 0 4px 20px rgba(255,107,53,.4);
     }
-    /* Left: logo + brand name (matches login page) */
-    .navbar-left { display:flex; align-items:center; gap:12px; }
+
+    /* LEFT: logo + brand — identical sizing to login page */
+    .navbar-left { display:flex; align-items:center; gap:14px; }
     .nav-logo {
-      width:44px; height:44px; flex-shrink:0;
-      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45)) drop-shadow(0 0 6px rgba(255,210,50,0.5));
+      width:56px; height:56px; flex-shrink:0;
+      filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5))
+              drop-shadow(0 0 8px rgba(255,210,50,0.55));
+      transition: transform 0.35s cubic-bezier(.34,1.56,.64,1);
     }
-    .brand-wrap { display:flex; flex-direction:column; gap:1px; }
+    .nav-logo:hover { transform: scale(1.1) rotate(-5deg); }
+    .brand-wrap { display:flex; flex-direction:column; gap:2px; }
     .brand-name {
       font-family:'Playfair Display',serif;
-      font-size:20px; font-weight:700; line-height:1.15; letter-spacing:0.6px;
-      background: linear-gradient(90deg,#fff5d6 0%,#ffe082 18%,#ffffff 35%,#ffcc44 52%,#fff5d6 68%,#ffd54f 84%,#ffffff 100%);
+      font-size:24px; font-weight:700; line-height:1.15; letter-spacing:0.8px;
+      background: linear-gradient(90deg,
+        #fff5d6 0%, #ffe082 18%, #ffffff 35%,
+        #ffcc44 52%, #fff5d6 68%, #ffd54f 84%, #ffffff 100%);
       background-size: 220% auto;
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
       animation: shimmer 3.5s linear infinite;
-      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.25));
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.28));
     }
     @keyframes shimmer { 0%{background-position:220% center} 100%{background-position:0% center} }
     .brand-tag {
-      font-size:9px; font-weight:600; letter-spacing:3px; text-transform:uppercase;
-      color:#fff; text-shadow: 0 0 8px rgba(255,220,50,0.7), 0 1px 3px rgba(0,0,0,0.4);
+      font-size:10px; font-weight:600; letter-spacing:3px; text-transform:uppercase;
+      color:#fff; padding-left:1px; display:flex; align-items:center; gap:5px;
+      text-shadow: 0 0 8px rgba(255,220,50,0.7), 0 1px 3px rgba(0,0,0,0.4);
     }
 
-    /* Right side */
-    .nav-right { display:flex; align-items:center; gap:10px; }
+    /* RIGHT side */
+    .nav-right { display:flex; align-items:center; gap:12px; }
 
-    /* Elite badge — bold and attractive */
+    /* 👑 ELITE badge — solid white pill, very clear */
     .elite-badge {
-      background: linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0.15));
-      border: 2px solid rgba(255,255,255,0.8);
-      border-radius: 22px; padding: 5px 16px;
+      background: white;
+      border-radius: 24px; padding: 7px 18px;
       font-size: 13px; font-weight: 800;
-      color: white; letter-spacing: 2px;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
-      box-shadow: 0 2px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.4);
+      color: #e65100; letter-spacing: 1.5px;
+      box-shadow: 0 3px 14px rgba(0,0,0,0.2);
       display: flex; align-items: center; gap: 6px;
+      white-space: nowrap;
     }
 
-    /* Eye icon right next to Elite badge */
+    /* 👁 Eye icon — circular white button */
     .btn-eye-nav {
-      background: rgba(255,255,255,0.2); border: 1.5px solid rgba(255,255,255,0.6);
-      border-radius: 50%; width: 34px; height: 34px;
+      background: white; border: none;
+      border-radius: 50%; width: 38px; height: 38px;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 17px; transition: all 0.2s;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      cursor: pointer; font-size: 18px; transition: all 0.2s;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
     }
-    .btn-eye-nav:hover { background: rgba(255,255,255,0.35); transform: scale(1.1); }
+    .btn-eye-nav:hover { transform: scale(1.1); box-shadow: 0 4px 16px rgba(0,0,0,0.25); }
 
+    /* 👤 User chip — solid white pill */
     .user-chip {
-      display:flex; align-items:center; gap:7px;
-      background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.38);
-      border-radius:24px; padding:4px 13px 4px 5px;
+      display:flex; align-items:center; gap:8px;
+      background: white;
+      border-radius:28px; padding:5px 16px 5px 6px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
     }
     .user-avatar {
-      width:28px; height:28px; border-radius:50%; background:white;
-      display:flex; align-items:center; justify-content:center; font-size:14px;
+      width:30px; height:30px; border-radius:50%;
+      background: linear-gradient(135deg,#ff6b35,#f7931e);
+      display:flex; align-items:center; justify-content:center; font-size:15px;
     }
-    .user-name { font-size:12px; font-weight:600; color:white; }
+    .user-name { font-size:13px; font-weight:700; color:#e65100; }
+
+    /* Logout — solid white button */
     .logout-btn {
-      background:rgba(255,255,255,.2); color:white;
-      border:1px solid rgba(255,255,255,.5);
-      padding:7px 18px; border-radius:8px; cursor:pointer;
-      font-size:12px; font-weight:500; font-family:'Poppins',sans-serif;
-      transition:background .2s;
+      background: white; color: #e65100;
+      border: none; padding: 8px 22px;
+      border-radius: 10px; cursor: pointer;
+      font-size: 13px; font-weight: 700;
+      font-family:'Poppins',sans-serif;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+      transition: all 0.2s;
     }
-    .logout-btn:hover { background:rgba(255,255,255,.35); }
+    .logout-btn:hover { background: #fff3e0; transform: translateY(-1px); }
 
     /* ── CONTENT ── */
     .content { max-width:1340px; margin:22px auto; padding:0 16px; }
