@@ -126,7 +126,7 @@
   </div>
   <div class="nav-btns">
     <button class="btn-back" onclick="window.location.replace('/elite-dashboard')">← Back</button>
-    <button class="btn-history" onclick="window.location.href='/elite-history'">👁️ History</button>
+    <button class="btn-history" onclick="window.location.href='/elite-history'">History</button>
     <button class="btn-download" onclick="downloadPDF()">⬇ Download PDF</button>
   </div>
 </div>
@@ -161,11 +161,11 @@
         <tr>
           <th style="width:46px" class="c">Sl.No</th>
           <th>Product Name</th>
-          <th style="width:120px">Company</th>
+          <th style="width:120px">Brand</th>
           <th style="width:90px" class="c">W / G</th>
           <th style="width:60px" class="c">Qty</th>
-          <th style="width:110px" class="r">Price (₹)</th>
-          <th style="width:120px" class="r">Total (₹)</th>
+          <th style="width:110px" class="r">Price</th>
+          <th style="width:120px" class="r">Total</th>
         </tr>
       </thead>
       <tbody id="billBody"></tbody>
@@ -222,10 +222,10 @@ async function loadBill(){
   rows.forEach((r,i)=>{
     const q=parseFloat(r.qty)||0,p=parseFloat(r.price)||0,t=q*p;sub+=t;
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td class="sl">${i+1}</td><td>${r.product}</td><td>${r.company||'—'}</td><td class="c">${r.wg||'—'}</td><td class="c">${q}</td><td class="r">₹ ${p.toFixed(2)}</td><td class="r">₹ ${t.toFixed(2)}</td>`;
+    tr.innerHTML=`<td class="sl">${i+1}</td><td>${r.product}</td><td>${r.company||'—'}</td><td class="c">${r.wg||'—'}</td><td class="c">${q}</td><td class="r">${p.toFixed(2)}</td><td class="r">${t.toFixed(2)}</td>`;
     tbody.appendChild(tr);
   });
-  document.getElementById('grandTotal').textContent='₹ '+sub.toFixed(2);
+  document.getElementById('grandTotal').textContent=sub.toFixed(2);
 }
 
 // Save bill to DB3 — called automatically on PDF download
@@ -275,7 +275,7 @@ async function downloadPDF(){
   doc.text(name,60,55);doc.text(phone,60,63);
   doc.setDrawColor(255,183,77);doc.setLineWidth(0.8);doc.line(0,66,pw,66);
   const body=rows.map((r,i)=>{const q=parseFloat(r.qty)||0,p=parseFloat(r.price)||0;return[i+1,r.product,r.company||'—',r.wg||'—',q,Rs(p),Rs(q*p)];});
-  doc.autoTable({startY:68,head:[['#','Product','Company','W/G','Qty','Price (Rs.)','Total (Rs.)']],body,theme:'grid',margin:{left:10,right:10},tableWidth:pw-20,headStyles:{fillColor:[255,107,53],textColor:255,fontStyle:'bold',fontSize:9,halign:'center',cellPadding:{top:5,bottom:5,left:3,right:3},minCellHeight:12,valign:'middle'},bodyStyles:{fontSize:9,cellPadding:4,textColor:[90,48,16],valign:'middle'},alternateRowStyles:{fillColor:[255,250,245]},columnStyles:{0:{halign:'center',cellWidth:12},2:{halign:'center',cellWidth:26},3:{halign:'center',cellWidth:18},4:{halign:'center',cellWidth:14},5:{halign:'right',cellWidth:30},6:{halign:'right',cellWidth:34}}});
+  doc.autoTable({startY:68,head:[['#','Product','Brand','W/G','Qty','Price (Rs.)','Total (Rs.)']],body,theme:'grid',margin:{left:10,right:10},tableWidth:pw-20,headStyles:{fillColor:[255,107,53],textColor:255,fontStyle:'bold',fontSize:9,halign:'center',cellPadding:{top:5,bottom:5,left:3,right:3},minCellHeight:12,valign:'middle'},bodyStyles:{fontSize:9,cellPadding:4,textColor:[90,48,16],valign:'middle'},alternateRowStyles:{fillColor:[255,250,245]},columnStyles:{0:{halign:'center',cellWidth:12},2:{halign:'center',cellWidth:26},3:{halign:'center',cellWidth:18},4:{halign:'center',cellWidth:14},5:{halign:'right',cellWidth:30},6:{halign:'right',cellWidth:34}}});
   const fy=doc.lastAutoTable.finalY;
   doc.setFillColor(255,243,224);doc.rect(0,fy,pw,13,'F');
   doc.setDrawColor(255,183,77);doc.line(0,fy,pw,fy);
