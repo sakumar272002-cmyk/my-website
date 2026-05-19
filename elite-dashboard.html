@@ -408,7 +408,7 @@
       <tfoot>
         <tr>
           <td colspan="6">Grand Total</td>
-          <td class="tr" id="grandTotal">₹ 0.00</td>
+          <td class="tr" id="grandTotal">0.00</td>
         </tr>
       </tfoot>
     </table>
@@ -617,7 +617,7 @@ function calcRow(i) {
 function calcGrand() {
   let g = 0;
   D.forEach(r => { g += (parseFloat(r.qty)||0)*(parseFloat(r.price)||0); });
-  document.getElementById('grandTotal').textContent = '₹ ' + g.toFixed(2);
+  document.getElementById('grandTotal').textContent = g.toFixed(2);
 }
 
 // ═══════════════════════════════════════════════
