@@ -300,36 +300,52 @@
   <div class="navbar-left">
     <svg class="nav-logo" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <radialGradient id="dSphG" cx="38%" cy="32%" r="65%">
-          <stop offset="0%"  stop-color="#ffffff"/>
-          <stop offset="30%" stop-color="#ffe566"/>
-          <stop offset="70%" stop-color="#e6890a"/>
-          <stop offset="100%" stop-color="#7a3d00"/>
+        <!-- Dark navy-blue sphere — matches Image 2 exactly -->
+        <radialGradient id="dSphG" cx="35%" cy="28%" r="70%">
+          <stop offset="0%"   stop-color="#5b7fa6"/>
+          <stop offset="25%"  stop-color="#2c4f7a"/>
+          <stop offset="60%"  stop-color="#162d50"/>
+          <stop offset="100%" stop-color="#0a1a32"/>
         </radialGradient>
+        <!-- Outer glow ring — golden -->
         <radialGradient id="dRingG" cx="50%" cy="50%" r="50%">
-          <stop offset="70%"  stop-color="rgba(255,200,50,0.0)"/>
-          <stop offset="100%" stop-color="rgba(255,200,50,0.55)"/>
+          <stop offset="65%"  stop-color="rgba(255,180,0,0.0)"/>
+          <stop offset="100%" stop-color="rgba(255,180,0,0.6)"/>
         </radialGradient>
+        <!-- Bolt gradient — bright white-to-yellow -->
         <linearGradient id="dBoltG" x1="20%" y1="0%" x2="80%" y2="100%">
           <stop offset="0%"   stop-color="#ffffff"/>
-          <stop offset="40%"  stop-color="#ffe566"/>
+          <stop offset="45%"  stop-color="#ffe033"/>
           <stop offset="100%" stop-color="#ffaa00"/>
         </linearGradient>
-        <filter id="dSph3d" x="-25%" y="-25%" width="150%" height="150%">
-          <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.55)"/>
+        <!-- Sphere drop shadow -->
+        <filter id="dSph3d" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="rgba(0,0,0,0.65)"/>
         </filter>
-        <filter id="dBoltGlow" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        <!-- Bolt glow -->
+        <filter id="dBoltGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
         </filter>
       </defs>
-      <circle cx="28" cy="28" r="26" fill="url(#dRingG)"/>
+      <!-- Golden outer ring -->
+      <circle cx="28" cy="28" r="27" fill="url(#dRingG)"/>
+      <!-- Dark navy sphere -->
       <circle cx="28" cy="28" r="23" fill="url(#dSphG)" filter="url(#dSph3d)"/>
-      <ellipse cx="20" cy="18" rx="8" ry="5" fill="rgba(255,255,255,0.28)" transform="rotate(-25,20,18)"/>
-      <ellipse cx="34" cy="37" rx="6" ry="3.5" fill="rgba(100,150,255,0.18)" transform="rotate(20,34,37)"/>
+      <!-- Top-left gloss highlight (white shine) -->
+      <ellipse cx="19" cy="17" rx="9" ry="5.5" fill="rgba(255,255,255,0.32)" transform="rotate(-30,19,17)"/>
+      <!-- Small secondary shine -->
+      <ellipse cx="15" cy="14" rx="4" ry="2.5" fill="rgba(255,255,255,0.18)" transform="rotate(-20,15,14)"/>
+      <!-- Lightning bolt — bright yellow -->
       <path d="M32 7 L17 29 L26 29 L22 49 L39 25 L29 25 Z"
-            fill="url(#dBoltG)" stroke="rgba(255,220,50,0.6)" stroke-width="0.6"
-            stroke-linejoin="round" filter="url(#dBoltGlow)"/>
+            fill="url(#dBoltG)"
+            stroke="rgba(255,230,0,0.7)" stroke-width="0.5"
+            stroke-linejoin="round"
+            filter="url(#dBoltGlow)"/>
     </svg>
     <div class="brand-wrap">
       <span class="brand-name">Sree Electricals &amp; Electronics</span>
