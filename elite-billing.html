@@ -220,6 +220,18 @@ async function loadBill(){
 
 
 
+// ── SAVE BILL TO DB on PDF download — visible in Dashboard History ──
+async function saveBillToDB(billNo, name, phone, items, grand, dateTime){
+  if(!name || !/^\d{10}$/.test(phone)) return;
+  try{
+    await fetch('/save-bill',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','authorization':authToken},
+      body:JSON.stringify({billNo, customerName:name, customerPhone:phone, items, grandTotal:grand, dateTime})
+    });
+  }catch(e){ console.warn('Could not save bill to history:', e); }
+}
+
 async function downloadPDF(){
   const name=document.getElementById('custName').value.trim();
   const phone=document.getElementById('custPhone').value.trim();
@@ -264,12 +276,15 @@ async function downloadPDF(){
   doc.setFont('helvetica','italic');doc.setFontSize(9);doc.setTextColor(160,96,64);
   doc.text('Thank you for shopping with us!',pw/2,fy+22,{align:'center'});
 
+  // ── Save bill to DB so it appears in Dashboard History ──
+  await saveBillToDB(billNo, name, phone, rows, grand, dt);
+
   // Clear cached bill number so next bill gets new sequential number
   sessionStorage.removeItem('eliteBillNo');
 
   doc.save(billNo.replace(/[^a-zA-Z0-9]/g,'_')+'_'+name.replace(/[^a-zA-Z0-9]/g,'_')+'.pdf');
 
-
+  showToast('✅ Bill saved to history & PDF downloaded!');
 }
 
 loadBill();
