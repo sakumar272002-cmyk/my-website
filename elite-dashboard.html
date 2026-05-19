@@ -12,17 +12,58 @@
     /* ── NAVBAR ── */
     .navbar {
       background: linear-gradient(135deg,#ff6b35 0%,#f7931e 55%,#ffcd3c 100%);
-      height: 62px; padding: 0 28px;
+      height: 68px; padding: 0 28px;
       display: flex; align-items: center; justify-content: space-between;
       box-shadow: 0 4px 18px rgba(255,107,53,.35);
     }
-    .navbar h1 { font-family:'Playfair Display',serif; font-size:20px; color:white; font-weight:700; }
-    .nav-right { display:flex; align-items:center; gap:10px; }
-    .elite-badge {
-      background:rgba(255,255,255,.22); border:1px solid rgba(255,255,255,.5);
-      border-radius:20px; padding:4px 14px; font-size:11px; font-weight:700;
-      color:white; letter-spacing:1.2px;
+    /* Left: logo + brand name (matches login page) */
+    .navbar-left { display:flex; align-items:center; gap:12px; }
+    .nav-logo {
+      width:44px; height:44px; flex-shrink:0;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45)) drop-shadow(0 0 6px rgba(255,210,50,0.5));
     }
+    .brand-wrap { display:flex; flex-direction:column; gap:1px; }
+    .brand-name {
+      font-family:'Playfair Display',serif;
+      font-size:20px; font-weight:700; line-height:1.15; letter-spacing:0.6px;
+      background: linear-gradient(90deg,#fff5d6 0%,#ffe082 18%,#ffffff 35%,#ffcc44 52%,#fff5d6 68%,#ffd54f 84%,#ffffff 100%);
+      background-size: 220% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3.5s linear infinite;
+      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.25));
+    }
+    @keyframes shimmer { 0%{background-position:220% center} 100%{background-position:0% center} }
+    .brand-tag {
+      font-size:9px; font-weight:600; letter-spacing:3px; text-transform:uppercase;
+      color:#fff; text-shadow: 0 0 8px rgba(255,220,50,0.7), 0 1px 3px rgba(0,0,0,0.4);
+    }
+
+    /* Right side */
+    .nav-right { display:flex; align-items:center; gap:10px; }
+
+    /* Elite badge — bold and attractive */
+    .elite-badge {
+      background: linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0.15));
+      border: 2px solid rgba(255,255,255,0.8);
+      border-radius: 22px; padding: 5px 16px;
+      font-size: 13px; font-weight: 800;
+      color: white; letter-spacing: 2px;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.4);
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    /* Eye icon right next to Elite badge */
+    .btn-eye-nav {
+      background: rgba(255,255,255,0.2); border: 1.5px solid rgba(255,255,255,0.6);
+      border-radius: 50%; width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 17px; transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .btn-eye-nav:hover { background: rgba(255,255,255,0.35); transform: scale(1.1); }
+
     .user-chip {
       display:flex; align-items:center; gap:7px;
       background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.38);
@@ -242,9 +283,50 @@
 
 <!-- NAVBAR -->
 <div class="navbar">
-  <h1>Sree Electricals &amp; Electronics</h1>
+  <!-- LEFT: Logo + Brand (same as login page) -->
+  <div class="navbar-left">
+    <svg class="nav-logo" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="dSphG" cx="38%" cy="32%" r="65%">
+          <stop offset="0%"  stop-color="#fff8e1"/>
+          <stop offset="40%" stop-color="#ffe566"/>
+          <stop offset="100%" stop-color="#ffaa00"/>
+        </radialGradient>
+        <radialGradient id="dRingG" cx="50%" cy="50%" r="50%">
+          <stop offset="70%"  stop-color="rgba(255,200,50,0.0)"/>
+          <stop offset="100%" stop-color="rgba(255,200,50,0.55)"/>
+        </radialGradient>
+        <linearGradient id="dBoltG" x1="20%" y1="0%" x2="80%" y2="100%">
+          <stop offset="0%"   stop-color="#ffffff"/>
+          <stop offset="40%"  stop-color="#ffe566"/>
+          <stop offset="100%" stop-color="#ffaa00"/>
+        </linearGradient>
+        <filter id="dSph3d" x="-25%" y="-25%" width="150%" height="150%">
+          <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.55)"/>
+        </filter>
+        <filter id="dBoltGlow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <circle cx="28" cy="28" r="26" fill="url(#dRingG)"/>
+      <circle cx="28" cy="28" r="23" fill="url(#dSphG)" filter="url(#dSph3d)"/>
+      <ellipse cx="20" cy="18" rx="8" ry="5" fill="rgba(255,255,255,0.28)" transform="rotate(-25,20,18)"/>
+      <ellipse cx="34" cy="37" rx="6" ry="3.5" fill="rgba(100,150,255,0.18)" transform="rotate(20,34,37)"/>
+      <path d="M32 7 L17 29 L26 29 L22 49 L39 25 L29 25 Z"
+            fill="url(#dBoltG)" stroke="rgba(255,220,50,0.6)" stroke-width="0.6"
+            stroke-linejoin="round" filter="url(#dBoltGlow)"/>
+    </svg>
+    <div class="brand-wrap">
+      <span class="brand-name">Sree Electricals &amp; Electronics</span>
+      <span class="brand-tag">⚡ Elite Billing Portal</span>
+    </div>
+  </div>
+
+  <!-- RIGHT: Elite badge + Eye icon + User chip + Logout -->
   <div class="nav-right">
     <div class="elite-badge">👑 ELITE</div>
+    <button class="btn-eye-nav" onclick="goHistory()" title="Customer Bill History">👁️</button>
     <div class="user-chip">
       <div class="user-avatar">👤</div>
       <span class="user-name" id="navUser">—</span>
@@ -288,13 +370,8 @@
           <th>Company</th>
           <th class="tc">Qty</th>
           <th class="tc">W / G</th>
-          <th class="tr">Price (₹)</th>
-          <th class="tr">
-            <div class="th-total-inner">
-              <span>Total Price (₹)</span>
-              <button class="btn-eye" onclick="goHistory()" title="Customer History">👁️</button>
-            </div>
-          </th>
+          <th class="tr">Price</th>
+          <th class="tr">Total Price</th>
         </tr>
       </thead>
       <tbody id="tBody"></tbody>
