@@ -427,26 +427,10 @@
 
 <script>
 // ═══════════════════════════════════════════════
-//  AUTH — verify token with server before allowing page access
+//  AUTH
 // ═══════════════════════════════════════════════
 const TOKEN = localStorage.getItem('authToken');
-if (!TOKEN) { window.location.replace('/login'); }
-
-(async function verifyAuth() {
-  try {
-    const r = await fetch('/verify-token', { headers: { 'Authorization': TOKEN } });
-    const d = await r.json();
-    if (!d.valid) {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('authUser');
-      localStorage.removeItem('billingType');
-      window.location.replace('/login');
-    }
-  } catch(e) {
-    window.location.replace('/login');
-  }
-})();
-
+if (!TOKEN) window.location.replace('/login');
 document.getElementById('navUser').textContent = localStorage.getItem('authUser') || '—';
 const H = { 'Content-Type':'application/json', 'Authorization': TOKEN };
 
@@ -793,7 +777,7 @@ function saveBill() {
   // Flag: when user presses Back from billing, dashboard should RESET (fresh slate)
   // goHistory() does NOT set this flag, so Back from History PRESERVES data.
   sessionStorage.setItem('eliteDashShouldReset', 'true');
-  window.location.href = '/elite-billing?token=' + encodeURIComponent(TOKEN);
+  window.location.href = '/elite-billing.html?token=' + encodeURIComponent(TOKEN);
 }
 
 function clearAll() {
@@ -809,16 +793,13 @@ function clearAll() {
 // ═══════════════════════════════════════════════
 function goHistory() {
   snapPage(); // persist current page before leaving
-  window.location.href = '/elite-history?token=' + encodeURIComponent(TOKEN);
+  window.location.href = '/elite-history.html?token=' + encodeURIComponent(TOKEN);
 }
 async function doLogout() {
   try { await fetch('/logout', { method:'POST' }); } catch(e){}
   localStorage.removeItem('authToken');
   localStorage.removeItem('authUser');
-  localStorage.removeItem('billingType');
-  localStorage.removeItem('eliteBillData');
   window.location.replace('/login');
-}
 }
 function toast(msg) {
   const t = document.getElementById('toast');
