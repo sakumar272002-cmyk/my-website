@@ -399,11 +399,31 @@
   function startTimer(){ clearInterval(timer); timer=setInterval(()=>goTo((current+1)%TOTAL),5000); resetBar(); }
   startTimer();
 
-  // ── If already logged in → go straight to correct dashboard ──
-  if(localStorage.getItem('authToken')){
-    const bt = localStorage.getItem('billingType');
-    window.location.replace(bt === 'elite' ? '/elite-dashboard.html' : '/dashboard.html');
-  }
+  // ── If already logged in → verify token with server before redirecting ──
+  // IMPORTANT: Never redirect based on localStorage alone — the token may be
+  // expired or invalid. Always confirm with /verify-token first.
+  (async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) return; // no token → stay on login page
+    try {
+      const r = await fetch('/verify-token', {
+        headers: { 'Authorization': token }
+      });
+      const d = await r.json();
+      if (d.valid) {
+        // Token confirmed valid by server — safe to redirect
+        const bt = d.billingType || localStorage.getItem('billingType');
+        window.location.replace(bt === 'elite' ? '/elite-dashboard' : '/dashboard');
+      } else {
+        // Token invalid/expired — clear stale data and stay on login
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('authUser');
+        localStorage.removeItem('billingType');
+      }
+    } catch(e) {
+      // Server unreachable — stay on login, do not redirect
+    }
+  })();
 
   // ── LOGIN ──
   async function handleLogin(){
@@ -427,7 +447,7 @@
         localStorage.setItem('billingType', billingType);
         showMsg('Login successful! Redirecting…','success');
         setTimeout(()=> window.location.replace(
-          billingType === 'elite' ? '/elite-dashboard.html' : '/dashboard.html'
+          billingType === 'elite' ? '/elite-dashboard' : '/dashboard'
         ), 800);
       } else {
         showMsg('Invalid username or password.');

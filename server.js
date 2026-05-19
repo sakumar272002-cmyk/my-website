@@ -113,6 +113,9 @@ app.use(express.static(path.join(__dirname), {
 }));
 
 // ─── PUBLIC PAGES (no auth needed) ───────────────────────────────────
+// Always serve the login page for / and /login — NEVER auto-redirect to dashboard.
+// The client (login.html) is responsible for checking token validity via /verify-token
+// and redirecting if appropriate. Doing it server-side here would bypass the login UI.
 app.get('/',      (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 
