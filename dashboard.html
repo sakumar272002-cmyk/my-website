@@ -27,19 +27,24 @@
       box-shadow:0 4px 16px rgba(255,107,53,0.35);
     }
     .navbar h1 { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; letter-spacing:0.5px; text-shadow:0 1px 3px rgba(0,0,0,0.15); }
-    /* ── LOGO ── */
-    .logo-wrap { display:flex; align-items:center; gap:12px; animation: logoSlideIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+    /* ── LOGO (SVG 3D) ── */
+    .logo-wrap { display:flex; align-items:center; gap:14px; animation: logoSlideIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both; }
     @keyframes logoSlideIn { from { opacity:0; transform:translateX(-24px) scale(0.85); } to { opacity:1; transform:translateX(0) scale(1); } }
-    .logo-icon { position:relative; width:42px; height:42px; flex-shrink:0; }
-    .logo-icon .circle { width:42px; height:42px; border-radius:50%; background:radial-gradient(135deg,#1a2a5e 0%,#0d1a3a 100%); border:2.5px solid #f5c518; box-shadow:0 0 0 1px rgba(245,197,24,0.3), 0 4px 14px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; animation: pulseGlow 2.5s ease-in-out infinite; }
-    @keyframes pulseGlow { 0%,100%{ box-shadow:0 0 0 1px rgba(245,197,24,0.3),0 4px 14px rgba(0,0,0,0.4),0 0 0 0 rgba(245,197,24,0); } 50%{ box-shadow:0 0 0 1px rgba(245,197,24,0.5),0 4px 18px rgba(0,0,0,0.45),0 0 12px 3px rgba(245,197,24,0.25); } }
-    .logo-icon .bolt { font-size:20px; line-height:1; filter:drop-shadow(0 0 4px rgba(245,197,24,0.8)); animation: boltZap 3s ease-in-out infinite; }
-    @keyframes boltZap { 0%,85%,100%{ transform:scale(1); filter:drop-shadow(0 0 4px rgba(245,197,24,0.8)); } 90%{ transform:scale(1.2) rotate(-5deg); filter:drop-shadow(0 0 8px rgba(245,197,24,1)) brightness(1.3); } 95%{ transform:scale(0.95) rotate(3deg); filter:drop-shadow(0 0 4px rgba(245,197,24,0.8)); } }
-    .logo-text { display:flex; flex-direction:column; gap:1px; animation: logoTextIn 0.7s 0.15s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .logo-text { display:flex; flex-direction:column; gap:2px; animation: logoTextIn 0.7s 0.15s cubic-bezier(0.34,1.56,0.64,1) both; }
     @keyframes logoTextIn { from { opacity:0; transform:translateX(-12px); } to { opacity:1; transform:translateX(0); } }
-    .logo-title { font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:#f5c518; text-shadow:0 1px 3px rgba(0,0,0,0.3), 0 0 20px rgba(245,197,24,0.2); letter-spacing:0.3px; line-height:1.1; white-space:nowrap; }
-    .logo-sub { font-family:'Poppins',sans-serif; font-size:9px; font-weight:600; color:rgba(255,255,255,0.85); letter-spacing:2px; text-transform:uppercase; display:flex; align-items:center; gap:3px; }
-    .logo-sub .s-bolt { font-size:10px; animation: boltZap 3s 0.5s ease-in-out infinite; }
+    .logo-title {
+      font-family:'Playfair Display',serif; font-size:20px; font-weight:700; line-height:1.15;
+      letter-spacing:0.8px;
+      background: linear-gradient(90deg, #fff5d6 0%, #ffe082 18%, #ffffff 35%, #ffcc44 52%, #fff5d6 68%, #ffd54f 84%, #ffffff 100%);
+      background-size: 220% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      animation: shimmerLogo 3.5s linear infinite;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.28));
+      white-space:nowrap;
+    }
+    @keyframes shimmerLogo { 0% { background-position: 220% center; } 100% { background-position: 0% center; } }
+    .logo-sub { font-family:'Poppins',sans-serif; font-size:9px; font-weight:600; color:rgba(255,255,255,0.9); letter-spacing:2.5px; text-transform:uppercase; display:flex; align-items:center; text-shadow:0 0 8px rgba(255,220,50,0.7), 0 1px 3px rgba(0,0,0,0.4); }
     .nav-right { display:flex; align-items:center; gap:12px; }
     .user-chip { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.4); border-radius:24px; padding:5px 14px 5px 8px; }
     .user-avatar { width:28px; height:28px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; font-size:15px; }
@@ -114,11 +119,54 @@
 <body>
 
 <div class="navbar">
-  <div class="logo-wrap">
-    <div class="logo-icon"><div class="circle"><span class="bolt">⚡</span></div></div>
+    <div class="logo-wrap">
+    <div style="width:52px;height:52px;flex-shrink:0;filter:drop-shadow(0 6px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 8px rgba(255,210,50,0.55));transition:transform 0.35s cubic-bezier(.34,1.56,.64,1);" onmouseover="this.style.transform='scale(1.12) rotate(-6deg)'" onmouseout="this.style.transform='none'">
+      <svg width="52" height="52" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="navSphG" cx="35%" cy="28%" r="68%">
+            <stop offset="0%" stop-color="#4a6fa5"/><stop offset="30%" stop-color="#1a3a6b"/>
+            <stop offset="70%" stop-color="#0d1f3c"/><stop offset="100%" stop-color="#060e1e"/>
+          </radialGradient>
+          <linearGradient id="navBoltG" x1="30%" y1="0%" x2="70%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/><stop offset="40%" stop-color="#ffe566"/>
+            <stop offset="100%" stop-color="#ffaa00"/>
+          </linearGradient>
+          <radialGradient id="navRingG" cx="50%" cy="50%" r="50%">
+            <stop offset="70%" stop-color="rgba(255,200,50,0.0)"/>
+            <stop offset="100%" stop-color="rgba(255,200,50,0.55)"/>
+          </radialGradient>
+          <filter id="navSph3d" x="-25%" y="-25%" width="150%" height="150%">
+            <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.55)"/>
+          </filter>
+          <filter id="navBoltGlow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <circle cx="28" cy="28" r="26" fill="url(#navRingG)"/>
+        <circle cx="28" cy="28" r="23" fill="url(#navSphG)" filter="url(#navSph3d)"/>
+        <ellipse cx="20" cy="18" rx="8" ry="5" fill="rgba(255,255,255,0.28)" transform="rotate(-25,20,18)"/>
+        <ellipse cx="34" cy="37" rx="6" ry="3.5" fill="rgba(100,150,255,0.18)" transform="rotate(20,34,37)"/>
+        <path d="M32 7 L17 29 L26 29 L22 49 L39 25 L29 25 Z" fill="url(#navBoltG)" stroke="rgba(255,220,50,0.6)" stroke-width="0.6" stroke-linejoin="round" filter="url(#navBoltGlow)"/>
+      </svg>
+    </div>
     <div class="logo-text">
       <div class="logo-title">Sree Electricals &amp; Electronics</div>
-      <div class="logo-sub"><span class="s-bolt">⚡</span> Management Portal</div>
+      <div class="logo-sub">
+        <svg width="10" height="14" viewBox="0 0 11 18" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:5px;">
+          <defs>
+            <linearGradient id="navTagBolt" x1="20%" y1="0%" x2="80%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff"/><stop offset="60%" stop-color="#ffe566"/>
+              <stop offset="100%" stop-color="#ffaa00"/>
+            </linearGradient>
+            <filter id="navTagGlow" x="-60%" y="-40%" width="220%" height="180%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <path d="M8 0 L1 10 L5 10 L3 18 L11 7 L6.5 7 Z" fill="url(#navTagBolt)" filter="url(#navTagGlow)" stroke="rgba(255,180,0,0.5)" stroke-width="0.4" stroke-linejoin="round"/>
+        </svg>Management Portal
+      </div>
     </div>
   </div>
   <div class="nav-right">
