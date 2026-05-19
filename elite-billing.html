@@ -33,17 +33,12 @@
     .nav-btns{display:flex;gap:10px;align-items:center;}
     .btn-back{background:white;color:#e65100;border:none;padding:6px 16px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:700;font-family:'Poppins',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.14);transition:all 0.2s;}
     .btn-back:hover{background:#fff3e0;transform:translateY(-1px);}
-    .btn-history{background:white;color:#e65100;border:none;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:700;font-family:'Poppins',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.14);display:flex;align-items:center;gap:5px;transition:all 0.2s;}
-    .btn-history:hover{background:#fff3e0;transform:translateY(-1px);}
+
+
     .btn-download{background:white;color:#e65100;border:none;padding:6px 16px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:700;font-family:'Poppins',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.14);transition:all 0.2s;}
     .btn-download:hover{background:#fff3e0;transform:translateY(-1px);}
     .content{max-width:960px;margin:24px auto;padding:0 16px;}
-    .save-bar{background:white;border-radius:12px;padding:14px 20px;margin-bottom:18px;box-shadow:0 2px 12px rgba(255,107,53,0.1);border:1px solid #ffe0c0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-    .save-bar-title{font-size:13px;font-weight:600;color:#7d4e2d;}
-    .save-group{display:flex;align-items:center;gap:10px;}
-    .save-status{font-size:12px;color:#2e7d32;font-weight:600;display:none;}
-    .save-btn{background:linear-gradient(135deg,#ff6b35,#f7931e);color:white;border:none;padding:9px 22px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;box-shadow:0 3px 12px rgba(255,107,53,0.3);}
-    .save-btn:hover{transform:translateY(-1px);}
+
     .bill-card{background:white;border-radius:16px;box-shadow:0 4px 28px rgba(255,107,53,0.14);overflow:hidden;border:1px solid #ffe0c0;}
     .bill-header{background:linear-gradient(135deg,#ff6b35,#f7931e,#ffcd3c);padding:18px 26px 16px;position:relative;}
     .elite-tag{position:absolute;left:26px;top:18px;background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.5);border-radius:12px;padding:3px 10px;font-size:11px;font-weight:600;color:white;letter-spacing:1px;}
@@ -126,17 +121,12 @@
   </div>
   <div class="nav-btns">
     <button class="btn-back" onclick="window.location.replace('/elite-dashboard')">← Back</button>
-    <button class="btn-history" onclick="window.location.href='/elite-history'">History</button>
+
     <button class="btn-download" onclick="downloadPDF()">⬇ Download PDF</button>
   </div>
 </div>
 <div class="content">
-  <div class="save-bar">
-    <span class="save-bar-title">📥 Bill is automatically saved to history when you download PDF</span>
-    <div class="save-group">
-      <span class="save-status" id="saveStatus">✅ Saved to history!</span>
-    </div>
-  </div>
+
   <div class="bill-card">
     <div class="bill-header">
       <div class="elite-tag">👑 ELITE</div>
@@ -228,17 +218,7 @@ async function loadBill(){
   document.getElementById('grandTotal').textContent=sub.toFixed(2);
 }
 
-// Save bill to DB3 — called automatically on PDF download
-async function saveBillToDB(billNo, name, phone, items, grand, dateTime){
-  if(!name || !/^\d{10}$/.test(phone)) return; // skip if no valid customer info
-  try{
-    await fetch('/save-bill',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','authorization':authToken},
-      body:JSON.stringify({billNo, customerName:name, customerPhone:phone, items, grandTotal:grand, dateTime})
-    });
-  }catch(e){ console.warn('Could not save bill to history:', e); }
-}
+
 
 async function downloadPDF(){
   const name=document.getElementById('custName').value.trim();
@@ -284,18 +264,12 @@ async function downloadPDF(){
   doc.setFont('helvetica','italic');doc.setFontSize(9);doc.setTextColor(160,96,64);
   doc.text('Thank you for shopping with us!',pw/2,fy+22,{align:'center'});
 
-  // ── AUTO-SAVE TO DB3 on download ──
-  await saveBillToDB(billNo, name, phone, rows, grand, dt);
-
   // Clear cached bill number so next bill gets new sequential number
   sessionStorage.removeItem('eliteBillNo');
 
   doc.save(billNo.replace(/[^a-zA-Z0-9]/g,'_')+'_'+name.replace(/[^a-zA-Z0-9]/g,'_')+'.pdf');
 
-  // Show saved confirmation
-  const s=document.getElementById('saveStatus');
-  s.style.display='inline';
-  setTimeout(()=>s.style.display='none',3000);
+
 }
 
 loadBill();
