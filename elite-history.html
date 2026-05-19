@@ -58,7 +58,7 @@
 <body>
 <div class="navbar">
   <h1>Customer History — Elite Billing</h1>
-  <button class="btn-back" onclick="window.location.replace('/elite-dashboard.html')">← Back to Dashboard</button>
+  <button class="btn-back" onclick="window.location.replace('/elite-dashboard')">← Back to Dashboard</button>
 </div>
 <div class="content">
   <div class="filter-card">
@@ -107,7 +107,7 @@
 </div>
 <script>
 const authToken=localStorage.getItem('authToken');
-if(!authToken)window.location.replace('/login.html');
+if(!authToken)window.location.replace('/login');
 let bills=[];
 async function searchBills(){
   const phone=document.getElementById('filterPhone').value.trim();

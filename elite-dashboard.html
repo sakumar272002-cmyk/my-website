@@ -637,10 +637,11 @@ function clearAll() {
 function goHistory() {
   window.location.href = '/elite-history.html?token=' + encodeURIComponent(TOKEN);
 }
-function doLogout() {
+async function doLogout() {
+  try { await fetch('/logout', { method:'POST' }); } catch(e){}
   localStorage.removeItem('authToken');
   localStorage.removeItem('authUser');
-  window.location.replace('/login.html');
+  window.location.replace('/login');
 }
 function toast(msg) {
   const t = document.getElementById('toast');

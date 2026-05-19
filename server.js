@@ -4,12 +4,14 @@ const cors       = require('cors');
 const bodyParser = require('body-parser');
 const jwt        = require('jsonwebtoken');
 const path       = require('path');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const JWT_SECRET = 'sree-electricals-jwt-secret-2024';
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 // ─── DATABASE POOL ───────────────────────────────────────────────────
 // Pool handles idle-timeout reconnects automatically (no more ECONNRESET)
@@ -42,17 +44,30 @@ setTimeout(() => {
   });
 }, 3000);
 
-// ─── AUTH MIDDLEWARE ─────────────────────────────────────────────────
-// All HTML pages served freely — auth enforced client-side via localStorage JWT.
-// Only /api calls are protected here.
+// ─── AUTH MIDDLEWARE (API) ───────────────────────────────────────────
+// Protects API routes — checks Authorization header OR cookie.
 function requireLogin(req, res, next) {
-  const token = req.headers['authorization'];
+  const token = req.headers['authorization'] || (req.cookies && req.cookies.authToken);
   if (!token) return res.status(401).json({ error: 'Not logged in' });
   try {
     req.user = jwt.verify(token, JWT_SECRET);
     next();
   } catch {
     res.status(401).json({ error: 'Invalid or expired token' });
+  }
+}
+
+// ─── AUTH MIDDLEWARE (HTML PAGES) ────────────────────────────────────
+// Protects HTML pages — checks httpOnly cookie. Redirects to /login if missing.
+function requirePage(req, res, next) {
+  const token = req.cookies && req.cookies.authToken;
+  if (!token) return res.redirect('/login');
+  try {
+    jwt.verify(token, JWT_SECRET);
+    next();
+  } catch {
+    res.clearCookie('authToken');
+    return res.redirect('/login');
   }
 }
 
@@ -69,22 +84,39 @@ app.get('/verify-token', (req, res) => {
   }
 });
 
-// ─── STATIC FILES ────────────────────────────────────────────────────
-app.use(express.static(path.join(__dirname)));
+// ─── STATIC FILES (public assets only — no HTML pages) ─────────────
+// Serve only css/js/fonts etc. HTML pages are protected by requirePage below.
+app.use(express.static(path.join(__dirname), {
+  index: false,
+  extensions: [] // don't auto-serve .html files
+}));
 
-// ─── CLEAN URLS (no .html needed) ────────────────────────────────────
-const pageMap = {
-  '/':                   'login.html',
-  '/login':              'login.html',
-  '/dashboard':          'dashboard.html',
-  '/billing':            'billing.html',
-  '/elite-dashboard':    'elite-dashboard.html',
-  '/elite-billing':      'elite-billing.html',
-  '/elite-history':      'elite-history.html',
-  '/customer-history':   'customer-history.html',
+// ─── PUBLIC PAGES (no auth needed) ───────────────────────────────────
+app.get('/',      (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
+
+// ─── PROTECTED PAGES (server-side cookie auth) ───────────────────────
+const protectedPages = {
+  '/dashboard':       'dashboard.html',
+  '/billing':         'billing.html',
+  '/elite-dashboard': 'elite-dashboard.html',
+  '/elite-billing':   'elite-billing.html',
+  '/elite-history':   'elite-history.html',
+  '/customer-history':'customer-history.html',
 };
-Object.entries(pageMap).forEach(([route, file]) => {
-  app.get(route, (req, res) =>
+Object.entries(protectedPages).forEach(([route, file]) => {
+  app.get(route, requirePage, (req, res) =>
+    res.sendFile(path.join(__dirname, file))
+  );
+});
+
+// Block direct .html access for protected pages
+const blockedHtml = [
+  'elite-dashboard.html','elite-billing.html','elite-history.html',
+  'dashboard.html','billing.html','customer-history.html'
+];
+blockedHtml.forEach(file => {
+  app.get('/' + file, requirePage, (req, res) =>
     res.sendFile(path.join(__dirname, file))
   );
 });
@@ -106,6 +138,13 @@ app.post('/login', (req, res) => {
           JWT_SECRET,
           { expiresIn: '8h' }
         );
+        // Set secure httpOnly cookie for page-level auth
+        res.cookie('authToken', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 8 * 60 * 60 * 1000 // 8 hours
+        });
         res.json({ success: true, token, username, billingType: billingType || 'billing' });
       } else {
         res.json({ success: false, message: 'Invalid credentials' });
@@ -120,7 +159,10 @@ app.get('/me', requireLogin, (req, res) => {
 });
 
 // ─── LOGOUT ──────────────────────────────────────────────────────────
-app.post('/logout', (req, res) => res.json({ success: true }));
+app.post('/logout', (req, res) => {
+  res.clearCookie('authToken');
+  res.json({ success: true });
+});
 
 // ─── NEXT BILL NUMBER ────────────────────────────────────────────────
 // Sequential per calendar day: BILL-YYYYMMDD-1, -2, -3 …
