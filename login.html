@@ -14,9 +14,46 @@
       padding:14px 40px; display:flex; align-items:center; gap:14px;
       box-shadow:0 4px 20px rgba(255,107,53,0.35);
     }
-    .logo-circle { width:46px; height:46px; background:rgba(255,255,255,0.25); border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid rgba(255,255,255,0.5); font-size:22px; }
-    header h1 { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:white; text-shadow:0 1px 3px rgba(0,0,0,0.15); letter-spacing:0.5px; }
-    .header-sub { margin-left:auto; font-size:11px; color:rgba(255,255,255,0.85); letter-spacing:2px; text-transform:uppercase; font-weight:500; }
+    .logo-3d {
+      width:56px; height:56px; flex-shrink:0;
+      filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5))
+              drop-shadow(0 0 8px rgba(255,210,50,0.55));
+      transition: transform 0.35s cubic-bezier(.34,1.56,.64,1);
+    }
+    .logo-3d:hover { transform: scale(1.12) rotate(-6deg); }
+    .brand-wrap { display:flex; flex-direction:column; gap:1px; }
+    .brand-name {
+      font-family:'Playfair Display',serif;
+      font-size:24px; font-weight:700; line-height:1.15;
+      letter-spacing:0.8px;
+      background: linear-gradient(90deg,
+        #fff5d6 0%,
+        #ffe082 18%,
+        #ffffff 35%,
+        #ffcc44 52%,
+        #fff5d6 68%,
+        #ffd54f 84%,
+        #ffffff 100%);
+      background-size: 220% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+      animation: shimmer 3.5s linear infinite;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.28));
+    }
+    .brand-tag {
+      font-size:10px; font-weight:600; letter-spacing:3px;
+      text-transform:uppercase;
+      color:#fff;
+      padding-left:1px;
+      display:flex; align-items:center;
+      text-shadow: 0 0 8px rgba(255,220,50,0.7), 0 1px 3px rgba(0,0,0,0.4);
+    }
+    @keyframes shimmer {
+      0%   { background-position: 220% center; }
+      100% { background-position: 0%   center; }
+    }
 
     main { flex:1; display:grid; grid-template-columns:1fr 1fr; }
 
@@ -25,7 +62,6 @@
     .login-section::after  { content:''; position:absolute; width:250px; height:250px; background:radial-gradient(circle,rgba(255,107,53,0.1) 0%,transparent 70%); bottom:-60px; left:-60px; border-radius:50%; pointer-events:none; }
 
     .login-box { width:100%; max-width:400px; position:relative; z-index:1; }
-    .welcome-badge { display:inline-flex; align-items:center; gap:6px; background:#fff3e0; border:1px solid #ffcc80; border-radius:20px; padding:4px 14px; font-size:11px; font-weight:600; color:#e65100; letter-spacing:1px; text-transform:uppercase; margin-bottom:16px; }
     .login-box h2 { font-family:'Playfair Display',serif; font-size:34px; font-weight:700; color:#3e1c00; margin-bottom:6px; line-height:1.2; }
     .login-subtitle { font-size:13px; color:#a06040; margin-bottom:28px; }
 
@@ -118,15 +154,85 @@
 </head>
 <body>
 <header>
-  <div class="logo-circle">⚡</div>
-  <h1>Sree Electricals &amp; Electronics</h1>
-  <span class="header-sub">Management Portal</span>
+  <div class="logo-3d">
+    <svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Deep navy-to-dark-blue sphere — pops on orange background -->
+        <radialGradient id="sphereG" cx="35%" cy="28%" r="68%">
+          <stop offset="0%"   stop-color="#4a6fa5"/>
+          <stop offset="30%"  stop-color="#1a3a6b"/>
+          <stop offset="70%"  stop-color="#0d1f3c"/>
+          <stop offset="100%" stop-color="#060e1e"/>
+        </radialGradient>
+        <!-- Bright white-to-yellow bolt — max contrast on dark sphere -->
+        <linearGradient id="boltG" x1="30%" y1="0%" x2="70%" y2="100%">
+          <stop offset="0%"   stop-color="#ffffff"/>
+          <stop offset="40%"  stop-color="#ffe566"/>
+          <stop offset="100%" stop-color="#ffaa00"/>
+        </linearGradient>
+        <!-- Outer glow ring around sphere -->
+        <radialGradient id="ringG" cx="50%" cy="50%" r="50%">
+          <stop offset="70%"  stop-color="rgba(255,200,50,0.0)"/>
+          <stop offset="100%" stop-color="rgba(255,200,50,0.55)"/>
+        </radialGradient>
+        <filter id="sph3d" x="-25%" y="-25%" width="150%" height="150%">
+          <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.55)"/>
+        </filter>
+        <filter id="boltGlow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- Glow ring -->
+      <circle cx="28" cy="28" r="26" fill="url(#ringG)"/>
+      <!-- Main sphere -->
+      <circle cx="28" cy="28" r="23" fill="url(#sphereG)" filter="url(#sph3d)"/>
+      <!-- Top-left shine for 3D gloss -->
+      <ellipse cx="20" cy="18" rx="8" ry="5" fill="rgba(255,255,255,0.28)" transform="rotate(-25,20,18)"/>
+      <!-- Subtle rim light bottom-right -->
+      <ellipse cx="34" cy="37" rx="6" ry="3.5" fill="rgba(100,150,255,0.18)" transform="rotate(20,34,37)"/>
+      <!-- Bold lightning bolt — white/yellow, glowing -->
+      <path d="M32 7 L17 29 L26 29 L22 49 L39 25 L29 25 Z"
+            fill="url(#boltG)"
+            stroke="rgba(255,220,50,0.6)"
+            stroke-width="0.6"
+            stroke-linejoin="round"
+            filter="url(#boltGlow)"/>
+    </svg>
+  </div>
+  <div class="brand-wrap">
+    <span class="brand-name">Sree Electricals &amp; Electronics</span>
+    <span class="brand-tag">
+      <svg width="11" height="16" viewBox="0 0 11 18" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:5px;margin-bottom:1px;">
+        <defs>
+          <linearGradient id="tagBolt" x1="20%" y1="0%" x2="80%" y2="100%">
+            <stop offset="0%"  stop-color="#ffffff"/>
+            <stop offset="60%" stop-color="#ffe566"/>
+            <stop offset="100%" stop-color="#ffaa00"/>
+          </linearGradient>
+          <filter id="tagGlow" x="-60%" y="-40%" width="220%" height="180%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <path d="M8 0 L1 10 L5 10 L3 18 L11 7 L6.5 7 Z"
+              fill="url(#tagBolt)"
+              filter="url(#tagGlow)"
+              stroke="rgba(255,180,0,0.5)"
+              stroke-width="0.4"
+              stroke-linejoin="round"/>
+      </svg>Management Portal</span>
+  </div>
 </header>
 
 <main>
   <div class="login-section">
     <div class="login-box">
-      <div class="welcome-badge">⚡ Portal</div>
       <h2>Welcome Back</h2>
       <p class="login-subtitle">Sign in to manage your billing</p>
 
@@ -140,9 +246,14 @@
 
       <div class="form-group">
         <label>Password</label>
-        <div class="input-wrap">
+        <div class="input-wrap" style="position:relative;">
           <span class="input-icon">🔒</span>
-          <input type="password" id="password" placeholder="Enter your password"/>
+          <input type="password" id="password" placeholder="Enter your password" style="padding-right:46px;"/>
+          <button type="button" id="eyeBtn" onclick="togglePwd()"
+            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
+                   background:none;border:none;cursor:pointer;font-size:19px;
+                   opacity:0.5;padding:2px;line-height:1;transition:opacity .2s;"
+            title="Show / Hide password">👁️</button>
         </div>
       </div>
 
@@ -334,6 +445,20 @@
   }
 
   document.getElementById('password').addEventListener('keydown',e=>{ if(e.key==='Enter') handleLogin(); });
+
+  function togglePwd() {
+    const inp = document.getElementById('password');
+    const btn = document.getElementById('eyeBtn');
+    if (inp.type === 'password') {
+      inp.type = 'text';
+      btn.textContent = '🙈';
+      btn.style.opacity = '0.8';
+    } else {
+      inp.type = 'password';
+      btn.textContent = '👁';
+      btn.style.opacity = '0.55';
+    }
+  }
 </script>
 </body>
 </html>
