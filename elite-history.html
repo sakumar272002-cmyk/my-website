@@ -12,8 +12,8 @@
     body{font-family:'Poppins',sans-serif;background:#fff8f0;min-height:100vh;}
     .navbar{background:linear-gradient(135deg,#ff6b35 0%,#f7931e 50%,#ffcd3c 100%);color:white;padding:0 28px;height:60px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 16px rgba(255,107,53,0.35);}
     .navbar h1{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;}
-    .btn-back{background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.5);padding:7px 18px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:500;font-family:'Poppins',sans-serif;}
-    .btn-back:hover{background:rgba(255,255,255,0.35);}
+    .btn-back{background:white;color:#e65100;border:none;padding:6px 16px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:700;font-family:'Poppins',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.14);transition:all 0.2s;}
+    .btn-back:hover{background:#fff3e0;transform:translateY(-1px);}
     .content{max-width:1100px;margin:28px auto;padding:0 16px;}
     .filter-card{background:white;border-radius:14px;padding:24px 28px;margin-bottom:22px;box-shadow:0 2px 16px rgba(255,107,53,0.1);border:1px solid #ffe0c0;}
     .filter-card h2{font-family:'Playfair Display',serif;font-size:18px;color:#3e1c00;margin-bottom:16px;}
@@ -26,6 +26,9 @@
     .or-label{font-size:13px;font-weight:600;color:#a06040;align-self:center;padding-bottom:4px;}
     .btn-search{background:linear-gradient(135deg,#ff6b35,#f7931e);color:white;border:none;padding:10px 26px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;box-shadow:0 3px 12px rgba(255,107,53,0.3);white-space:nowrap;}
     .btn-search:hover{transform:translateY(-1px);}
+    .validation-msg{display:none;align-items:center;gap:8px;background:#fff3e0;border:1.5px solid #ff9800;border-radius:9px;padding:9px 16px;margin-top:12px;font-size:12px;font-weight:600;color:#e65100;}
+    .validation-msg.show{display:flex;}
+    .validation-msg span.v-icon{font-size:15px;}
     .results-card{background:white;border-radius:14px;box-shadow:0 4px 24px rgba(255,107,53,0.12);overflow:hidden;border:1px solid #ffe0c0;display:none;}
     .results-header{background:linear-gradient(135deg,#ff6b35,#f7931e);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
     .results-header h3{font-family:'Playfair Display',serif;font-size:16px;color:white;}
@@ -81,6 +84,9 @@
       </div>
       <button class="btn-search" onclick="searchBills()">Search</button>
     </div>
+    <div class="validation-msg" id="validationMsg">
+      <span class="v-icon">⚠️</span> Please enter a Phone Number or Customer Name to search.
+    </div>
   </div>
   <div class="expiry-notice">
     🗓️ <span>Bill history is stored for <strong>2 years</strong> from the date of purchase. Records older than 2 years are automatically removed.</span>
@@ -123,7 +129,13 @@ let bills=[];
 async function searchBills(){
   const phone=document.getElementById('filterPhone').value.trim();
   const name=document.getElementById('filterName').value.trim();
-  if(!phone&&!name){alert('Please enter a phone number or customer name.');return;}
+  if(!phone&&!name){
+    const vm=document.getElementById('validationMsg');
+    vm.classList.add('show');
+    setTimeout(()=>vm.classList.remove('show'),3000);
+    return;
+  }
+  document.getElementById('validationMsg').classList.remove('show');
   try{
     const p=new URLSearchParams();
     if(phone)p.append('phone',phone);
