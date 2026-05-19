@@ -27,6 +27,19 @@
       box-shadow:0 4px 16px rgba(255,107,53,0.35);
     }
     .navbar h1 { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; letter-spacing:0.5px; text-shadow:0 1px 3px rgba(0,0,0,0.15); }
+    /* ── LOGO ── */
+    .logo-wrap { display:flex; align-items:center; gap:12px; animation: logoSlideIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both; }
+    @keyframes logoSlideIn { from { opacity:0; transform:translateX(-24px) scale(0.85); } to { opacity:1; transform:translateX(0) scale(1); } }
+    .logo-icon { position:relative; width:42px; height:42px; flex-shrink:0; }
+    .logo-icon .circle { width:42px; height:42px; border-radius:50%; background:radial-gradient(135deg,#1a2a5e 0%,#0d1a3a 100%); border:2.5px solid #f5c518; box-shadow:0 0 0 1px rgba(245,197,24,0.3), 0 4px 14px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; animation: pulseGlow 2.5s ease-in-out infinite; }
+    @keyframes pulseGlow { 0%,100%{ box-shadow:0 0 0 1px rgba(245,197,24,0.3),0 4px 14px rgba(0,0,0,0.4),0 0 0 0 rgba(245,197,24,0); } 50%{ box-shadow:0 0 0 1px rgba(245,197,24,0.5),0 4px 18px rgba(0,0,0,0.45),0 0 12px 3px rgba(245,197,24,0.25); } }
+    .logo-icon .bolt { font-size:20px; line-height:1; filter:drop-shadow(0 0 4px rgba(245,197,24,0.8)); animation: boltZap 3s ease-in-out infinite; }
+    @keyframes boltZap { 0%,85%,100%{ transform:scale(1); filter:drop-shadow(0 0 4px rgba(245,197,24,0.8)); } 90%{ transform:scale(1.2) rotate(-5deg); filter:drop-shadow(0 0 8px rgba(245,197,24,1)) brightness(1.3); } 95%{ transform:scale(0.95) rotate(3deg); filter:drop-shadow(0 0 4px rgba(245,197,24,0.8)); } }
+    .logo-text { display:flex; flex-direction:column; gap:1px; animation: logoTextIn 0.7s 0.15s cubic-bezier(0.34,1.56,0.64,1) both; }
+    @keyframes logoTextIn { from { opacity:0; transform:translateX(-12px); } to { opacity:1; transform:translateX(0); } }
+    .logo-title { font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:#f5c518; text-shadow:0 1px 3px rgba(0,0,0,0.3), 0 0 20px rgba(245,197,24,0.2); letter-spacing:0.3px; line-height:1.1; white-space:nowrap; }
+    .logo-sub { font-family:'Poppins',sans-serif; font-size:9px; font-weight:600; color:rgba(255,255,255,0.85); letter-spacing:2px; text-transform:uppercase; display:flex; align-items:center; gap:3px; }
+    .logo-sub .s-bolt { font-size:10px; animation: boltZap 3s 0.5s ease-in-out infinite; }
     .nav-right { display:flex; align-items:center; gap:12px; }
     .user-chip { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.4); border-radius:24px; padding:5px 14px 5px 8px; }
     .user-avatar { width:28px; height:28px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; font-size:15px; }
@@ -101,7 +114,13 @@
 <body>
 
 <div class="navbar">
-  <h1>Sree Electricals &amp; Electronics</h1>
+  <div class="logo-wrap">
+    <div class="logo-icon"><div class="circle"><span class="bolt">⚡</span></div></div>
+    <div class="logo-text">
+      <div class="logo-title">Sree Electricals &amp; Electronics</div>
+      <div class="logo-sub"><span class="s-bolt">⚡</span> Management Portal</div>
+    </div>
+  </div>
   <div class="nav-right">
     <div class="user-chip">
       <div class="user-avatar">👤</div>
