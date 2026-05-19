@@ -62,6 +62,17 @@
     .modal-tbl td{padding:8px 10px;font-size:12px;color:#5a3010;border-bottom:1px solid #fff3e8;}
     .modal-total{text-align:right;font-size:15px;font-weight:700;color:#bf360c;font-family:'Playfair Display',serif;padding:10px 0;}
     .btn-pdf{background:linear-gradient(135deg,#ff6b35,#f7931e);color:white;border:none;padding:9px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;}
+    /* ── PAGINATION BAR ── */
+    .pagination-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:14px 20px;border-top:1px solid #ffe0c0;background:#fffaf5;}
+    .per-page-wrap{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#7d4e2d;}
+    .per-page-select{border:1.5px solid #ffb74d;border-radius:8px;padding:5px 10px;font-size:12px;font-family:'Poppins',sans-serif;color:#3e1c00;background:#fff8f0;outline:none;cursor:pointer;}
+    .per-page-select:focus{border-color:#ff6b35;}
+    .page-info{font-size:12px;color:#a06040;font-weight:500;}
+    .pg-btns{display:flex;gap:5px;align-items:center;}
+    .pg-btn{width:34px;height:34px;border-radius:8px;border:1.5px solid #ffb74d;background:white;color:#e65100;font-size:12px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+    .pg-btn:hover{background:#fff3e0;border-color:#ff6b35;}
+    .pg-btn.active{background:linear-gradient(135deg,#ff6b35,#f7931e);color:white;border-color:#ff6b35;}
+    .pg-btn:disabled{opacity:0.4;cursor:not-allowed;}
   </style>
 </head>
 <body>
@@ -111,6 +122,19 @@
       </thead>
       <tbody id="resultsBody"></tbody>
     </table>
+    <div class="pagination-bar" id="paginationBar" style="display:none;">
+      <div class="per-page-wrap">
+        Show
+        <select class="per-page-select" id="perPageSelect" onchange="onPerPageChange()">
+          <option value="10" selected>10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+        </select>
+        per page
+      </div>
+      <div class="page-info" id="pageInfo"></div>
+      <div class="pg-btns" id="pgBtns"></div>
+    </div>
   </div>
 </div>
 <div class="modal-overlay" id="modalOverlay" onclick="outsideClose(event)">
@@ -126,6 +150,9 @@
 const authToken=localStorage.getItem('authToken');
 if(!authToken)window.location.replace('/login');
 let bills=[];
+let currentPage=1;
+let perPage=10;
+let currentQuery='';
 async function searchBills(){
   const phone=document.getElementById('filterPhone').value.trim();
   const name=document.getElementById('filterName').value.trim();
@@ -145,7 +172,7 @@ async function searchBills(){
     if(!Array.isArray(d)){alert('Error fetching bills.');return;}
     // Sort by created_at DESC so latest bill always appears first
     d.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-    bills=d;renderResults(bills,phone||name);
+    bills=d; currentPage=1; currentQuery=phone||name; renderPage();
   }catch(e){alert('Cannot connect to server.');}
 }
 function expiryInfo(createdAt) {
@@ -162,28 +189,75 @@ function expiryInfo(createdAt) {
   return {label, cls:'', chip:''};
 }
 
-function renderResults(data,query){
+function renderPage(){
+  const data=bills;
+  const query=currentQuery;
   const card=document.getElementById('resultsCard');
   card.style.display='block';
   document.getElementById('resultsTitle').textContent='Bills for: "'+query+'"';
   document.getElementById('resultsCount').textContent=data.length+' bill'+(data.length!==1?'s':'')+' found';
   const tbody=document.getElementById('resultsBody');
-  if(!data.length){tbody.innerHTML='<tr><td colspan="8" class="no-results">No bills found for this customer.</td></tr>';return;}
-  tbody.innerHTML=data.map((b,i)=>{
-    const ei = expiryInfo(b.created_at);
-    const chip = ei.chip ? `<span class="expiry-chip ${ei.cls}">${ei.chip}</span>` : '';
+  if(!data.length){
+    tbody.innerHTML='<tr><td colspan="8" class="no-results">No bills found for this customer.</td></tr>';
+    document.getElementById('paginationBar').style.display='none';
+    return;
+  }
+  const totalPages=Math.ceil(data.length/perPage);
+  if(currentPage>totalPages) currentPage=totalPages;
+  const start=(currentPage-1)*perPage;
+  const end=Math.min(start+perPage,data.length);
+  const pageData=data.slice(start,end);
+  tbody.innerHTML=pageData.map((b,i)=>{
+    const globalIdx=start+i;
+    const ei=expiryInfo(b.created_at);
+    const chip=ei.chip?`<span class="expiry-chip ${ei.cls}">${ei.chip}</span>`:'';
     return `<tr>
-      <td>${i+1}</td>
+      <td>${globalIdx+1}</td>
       <td class="bill-no-cell">${b.bill_no}</td>
       <td>${b.customer_name}</td>
       <td>${b.customer_phone||'—'}</td>
       <td>${b.bill_datetime}</td>
       <td class="${ei.cls}">${ei.label}${chip}</td>
       <td><span class="total-badge">₹ ${parseFloat(b.grand_total).toFixed(2)}</span></td>
-      <td><button class="preview-btn" onclick="previewBill(${i})">👁 Preview</button></td>
+      <td><button class="preview-btn" onclick="previewBill(${globalIdx})">👁 Preview</button></td>
     </tr>`;
   }).join('');
+  // pagination bar
+  document.getElementById('paginationBar').style.display='flex';
+  document.getElementById('pageInfo').textContent=`Showing ${start+1}–${end} of ${data.length}`;
+  buildPager(totalPages);
 }
+function buildPager(totalPages){
+  const bar=document.getElementById('pgBtns');
+  bar.innerHTML='';
+  const mk=(label,fn,active,disabled)=>{
+    const b=document.createElement('button');
+    b.className='pg-btn'+(active?' active':'');
+    b.disabled=!!disabled;
+    b.innerHTML=label;
+    b.onclick=fn;
+    bar.appendChild(b);
+  };
+  mk('‹',()=>goPage(currentPage-1),false,currentPage===1);
+  // show up to 5 page numbers with ellipsis
+  const tp=totalPages;
+  let pages=[];
+  if(tp<=7){for(let i=1;i<=tp;i++)pages.push(i);}
+  else{
+    pages=[1];
+    if(currentPage>3)pages.push('…');
+    for(let i=Math.max(2,currentPage-1);i<=Math.min(tp-1,currentPage+1);i++)pages.push(i);
+    if(currentPage<tp-2)pages.push('…');
+    pages.push(tp);
+  }
+  pages.forEach(p=>{
+    if(p==='…'){const s=document.createElement('span');s.textContent='…';s.style.cssText='padding:0 4px;color:#a06040;font-size:12px;';bar.appendChild(s);}
+    else mk(p,()=>goPage(p),p===currentPage);
+  });
+  mk('›',()=>goPage(currentPage+1),false,currentPage===totalPages);
+}
+function goPage(p){currentPage=p;renderPage();document.getElementById('resultsCard').scrollIntoView({behavior:'smooth',block:'start'});}
+function onPerPageChange(){perPage=parseInt(document.getElementById('perPageSelect').value);currentPage=1;renderPage();}
 function previewBill(idx){
   const b=bills[idx];
   const items=typeof b.items_json==='string'?JSON.parse(b.items_json):b.items_json;
