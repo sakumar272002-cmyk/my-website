@@ -397,7 +397,7 @@
         <tr>
           <th class="tc">Sl.No</th>
           <th>Product</th>
-          <th>Company</th>
+          <th>Brand</th>
           <th class="tc">Qty</th>
           <th class="tc">W / G</th>
           <th class="tr">Price</th>
@@ -438,11 +438,31 @@ const H = { 'Content-Type':'application/json', 'Authorization': TOKEN };
 //  STATE
 // ═══════════════════════════════════════════════
 const ROWS_PER_PAGE = 10, TOTAL_PAGES = 5, TOTAL_ROWS = 50;
-let page = 1;
+const SESSION_KEY = 'eliteDashRows';
 
-// Each row: product, brand, qty, wg, price  (price = unit price)
-let D = Array.from({length: TOTAL_ROWS}, () =>
-  ({product:'', brand:'', qty:'', wg:'', price:''}));
+// Restore page from sessionStorage so Back button keeps the right page
+let page = parseInt(sessionStorage.getItem('eliteDashPage') || '1', 10);
+
+// Restore rows from sessionStorage if available, else start fresh
+function emptyRows() {
+  return Array.from({length: TOTAL_ROWS}, () =>
+    ({product:'', brand:'', qty:'', wg:'', price:''}));
+}
+let D = (() => {
+  try {
+    const saved = sessionStorage.getItem(SESSION_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return emptyRows();
+})();
+
+// Persist D + page to sessionStorage after every change
+function persistState() {
+  try {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(D));
+    sessionStorage.setItem('eliteDashPage', String(page));
+  } catch(e) {}
+}
 
 // ═══════════════════════════════════════════════
 //  DB STATUS
@@ -720,6 +740,7 @@ function snapPage() {
     if (wiEl)  D[i].wg      = wiEl.value;
     if (priEl) D[i].price   = priEl.value;
   }
+  persistState(); // save after every snap so Back button restores data
 }
 
 function goPage(p) { snapPage(); page = p; buildTable(); }
@@ -738,15 +759,18 @@ function saveBill() {
 }
 
 function clearAll() {
-  D = Array.from({length:TOTAL_ROWS}, () =>
-    ({product:'', brand:'', qty:'', wg:'', price:''}));
-  page = 1; buildTable(); toast('All rows cleared!');
+  D = emptyRows();
+  page = 1;
+  persistState();
+  buildTable();
+  toast('All rows cleared!');
 }
 
 // ═══════════════════════════════════════════════
 //  NAV / TOAST
 // ═══════════════════════════════════════════════
 function goHistory() {
+  snapPage(); // persist current page before leaving
   window.location.href = '/elite-history.html?token=' + encodeURIComponent(TOKEN);
 }
 async function doLogout() {
