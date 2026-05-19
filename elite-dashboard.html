@@ -440,7 +440,8 @@ const H = { 'Content-Type':'application/json', 'Authorization': TOKEN };
 const ROWS_PER_PAGE = 10, TOTAL_PAGES = 5, TOTAL_ROWS = 50;
 const SESSION_KEY = 'eliteDashRows';
 
-// Restore page from sessionStorage so Back button keeps the right page
+// Restore page from sessionStorage so Back button keeps the right page.
+// (If _shouldReset fires below, page will be overwritten to 1.)
 let page = parseInt(sessionStorage.getItem('eliteDashPage') || '1', 10);
 
 // Restore rows from sessionStorage if available, else start fresh
@@ -448,7 +449,25 @@ function emptyRows() {
   return Array.from({length: TOTAL_ROWS}, () =>
     ({product:'', brand:'', qty:'', wg:'', price:''}));
 }
+
+// ── BACK-NAVIGATION LOGIC ──────────────────────────────────────────
+// Scenario 1: Save & Bill → Billing → Back  ➜ dashboard RESETS (fresh)
+// Scenario 2: Eye icon   → History  → Back  ➜ dashboard PRESERVES data
+//
+// When saveBill() navigates to billing it sets flag 'eliteDashShouldReset'.
+// goHistory() does NOT set the flag.
+// On load here: if the flag is present we clear everything, then remove it.
+// ──────────────────────────────────────────────────────────────────
+const _shouldReset = sessionStorage.getItem('eliteDashShouldReset') === 'true';
+if (_shouldReset) {
+  sessionStorage.removeItem('eliteDashShouldReset');
+  sessionStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem('eliteDashPage');
+  page = 1; // reset page too
+}
+
 let D = (() => {
+  if (_shouldReset) return emptyRows();   // fresh after billing back-nav
   try {
     const saved = sessionStorage.getItem(SESSION_KEY);
     if (saved) return JSON.parse(saved);
@@ -755,6 +774,9 @@ function saveBill() {
   // Pass brand as company key so elite-billing.html can read it
   const payload = D.map(r => ({...r, company: r.brand}));
   localStorage.setItem('eliteBillData', JSON.stringify(payload));
+  // Flag: when user presses Back from billing, dashboard should RESET (fresh slate)
+  // goHistory() does NOT set this flag, so Back from History PRESERVES data.
+  sessionStorage.setItem('eliteDashShouldReset', 'true');
   window.location.href = '/elite-billing.html?token=' + encodeURIComponent(TOKEN);
 }
 
