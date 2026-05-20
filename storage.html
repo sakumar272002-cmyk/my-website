@@ -561,9 +561,9 @@ document.querySelector('.logout-btn').addEventListener('click', async () => {
 });
 
 // ─── Table helpers ────────────────────────────────────────────
-function availClass(avail, stockIn) {
-  if (avail <= 0)              return 'avail-zero';
-  if (avail / stockIn <= 0.25) return 'avail-low';
+function availClass(avail) {
+  if (avail <= 0) return 'avail-zero';
+  if (avail <= 5) return 'avail-low';
   return 'avail-good';
 }
 
@@ -585,7 +585,7 @@ function buildTable() {
   const startIdx = showAll ? 0 : (currentPage - 1) * perPage;
 
   tbody.innerHTML = pageData.map((d, i) => {
-    const ac     = availClass(d.available, d.stockIn);
+    const ac     = availClass(d.available);
     const outBtn = d.stockOut > 0
       ? `<button class="stock-out-link" onclick="openModal(${d.id})">${d.stockOut}</button>`
       : `<span style="color:#c49a72; font-size:13px;">0</span>`;
@@ -672,7 +672,7 @@ function updateStats(data) {
   const totalIn    = data.reduce((s, d) => s + d.stockIn,   0);
   const totalOut   = data.reduce((s, d) => s + d.stockOut,  0);
   const totalAvail = data.reduce((s, d) => s + d.available, 0);
-  const lowCount   = data.filter(d => d.available > 0 && d.available / d.stockIn <= 0.25).length;
+  const lowCount   = data.filter(d => d.available > 0 && d.available <= 5).length;
   const zeroCount  = data.filter(d => d.available <= 0).length;
 
   document.getElementById('statTotal').textContent = STORAGE_DATA.length;
