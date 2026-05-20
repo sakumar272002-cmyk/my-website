@@ -32,6 +32,7 @@ setTimeout(() => {
   db.getConnection((err, conn) => {
     if (err) { console.error('❌ DB connection failed:', err.message); return; }
     console.log('✅ Connected to MySQL');
+
     // Check all required tables exist and log any missing ones
     const required = ['users', 'settings', 'elite_products', 'bill_counter', 'bill_history'];
     required.forEach(tbl => {
@@ -40,7 +41,63 @@ setTimeout(() => {
         else   console.log(`   ✔ Table OK: ${tbl}`);
       });
     });
-    conn.release();
+
+    // ── Auto-create storage tables if missing ──────────────────────────
+    conn.query(`
+      CREATE TABLE IF NOT EXISTS storage_products (
+        id         INT AUTO_INCREMENT PRIMARY KEY,
+        product    VARCHAR(200)  NOT NULL,
+        brand      VARCHAR(100)  NOT NULL,
+        stock_in   INT           NOT NULL DEFAULT 0,
+        created_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `, (e) => {
+      if (e) { console.error('❌ storage_products create error:', e.message); return; }
+      console.log('   ✔ Table OK: storage_products');
+
+      conn.query(`
+        CREATE TABLE IF NOT EXISTS storage_transactions (
+          id             INT AUTO_INCREMENT PRIMARY KEY,
+          product_id     INT           NOT NULL,
+          bill_no        VARCHAR(50)   NOT NULL,
+          customer_name  VARCHAR(150)  NOT NULL,
+          customer_phone VARCHAR(20)   DEFAULT NULL,
+          qty            INT           NOT NULL DEFAULT 1,
+          amount         DECIMAL(10,2) NOT NULL DEFAULT 0,
+          bill_datetime  VARCHAR(50)   DEFAULT NULL,
+          created_at     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          INDEX idx_product (product_id),
+          INDEX idx_bill    (bill_no)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+      `, (e2) => {
+        if (e2) { console.error('❌ storage_transactions create error:', e2.message); return; }
+        console.log('   ✔ Table OK: storage_transactions');
+
+        // Insert sample products only if table is empty
+        conn.query('SELECT COUNT(*) AS cnt FROM storage_products', (e3, rows) => {
+          if (!e3 && rows[0].cnt === 0) {
+            conn.query(`
+              INSERT INTO storage_products (id, product, brand, stock_in) VALUES
+                (1, '9W LED Bulb',           'Philips',    10),
+                (2, 'Ceiling Fan 48\"',      'Orient',      6),
+                (3, 'MCB 32A Single Pole',   'Havells',    20),
+                (4, 'PVC Conduit Pipe 25mm', 'Finolex',    50),
+                (5, '5A Socket & Switch',    'Legrand',    15),
+                (6, 'RCCB 40A 30mA',         'Schneider',   4),
+                (7, 'Exhaust Fan 12\"',      'Crompton',    8),
+                (8, 'Copper Wire 1.5mm 90m', 'Polycab',    12)
+            `, (e4) => {
+              if (e4) console.error('❌ Sample insert error:', e4.message);
+              else    console.log('   ✔ Storage sample products inserted');
+              conn.release();
+            });
+          } else {
+            conn.release();
+          }
+        });
+      });
+    });
   });
 }, 3000);
 
