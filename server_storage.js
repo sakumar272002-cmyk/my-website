@@ -28,17 +28,72 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
 // ── MySQL Connection Pool ─────────────────────────────────────
-// ✏️  Change these values to match YOUR database credentials
+// ✏️  Uses the same DB credentials as your main server
 const pool = mysql.createPool({
   host:     process.env.DB_HOST     || 'localhost',
   port:     process.env.DB_PORT     || 3306,
   user:     process.env.DB_USER     || 'root',
   password: process.env.DB_PASS     || 'your_password_here',
-  database: process.env.DB_NAME     || 'sree_electricals',
+  database: process.env.DB_NAME     || 'bgkwzqnaueygs0sltdxg',  // ← your actual DB
   waitForConnections: true,
   connectionLimit:    10,
   queueLimit:         0,
 });
+
+// ── Auto-create storage tables if they don't exist ────────────
+async function initStorageTables() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS storage_products (
+        id         INT AUTO_INCREMENT PRIMARY KEY,
+        product    VARCHAR(200)  NOT NULL,
+        brand      VARCHAR(100)  NOT NULL,
+        stock_in   INT           NOT NULL DEFAULT 0,
+        created_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
+    console.log('✓ Table OK: storage_products');
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS storage_transactions (
+        id             INT AUTO_INCREMENT PRIMARY KEY,
+        product_id     INT           NOT NULL,
+        bill_no        VARCHAR(50)   NOT NULL,
+        customer_name  VARCHAR(150)  NOT NULL,
+        customer_phone VARCHAR(20)   DEFAULT NULL,
+        qty            INT           NOT NULL DEFAULT 1,
+        amount         DECIMAL(10,2) NOT NULL DEFAULT 0,
+        bill_datetime  VARCHAR(50)   DEFAULT NULL,
+        created_at     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_product (product_id),
+        INDEX idx_bill    (bill_no)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
+    console.log('✓ Table OK: storage_transactions');
+
+    // Insert sample products only if table is empty
+    const [rows] = await pool.query('SELECT COUNT(*) AS cnt FROM storage_products');
+    if (rows[0].cnt === 0) {
+      await pool.query(`
+        INSERT INTO storage_products (id, product, brand, stock_in) VALUES
+          (1, '9W LED Bulb',           'Philips',    10),
+          (2, 'Ceiling Fan 48"',       'Orient',      6),
+          (3, 'MCB 32A Single Pole',   'Havells',    20),
+          (4, 'PVC Conduit Pipe 25mm', 'Finolex',    50),
+          (5, '5A Socket & Switch',    'Legrand',    15),
+          (6, 'RCCB 40A 30mA',         'Schneider',   4),
+          (7, 'Exhaust Fan 12"',       'Crompton',    8),
+          (8, 'Copper Wire 1.5mm 90m', 'Polycab',    12)
+      `);
+      console.log('✓ Sample products inserted');
+    }
+
+    console.log('✅ Storage tables ready\n');
+  } catch (err) {
+    console.error('❌ Storage table init error:', err.message);
+  }
+}
 
 // ── Auth middleware (simple token check) ─────────────────────
 // The frontend sends: Authorization: <token>
@@ -175,7 +230,8 @@ app.get('/health', async (req, res) => {
 });
 
 // ── Start ─────────────────────────────────────────────────────
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`\n✅  Sree Electricals Storage Server running on http://localhost:${PORT}`);
   console.log(`   Open storage page → http://localhost:${PORT}/storage.html\n`);
+  await initStorageTables();
 });
