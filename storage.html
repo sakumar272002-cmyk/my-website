@@ -189,9 +189,42 @@
     /* ── TABLE FOOTER ── */
     .table-footer {
       display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:10px;
       padding:13px 20px; border-top:1px solid #ffe0c0; background:#fffaf5;
       font-size:12px; color:#7d4e2d; font-weight:500;
     }
+
+    /* ── PER-PAGE SELECT ── */
+    .per-page-wrap {
+      display:flex; align-items:center; gap:7px; font-size:12px; color:#7d4e2d;
+    }
+    .per-page-wrap select {
+      border:1.5px solid #ffb74d; border-radius:7px; padding:3px 8px;
+      font-size:12px; font-family:'Poppins',sans-serif; color:#3e1c00;
+      background:white; cursor:pointer; outline:none;
+    }
+    .per-page-wrap select:focus { border-color:#ff6b35; }
+
+    /* ── PAGINATOR ── */
+    .paginator {
+      display:flex; align-items:center; gap:5px; flex-wrap:wrap;
+    }
+    .page-btn {
+      min-width:32px; height:32px; padding:0 8px;
+      border:1.5px solid #ffb74d; border-radius:8px;
+      background:white; color:#7d4e2d; font-size:12px; font-weight:600;
+      font-family:'Poppins',sans-serif; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:all .15s;
+    }
+    .page-btn:hover:not(:disabled) { background:#fff3e0; border-color:#ff6b35; color:#e65100; }
+    .page-btn.active {
+      background:linear-gradient(135deg,#ff6b35,#f7931e);
+      border-color:transparent; color:white;
+      box-shadow:0 3px 10px rgba(255,107,53,.35);
+    }
+    .page-btn:disabled { opacity:.4; cursor:not-allowed; }
+    .page-dots { font-size:13px; color:#c49a72; padding:0 2px; line-height:32px; }
 
     /* ── MODAL OVERLAY ── */
     .modal-overlay {
@@ -441,7 +474,20 @@
 
     <div class="table-footer">
       <span id="footerCount">Showing 8 of 8 products</span>
-      <span style="color:#c49a72; font-size:11px;">Click <strong style="color:#1565c0;">Stock Out</strong> count to view buyer details</span>
+      <div class="per-page-wrap">
+        Rows per page:
+        <select id="perPageSel" onchange="onPerPageChange()">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="0">All</option>
+        </select>
+      </div>
+    </div>
+    <div style="padding:10px 20px 14px; background:#fffaf5; border-top:1px solid #fff3e8; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+      <span style="font-size:11px; color:#c49a72;">Click <strong style="color:#1565c0;">Stock Out</strong> count to view buyer details</span>
+      <div class="paginator" id="paginator"></div>
     </div>
   </div>
 
@@ -489,8 +535,10 @@
 
 const TOKEN = localStorage.getItem('authToken') || '';
 
-let STORAGE_DATA  = [];   // populated from /storage-products
-let filteredData  = [];
+let STORAGE_DATA = [];   // all products from API
+let filteredData = [];   // after search filter
+let currentPage  = 1;
+let perPage      = 10;   // default rows per page
 
 // ─── Auth header helper ───────────────────────────────────────
 function authHeaders() {
@@ -519,23 +567,32 @@ function availClass(avail, stockIn) {
   return 'avail-good';
 }
 
+// ─── Build table for current page ─────────────────────────────
 function buildTable() {
   const tbody = document.getElementById('storageBody');
+
   if (!filteredData.length) {
     tbody.innerHTML = `<tr><td colspan="6" class="no-data"><div class="icon">🔍</div><div class="msg">No products match your search.</div></td></tr>`;
     updateStats([]);
+    renderPaginator();
     return;
   }
 
-  tbody.innerHTML = filteredData.map((d, i) => {
-    const ac  = availClass(d.available, d.stockIn);
+  // Slice for current page
+  const total    = filteredData.length;
+  const showAll  = perPage === 0;
+  const pageData = showAll ? filteredData : filteredData.slice((currentPage - 1) * perPage, currentPage * perPage);
+  const startIdx = showAll ? 0 : (currentPage - 1) * perPage;
+
+  tbody.innerHTML = pageData.map((d, i) => {
+    const ac     = availClass(d.available, d.stockIn);
     const outBtn = d.stockOut > 0
       ? `<button class="stock-out-link" onclick="openModal(${d.id})">${d.stockOut}</button>`
       : `<span style="color:#c49a72; font-size:13px;">0</span>`;
 
     return `
       <tr>
-        <td class="sl-cell">${i + 1}</td>
+        <td class="sl-cell">${startIdx + i + 1}</td>
         <td><span class="prod-name">${d.product}</span></td>
         <td style="color:#7d4e2d; font-size:13px;">${d.brand}</td>
         <td class="tc"><span class="stock-in">${d.stockIn}</span></td>
@@ -544,9 +601,73 @@ function buildTable() {
       </tr>`;
   }).join('');
 
+  // Footer count
+  const from = showAll ? 1 : (currentPage - 1) * perPage + 1;
+  const to   = showAll ? total : Math.min(currentPage * perPage, total);
+  document.getElementById('footerCount').textContent =
+    `Showing ${from}–${to} of ${total} products`;
+
   updateStats(filteredData);
+  renderPaginator();
 }
 
+// ─── Paginator ────────────────────────────────────────────────
+function renderPaginator() {
+  const pg = document.getElementById('paginator');
+  if (perPage === 0 || filteredData.length === 0) { pg.innerHTML = ''; return; }
+
+  const totalPages = Math.ceil(filteredData.length / perPage);
+  if (totalPages <= 1) { pg.innerHTML = ''; return; }
+
+  let html = '';
+
+  // Prev button
+  html += `<button class="page-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>&#8592;</button>`;
+
+  // Page numbers with smart dots
+  const pages = getPageNumbers(currentPage, totalPages);
+  pages.forEach(p => {
+    if (p === '...') {
+      html += `<span class="page-dots">…</span>`;
+    } else {
+      html += `<button class="page-btn ${p === currentPage ? 'active' : ''}" onclick="goPage(${p})">${p}</button>`;
+    }
+  });
+
+  // Next button
+  html += `<button class="page-btn" onclick="goPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>&#8594;</button>`;
+
+  pg.innerHTML = html;
+}
+
+function getPageNumbers(cur, total) {
+  if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
+  const pages = [];
+  if (cur <= 4) {
+    pages.push(1, 2, 3, 4, 5, '...', total);
+  } else if (cur >= total - 3) {
+    pages.push(1, '...', total-4, total-3, total-2, total-1, total);
+  } else {
+    pages.push(1, '...', cur-1, cur, cur+1, '...', total);
+  }
+  return pages;
+}
+
+function goPage(p) {
+  const totalPages = Math.ceil(filteredData.length / perPage);
+  if (p < 1 || p > totalPages) return;
+  currentPage = p;
+  buildTable();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function onPerPageChange() {
+  perPage = parseInt(document.getElementById('perPageSel').value);
+  currentPage = 1;
+  buildTable();
+}
+
+// ─── Stats always reflect full filtered set ───────────────────
 function updateStats(data) {
   const totalIn    = data.reduce((s, d) => s + d.stockIn,   0);
   const totalOut   = data.reduce((s, d) => s + d.stockOut,  0);
@@ -554,16 +675,14 @@ function updateStats(data) {
   const lowCount   = data.filter(d => d.available > 0 && d.available / d.stockIn <= 0.25).length;
   const zeroCount  = data.filter(d => d.available <= 0).length;
 
-  document.getElementById('statTotal').textContent = data.length;
+  document.getElementById('statTotal').textContent = STORAGE_DATA.length;
   document.getElementById('statIn').textContent    = totalIn;
   document.getElementById('statOut').textContent   = totalOut;
   document.getElementById('statAvail').textContent = totalAvail;
   document.getElementById('statLow').textContent   = lowCount + zeroCount;
-  document.getElementById('footerCount').textContent =
-    `Showing ${data.length} of ${STORAGE_DATA.length} products`;
 }
 
-// ─── Search / filter (client-side, fast) ─────────────────────
+// ─── Search / filter (resets to page 1) ──────────────────────
 function filterTable() {
   const q = document.getElementById('searchInp').value.trim().toLowerCase();
   filteredData = q
@@ -571,6 +690,7 @@ function filterTable() {
         d.product.toLowerCase().includes(q) ||
         d.brand.toLowerCase().includes(q))
     : [...STORAGE_DATA];
+  currentPage = 1;
   buildTable();
 }
 
@@ -584,6 +704,7 @@ async function loadProducts() {
     const data = await res.json();
     STORAGE_DATA = data;
     filteredData = [...STORAGE_DATA];
+    currentPage  = 1;
     buildTable();
   } catch (err) {
     tbody.innerHTML = `<tr><td colspan="6" class="no-data"><div class="icon">❌</div><div class="msg">Failed to load data. Check server connection.</div></td></tr>`;

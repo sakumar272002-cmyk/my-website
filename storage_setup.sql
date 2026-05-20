@@ -6,6 +6,7 @@
 -- ── 1. STORAGE PRODUCTS (Stock In) ──────────────────────────────
 --  Each row = one product in the physical storage.
 --  stockIn is the total quantity ever received (cumulative).
+USE bgkwzqnaueygs0sltdxg;
 
 CREATE TABLE IF NOT EXISTS storage_products (
   id          INT AUTO_INCREMENT PRIMARY KEY,
@@ -48,8 +49,13 @@ INSERT INTO storage_products (id, product, brand, stock_in) VALUES
   (5, '5A Socket & Switch',   'Legrand',   15),
   (6, 'RCCB 40A 30mA',        'Schneider',  4),
   (7, 'Exhaust Fan 12"',      'Crompton',   8),
-  (8, 'Copper Wire 1.5mm 90m','Polycab',   12),
-  (9, '12W LED Bulb','Polycab',   12);
+  (8, 'Copper Wire 1.5mm 90m','Polycab',   12);
+  
+INSERT IGNORE INTO storage_products (product, brand, stock_in) VALUES
+('12W LED Bulb', 'Crompton', 50),
+('18W LED Bulb', 'Crompton', 50),
+('24W LED Bulb', 'Crompton', 50),
+('30W LED Bulb', 'Crompton', 50);
 
 -- storage_transactions is populated automatically by the server
 -- whenever a bill is saved via POST /save-bill.
