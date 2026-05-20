@@ -320,6 +320,101 @@ app.get('/bill-history/:billNo', requireLogin, (req, res) => {
   });
 });
 
+// ─── STORAGE ─────────────────────────────────────────────────────
+
+// GET /storage-products?search=bulb
+// Returns every product with computed stockOut & available fields.
+app.get('/storage-products', requireLogin, (req, res) => {
+  const { search } = req.query;
+  let sql = `
+    SELECT
+      p.id,
+      p.product,
+      p.brand,
+      p.stock_in   AS stockIn,
+      COALESCE(SUM(t.qty), 0) AS stockOut
+    FROM storage_products p
+    LEFT JOIN storage_transactions t ON t.product_id = p.id
+    WHERE 1=1`;
+  const params = [];
+  if (search) {
+    sql += ' AND (p.product LIKE ? OR p.brand LIKE ?)';
+    params.push('%' + search + '%', '%' + search + '%');
+  }
+  sql += ' GROUP BY p.id ORDER BY p.product';
+  db.query(sql, params, (err, rows) => {
+    if (err) { console.error('Storage products error:', err.message); return res.status(500).json({ error: 'DB error' }); }
+    // Compute available on the server so the client never does arithmetic
+    const result = rows.map(r => ({
+      ...r,
+      stockIn:  r.stockIn,
+      stockOut: Number(r.stockOut),
+      available: r.stockIn - Number(r.stockOut)
+    }));
+    res.json(result);
+  });
+});
+
+// GET /storage-transactions/:productId — all stock-out rows for one product
+app.get('/storage-transactions/:productId', requireLogin, (req, res) => {
+  db.query(
+    `SELECT * FROM storage_transactions WHERE product_id = ? ORDER BY created_at DESC`,
+    [req.params.productId],
+    (err, rows) => {
+      if (err) { console.error('Storage transactions error:', err.message); return res.status(500).json({ error: 'DB error' }); }
+      res.json(rows);
+    }
+  );
+});
+
+// POST /storage-products — add a new product to storage
+// Body: { product, brand, stockIn }
+app.post('/storage-products', requireLogin, (req, res) => {
+  const { product, brand, stockIn } = req.body;
+  if (!product || !brand) return res.status(400).json({ error: 'product and brand are required' });
+  db.query(
+    'INSERT INTO storage_products (product, brand, stock_in) VALUES (?, ?, ?)',
+    [product, brand, Number(stockIn) || 0],
+    (err, result) => {
+      if (err) { console.error('Add storage product error:', err.message); return res.status(500).json({ error: 'DB error' }); }
+      res.json({ success: true, id: result.insertId });
+    }
+  );
+});
+
+// PATCH /storage-products/:id/stock — update stock_in count
+// Body: { stockIn }
+app.patch('/storage-products/:id/stock', requireLogin, (req, res) => {
+  const { stockIn } = req.body;
+  if (stockIn === undefined) return res.status(400).json({ error: 'stockIn required' });
+  db.query(
+    'UPDATE storage_products SET stock_in = ? WHERE id = ?',
+    [Number(stockIn), req.params.id],
+    (err) => {
+      if (err) { console.error('Update stock error:', err.message); return res.status(500).json({ error: 'DB error' }); }
+      res.json({ success: true });
+    }
+  );
+});
+
+// POST /storage-transactions — record a stock-out (called from billing on save)
+// Body: { productId, billNo, customerName, customerPhone, qty, amount, billDatetime }
+app.post('/storage-transactions', requireLogin, (req, res) => {
+  const { productId, billNo, customerName, customerPhone, qty, amount, billDatetime } = req.body;
+  if (!productId || !billNo || !customerName)
+    return res.status(400).json({ error: 'productId, billNo, customerName required' });
+  db.query(
+    `INSERT INTO storage_transactions
+      (product_id, bill_no, customer_name, customer_phone, qty, amount, bill_datetime)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [productId, billNo, customerName, customerPhone || null, Number(qty) || 1, Number(amount) || 0, billDatetime || null],
+    (err, result) => {
+      if (err) { console.error('Add storage transaction error:', err.message); return res.status(500).json({ error: 'DB error' }); }
+      res.json({ success: true, id: result.insertId });
+    }
+  );
+});
+
 // ─── GST ─────────────────────────────────────────────────────────────
 app.get('/gst', requireLogin, (req, res) => {
   db.query('SELECT gst_value FROM settings LIMIT 1', (err, results) => {

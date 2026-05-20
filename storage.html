@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Storage — Sree Electricals</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Poppins',sans-serif; background:#fff8f0; min-height:100vh; }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      background: linear-gradient(135deg,#ff6b35 0%,#f7931e 55%,#ffcd3c 100%);
+      height: 76px; padding: 0 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 20px rgba(255,107,53,.4);
+    }
+    .navbar-left { display:flex; align-items:center; gap:14px; }
+    .nav-logo {
+      width:56px; height:56px; flex-shrink:0;
+      filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 8px rgba(255,210,50,0.55));
+      transition: transform 0.35s cubic-bezier(.34,1.56,.64,1);
+    }
+    .nav-logo:hover { transform: scale(1.1) rotate(-5deg); }
+    .brand-wrap { display:flex; flex-direction:column; gap:2px; }
+    .brand-name {
+      font-family:'Playfair Display',serif;
+      font-size:24px; font-weight:700; line-height:1.15; letter-spacing:0.8px;
+      background: linear-gradient(90deg,#fff5d6 0%,#ffe082 18%,#ffffff 35%,#ffcc44 52%,#fff5d6 68%,#ffd54f 84%,#ffffff 100%);
+      background-size: 220% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      animation: shimmer 3.5s linear infinite;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.28));
+    }
+    @keyframes shimmer { 0%{background-position:220% center} 100%{background-position:0% center} }
+    .brand-tag {
+      font-size:10px; font-weight:600; letter-spacing:3px; text-transform:uppercase;
+      color:#fff; padding-left:1px; display:flex; align-items:center; gap:5px;
+      text-shadow: 0 0 8px rgba(255,220,50,0.7), 0 1px 3px rgba(0,0,0,0.4);
+    }
+    .nav-right { display:flex; align-items:center; gap:12px; }
+    .elite-badge {
+      background: white; border-radius: 20px; padding: 5px 13px;
+      font-size: 11px; font-weight: 800; color: #e65100; letter-spacing: 1.2px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      display: flex; align-items: center; gap: 5px; white-space: nowrap;
+      cursor:pointer; transition:all .2s;
+    }
+    .elite-badge:hover { transform:translateY(-1px); box-shadow:0 4px 14px rgba(0,0,0,.2); }
+    .storage-badge {
+      background: linear-gradient(135deg,#1a237e,#283593);
+      border-radius: 20px; padding: 5px 13px;
+      font-size: 11px; font-weight: 800; color: #fff; letter-spacing: 1.2px;
+      box-shadow: 0 2px 10px rgba(26,35,126,0.4);
+      display: flex; align-items: center; gap: 5px; white-space: nowrap;
+    }
+    .user-chip {
+      display:flex; align-items:center; gap:6px; background: white;
+      border-radius:20px; padding:4px 12px 4px 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .user-avatar {
+      width:22px; height:22px; border-radius:50%;
+      background: linear-gradient(135deg,#ff6b35,#f7931e);
+      display:flex; align-items:center; justify-content:center; font-size:11px;
+    }
+    .user-name { font-size:11px; font-weight:700; color:#e65100; }
+    .logout-btn {
+      background: white; color: #e65100; border: none; padding: 6px 16px;
+      border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 700;
+      font-family:'Poppins',sans-serif; box-shadow: 0 2px 8px rgba(0,0,0,0.14);
+      transition: all 0.2s;
+    }
+    .logout-btn:hover { background: #fff3e0; transform: translateY(-1px); }
+
+    /* ── CONTENT ── */
+    .content { max-width:1340px; margin:22px auto; padding:0 16px; }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:12px; margin-bottom:14px;
+    }
+    .page-title {
+      font-family:'Playfair Display',serif;
+      font-size:22px; font-weight:700; color:#3e1c00;
+      display:flex; align-items:center; gap:8px;
+    }
+    .page-title span { font-size:20px; }
+
+    /* ── SEARCH BAR ── */
+    .search-wrap {
+      display:flex; align-items:center; gap:10px;
+      background:white; border:1.5px solid #ffb74d; border-radius:10px;
+      padding:7px 14px; min-width:280px;
+      box-shadow:0 2px 10px rgba(255,107,53,.08);
+      transition:border-color .2s;
+    }
+    .search-wrap:focus-within { border-color:#ff6b35; box-shadow:0 0 0 3px rgba(255,107,53,.1); }
+    .search-wrap input {
+      border:none; outline:none; font-size:13px; font-family:'Poppins',sans-serif;
+      color:#3e1c00; background:transparent; flex:1; min-width:0;
+    }
+    .search-wrap input::placeholder { color:#c49a72; }
+    .search-icon { font-size:15px; color:#ffb74d; flex-shrink:0; }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;
+    }
+    .stat-card {
+      background:white; border-radius:12px; padding:14px 20px;
+      border:1px solid #ffe0c0; box-shadow:0 2px 10px rgba(255,107,53,.09);
+      flex:1; min-width:160px; display:flex; align-items:center; gap:12px;
+    }
+    .stat-icon { font-size:24px; flex-shrink:0; }
+    .stat-body {}
+    .stat-label { font-size:11px; font-weight:600; color:#c49a72; text-transform:uppercase; letter-spacing:.8px; }
+    .stat-value { font-size:20px; font-weight:700; color:#3e1c00; line-height:1.2; }
+    .stat-value.green { color:#2e7d32; }
+    .stat-value.red   { color:#c62828; }
+    .stat-value.blue  { color:#1565c0; }
+
+    /* ── TABLE CARD ── */
+    .table-card {
+      background:white; border-radius:16px;
+      box-shadow:0 6px 28px rgba(255,107,53,.13);
+      border:1px solid #ffe0c0; overflow:hidden;
+    }
+    table { width:100%; border-collapse:collapse; table-layout:fixed; }
+    col.c-sl    { width:60px; }
+    col.c-prod  { width:auto; }
+    col.c-brand { width:150px; }
+    col.c-in    { width:110px; }
+    col.c-out   { width:110px; }
+    col.c-avail { width:140px; }
+
+    thead th {
+      background:linear-gradient(135deg,#ff6b35,#f7931e);
+      color:white; padding:14px 10px; font-size:12px; font-weight:600;
+      font-family:'Poppins',sans-serif; text-align:left; white-space:nowrap;
+      border-right:1px solid rgba(255,255,255,.15);
+    }
+    thead th:last-child { border-right:none; }
+    thead th.tc { text-align:center; }
+    thead th.tr { text-align:right; padding-right:16px; }
+
+    tbody tr { border-bottom:1px solid #fff3e8; transition:background .1s; }
+    tbody tr:nth-child(even) { background:#fffaf5; }
+    tbody tr:hover { background:#fff3e0; }
+    tbody td { padding:10px 10px; font-size:13px; color:#5a3010; overflow:hidden; }
+    tbody td.tc { text-align:center; }
+    tbody td.tr { text-align:right; padding-right:16px; }
+    td.sl-cell { text-align:center; color:#c49a72; font-size:12px; font-weight:500; }
+
+    /* product cell */
+    .prod-name { font-weight:600; color:#3e1c00; }
+
+    /* Stock In cell */
+    .stock-in {
+      text-align:center; font-weight:600; color:#2e7d32;
+      background:#e8f5e9; border-radius:6px; padding:3px 10px;
+      display:inline-block; min-width:50px;
+    }
+
+    /* Stock Out — hyperlink style */
+    .stock-out-link {
+      font-weight:600; color:#1565c0; text-decoration:none;
+      background:#e3f2fd; border-radius:6px; padding:3px 10px;
+      display:inline-block; min-width:50px; text-align:center;
+      cursor:pointer; border:none; font-family:'Poppins',sans-serif;
+      font-size:13px; transition:all .15s;
+    }
+    .stock-out-link:hover {
+      background:#1565c0; color:white;
+      text-decoration:none; transform:translateY(-1px);
+      box-shadow:0 3px 10px rgba(21,101,192,.3);
+    }
+
+    /* Available Stock */
+    .avail-cell {
+      text-align:center; font-weight:700; border-radius:6px;
+      padding:3px 10px; display:inline-block; min-width:54px;
+    }
+    .avail-good { color:#2e7d32; background:#e8f5e9; }
+    .avail-low  { color:#e65100; background:#fff3e0; }
+    .avail-zero { color:#c62828; background:#ffebee; }
+
+    /* ── TABLE FOOTER ── */
+    .table-footer {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:13px 20px; border-top:1px solid #ffe0c0; background:#fffaf5;
+      font-size:12px; color:#7d4e2d; font-weight:500;
+    }
+
+    /* ── MODAL OVERLAY ── */
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.45);
+      display:none; align-items:center; justify-content:center;
+      z-index:9999; padding:16px; backdrop-filter:blur(3px);
+    }
+    .modal-overlay.open { display:flex; animation:fadeIn .2s ease; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+    .modal {
+      background:white; border-radius:20px; width:100%; max-width:560px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,107,53,.15);
+      overflow:hidden; animation:slideUp .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+    .modal-header {
+      background:linear-gradient(135deg,#ff6b35,#f7931e);
+      padding:18px 24px; display:flex; align-items:center; justify-content:space-between;
+    }
+    .modal-title {
+      font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:white;
+      display:flex; align-items:center; gap:8px;
+    }
+    .modal-subtitle { font-size:11px; color:rgba(255,255,255,.85); margin-top:2px; font-weight:400; }
+    .modal-close {
+      background:rgba(255,255,255,.2); border:none; border-radius:8px;
+      width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+      cursor:pointer; font-size:18px; color:white; line-height:1;
+      transition:background .15s;
+    }
+    .modal-close:hover { background:rgba(255,255,255,.35); }
+
+    .modal-body { padding:20px 24px; max-height:420px; overflow-y:auto; }
+
+    /* buyer rows */
+    .buyer-row {
+      display:flex; align-items:center; gap:14px;
+      padding:12px 0; border-bottom:1px solid #fff3e8;
+    }
+    .buyer-row:last-child { border-bottom:none; }
+    .buyer-avatar {
+      width:38px; height:38px; border-radius:50%; flex-shrink:0;
+      background:linear-gradient(135deg,#ff6b35,#f7931e);
+      display:flex; align-items:center; justify-content:center;
+      font-size:16px; font-weight:700; color:white;
+      box-shadow:0 3px 10px rgba(255,107,53,.3);
+    }
+    .buyer-info { flex:1; min-width:0; }
+    .buyer-name { font-size:13px; font-weight:600; color:#3e1c00; }
+    .buyer-phone { font-size:11px; color:#a06040; margin-top:1px; }
+    .buyer-date { font-size:11px; color:#7d4e2d; white-space:nowrap; }
+    .buyer-amount {
+      font-size:14px; font-weight:700; color:#e65100;
+      background:#fff3e0; border-radius:8px; padding:4px 12px;
+      white-space:nowrap; flex-shrink:0;
+    }
+    .buyer-bill { font-size:10px; color:#c49a72; margin-top:2px; text-align:right; }
+
+    .modal-empty {
+      text-align:center; padding:32px 20px; color:#c49a72;
+      font-size:13px; font-style:italic;
+    }
+    .modal-empty .empty-icon { font-size:36px; margin-bottom:8px; }
+
+    /* summary strip inside modal */
+    .modal-summary {
+      background:linear-gradient(135deg,#fff3e0,#ffe0b2);
+      border-radius:10px; padding:12px 16px; margin-bottom:16px;
+      display:flex; gap:20px; flex-wrap:wrap;
+    }
+    .ms-item { }
+    .ms-label { font-size:10px; font-weight:600; color:#a06040; text-transform:uppercase; letter-spacing:.7px; }
+    .ms-value { font-size:16px; font-weight:700; color:#bf360c; }
+
+    /* ── TOAST ── */
+    .toast {
+      position:fixed; bottom:24px; right:24px;
+      background:linear-gradient(135deg,#ff6b35,#f7931e);
+      color:white; padding:11px 22px; border-radius:10px;
+      font-size:13px; font-weight:500; font-family:'Poppins',sans-serif;
+      opacity:0; transform:translateY(10px); transition:all .3s;
+      pointer-events:none; z-index:99998;
+      box-shadow:0 4px 20px rgba(255,107,53,.4);
+    }
+    .toast.show { opacity:1; transform:translateY(0); }
+
+    /* no-data */
+    .no-data {
+      text-align:center; padding:60px 20px; color:#c49a72;
+    }
+    .no-data .icon { font-size:48px; margin-bottom:12px; }
+    .no-data .msg  { font-size:14px; font-style:italic; }
+  </style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<div class="navbar">
+  <div class="navbar-left">
+    <!-- Logo SVG (identical to elite-dashboard) -->
+    <svg class="nav-logo" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="dSphG" cx="35%" cy="28%" r="70%">
+          <stop offset="0%"   stop-color="#5b7fa6"/>
+          <stop offset="25%"  stop-color="#2c4f7a"/>
+          <stop offset="60%"  stop-color="#162d50"/>
+          <stop offset="100%" stop-color="#0a1a32"/>
+        </radialGradient>
+        <radialGradient id="dRingG" cx="50%" cy="50%" r="50%">
+          <stop offset="65%"  stop-color="rgba(255,180,0,0.0)"/>
+          <stop offset="100%" stop-color="rgba(255,180,0,0.6)"/>
+        </radialGradient>
+        <linearGradient id="dBoltG" x1="20%" y1="0%" x2="80%" y2="100%">
+          <stop offset="0%"   stop-color="#ffffff"/>
+          <stop offset="45%"  stop-color="#ffe033"/>
+          <stop offset="100%" stop-color="#ffaa00"/>
+        </linearGradient>
+        <filter id="dSph3d" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="rgba(0,0,0,0.65)"/>
+        </filter>
+        <filter id="dBoltGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <circle cx="28" cy="28" r="27" fill="url(#dRingG)"/>
+      <circle cx="28" cy="28" r="23" fill="url(#dSphG)" filter="url(#dSph3d)"/>
+      <ellipse cx="19" cy="17" rx="9" ry="5.5" fill="rgba(255,255,255,0.32)" transform="rotate(-30,19,17)"/>
+      <ellipse cx="15" cy="14" rx="4" ry="2.5" fill="rgba(255,255,255,0.18)" transform="rotate(-20,15,14)"/>
+      <path d="M32 7 L17 29 L26 29 L22 49 L39 25 L29 25 Z"
+            fill="url(#dBoltG)" stroke="rgba(255,230,0,0.7)" stroke-width="0.5"
+            stroke-linejoin="round" filter="url(#dBoltGlow)"/>
+    </svg>
+    <div class="brand-wrap">
+      <span class="brand-name">Sree Electricals &amp; Electronics</span>
+      <span class="brand-tag">
+        <svg width="11" height="16" viewBox="0 0 11 18" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:5px;margin-bottom:1px;">
+          <defs>
+            <linearGradient id="dTagBolt" x1="20%" y1="0%" x2="80%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="60%" stop-color="#ffe566"/>
+              <stop offset="100%" stop-color="#ffaa00"/>
+            </linearGradient>
+            <filter id="dTagGlow" x="-60%" y="-40%" width="220%" height="180%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <path d="M8 0 L1 10 L5 10 L3 18 L11 7 L6.5 7 Z" fill="url(#dTagBolt)" filter="url(#dTagGlow)" stroke="rgba(255,180,0,0.5)" stroke-width="0.4" stroke-linejoin="round"/>
+        </svg>
+        Management Portal
+      </span>
+    </div>
+  </div>
+
+  <div class="nav-right">
+    <div class="elite-badge" onclick="window.history.back()">👑 ELITE</div>
+    <div class="storage-badge">📦 STORAGE</div>
+    <div class="user-chip">
+      <div class="user-avatar">👤</div>
+      <span class="user-name">Seeni</span>
+    </div>
+    <button class="logout-btn">Logout</button>
+  </div>
+</div>
+
+<!-- ══ CONTENT ══ -->
+<div class="content">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="page-title">
+      <span>📦</span> Storage Management
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInp" placeholder="Search product or brand…" oninput="filterTable()">
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon">📦</div>
+      <div class="stat-body">
+        <div class="stat-label">Total Products</div>
+        <div class="stat-value blue" id="statTotal">8</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📥</div>
+      <div class="stat-body">
+        <div class="stat-label">Total Stock In</div>
+        <div class="stat-value green" id="statIn">0</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📤</div>
+      <div class="stat-body">
+        <div class="stat-label">Total Stock Out</div>
+        <div class="stat-value red" id="statOut">0</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-body">
+        <div class="stat-label">Available Stock</div>
+        <div class="stat-value green" id="statAvail">0</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⚠️</div>
+      <div class="stat-body">
+        <div class="stat-label">Low Stock Items</div>
+        <div class="stat-value red" id="statLow">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="table-card">
+    <table>
+      <colgroup>
+        <col class="c-sl">
+        <col class="c-prod">
+        <col class="c-brand">
+        <col class="c-in">
+        <col class="c-out">
+        <col class="c-avail">
+      </colgroup>
+      <thead>
+        <tr>
+          <th class="tc">Sl.No</th>
+          <th>Product</th>
+          <th>Brand</th>
+          <th class="tc">Stock In</th>
+          <th class="tc">Stock Out</th>
+          <th class="tc">Available Stock</th>
+        </tr>
+      </thead>
+      <tbody id="storageBody">
+        <!-- Rows injected by JS -->
+      </tbody>
+    </table>
+
+    <div class="table-footer">
+      <span id="footerCount">Showing 8 of 8 products</span>
+      <span style="color:#c49a72; font-size:11px;">Click <strong style="color:#1565c0;">Stock Out</strong> count to view buyer details</span>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<!-- ══ BUYER POPUP MODAL ══ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title"><span>📤</span> <span id="modalProductName">9W Bulb</span></div>
+        <div class="modal-subtitle" id="modalProductBrand">Philips — Stock Out Details</div>
+      </div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Summary strip -->
+      <div class="modal-summary">
+        <div class="ms-item">
+          <div class="ms-label">Total Units Sold</div>
+          <div class="ms-value" id="msSold">—</div>
+        </div>
+        <div class="ms-item">
+          <div class="ms-label">Total Revenue</div>
+          <div class="ms-value" id="msRevenue">—</div>
+        </div>
+        <div class="ms-item">
+          <div class="ms-label">No. of Transactions</div>
+          <div class="ms-value" id="msCount">—</div>
+        </div>
+      </div>
+      <!-- Buyer List -->
+      <div id="buyerList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  LIVE DATA — fetches from server API (no hardcoded data)
+// ═══════════════════════════════════════════════════════════════
+
+const TOKEN = localStorage.getItem('authToken') || '';
+
+let STORAGE_DATA  = [];   // populated from /storage-products
+let filteredData  = [];
+
+// ─── Auth header helper ───────────────────────────────────────
+function authHeaders() {
+  return { 'Content-Type': 'application/json', 'Authorization': TOKEN };
+}
+
+// ─── Toast ────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─── Logout ───────────────────────────────────────────────────
+document.querySelector('.logout-btn').addEventListener('click', async () => {
+  await fetch('/logout', { method: 'POST' });
+  localStorage.removeItem('authToken');
+  location.href = '/login';
+});
+
+// ─── Table helpers ────────────────────────────────────────────
+function availClass(avail, stockIn) {
+  if (avail <= 0)              return 'avail-zero';
+  if (avail / stockIn <= 0.25) return 'avail-low';
+  return 'avail-good';
+}
+
+function buildTable() {
+  const tbody = document.getElementById('storageBody');
+  if (!filteredData.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="no-data"><div class="icon">🔍</div><div class="msg">No products match your search.</div></td></tr>`;
+    updateStats([]);
+    return;
+  }
+
+  tbody.innerHTML = filteredData.map((d, i) => {
+    const ac  = availClass(d.available, d.stockIn);
+    const outBtn = d.stockOut > 0
+      ? `<button class="stock-out-link" onclick="openModal(${d.id})">${d.stockOut}</button>`
+      : `<span style="color:#c49a72; font-size:13px;">0</span>`;
+
+    return `
+      <tr>
+        <td class="sl-cell">${i + 1}</td>
+        <td><span class="prod-name">${d.product}</span></td>
+        <td style="color:#7d4e2d; font-size:13px;">${d.brand}</td>
+        <td class="tc"><span class="stock-in">${d.stockIn}</span></td>
+        <td class="tc">${outBtn}</td>
+        <td class="tc"><span class="avail-cell ${ac}">${d.available}</span></td>
+      </tr>`;
+  }).join('');
+
+  updateStats(filteredData);
+}
+
+function updateStats(data) {
+  const totalIn    = data.reduce((s, d) => s + d.stockIn,   0);
+  const totalOut   = data.reduce((s, d) => s + d.stockOut,  0);
+  const totalAvail = data.reduce((s, d) => s + d.available, 0);
+  const lowCount   = data.filter(d => d.available > 0 && d.available / d.stockIn <= 0.25).length;
+  const zeroCount  = data.filter(d => d.available <= 0).length;
+
+  document.getElementById('statTotal').textContent = data.length;
+  document.getElementById('statIn').textContent    = totalIn;
+  document.getElementById('statOut').textContent   = totalOut;
+  document.getElementById('statAvail').textContent = totalAvail;
+  document.getElementById('statLow').textContent   = lowCount + zeroCount;
+  document.getElementById('footerCount').textContent =
+    `Showing ${data.length} of ${STORAGE_DATA.length} products`;
+}
+
+// ─── Search / filter (client-side, fast) ─────────────────────
+function filterTable() {
+  const q = document.getElementById('searchInp').value.trim().toLowerCase();
+  filteredData = q
+    ? STORAGE_DATA.filter(d =>
+        d.product.toLowerCase().includes(q) ||
+        d.brand.toLowerCase().includes(q))
+    : [...STORAGE_DATA];
+  buildTable();
+}
+
+// ─── Load all products from API ───────────────────────────────
+async function loadProducts() {
+  const tbody = document.getElementById('storageBody');
+  tbody.innerHTML = `<tr><td colspan="6" class="no-data"><div class="icon">⏳</div><div class="msg">Loading storage data…</div></td></tr>`;
+  try {
+    const res = await fetch('/storage-products', { headers: authHeaders() });
+    if (res.status === 401) { location.href = '/login'; return; }
+    const data = await res.json();
+    STORAGE_DATA = data;
+    filteredData = [...STORAGE_DATA];
+    buildTable();
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="6" class="no-data"><div class="icon">❌</div><div class="msg">Failed to load data. Check server connection.</div></td></tr>`;
+    console.error('Load products error:', err);
+  }
+}
+
+// ─── Modal — fetch transactions from API ─────────────────────
+async function openModal(id) {
+  const item = STORAGE_DATA.find(d => d.id === id);
+  if (!item) return;
+
+  document.getElementById('modalProductName').textContent = item.product;
+  document.getElementById('modalProductBrand').textContent = `${item.brand} — Stock Out Details`;
+  document.getElementById('msSold').textContent    = '…';
+  document.getElementById('msRevenue').textContent = '…';
+  document.getElementById('msCount').textContent   = '…';
+  document.getElementById('buyerList').innerHTML   =
+    `<div class="modal-empty"><div class="empty-icon">⏳</div>Loading transactions…</div>`;
+
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  try {
+    const res = await fetch(`/storage-transactions/${id}`, { headers: authHeaders() });
+    const buyers = await res.json();
+
+    const totalSold = buyers.reduce((s, b) => s + (b.qty    || 0), 0);
+    const totalRev  = buyers.reduce((s, b) => s + Number(b.amount || 0), 0);
+    document.getElementById('msSold').textContent    = totalSold + ' units';
+    document.getElementById('msRevenue').textContent = '₹ ' + totalRev.toLocaleString('en-IN');
+    document.getElementById('msCount').textContent   = buyers.length;
+
+    const list = document.getElementById('buyerList');
+    if (!buyers.length) {
+      list.innerHTML = `<div class="modal-empty"><div class="empty-icon">📭</div>No sales recorded yet.</div>`;
+    } else {
+      list.innerHTML = buyers.map(b => {
+        const initial = (b.customer_name || '?').charAt(0).toUpperCase();
+        return `
+          <div class="buyer-row">
+            <div class="buyer-avatar">${initial}</div>
+            <div class="buyer-info">
+              <div class="buyer-name">${b.customer_name}</div>
+              <div class="buyer-phone">📞 ${b.customer_phone || '—'}</div>
+            </div>
+            <div>
+              <div class="buyer-date">🗓 ${b.bill_datetime || '—'}</div>
+              <div class="buyer-bill" style="margin-top:4px;">${b.bill_no}</div>
+            </div>
+            <div>
+              <div class="buyer-amount">₹ ${Number(b.amount).toLocaleString('en-IN')}</div>
+              <div class="buyer-bill">Qty: ${b.qty} unit${b.qty > 1 ? 's' : ''}</div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+  } catch (err) {
+    document.getElementById('buyerList').innerHTML =
+      `<div class="modal-empty"><div class="empty-icon">❌</div>Failed to load transactions.</div>`;
+    console.error('Transactions fetch error:', err);
+  }
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ─── Init ─────────────────────────────────────────────────────
+loadProducts();
+</script>
+</body>
+</html>
