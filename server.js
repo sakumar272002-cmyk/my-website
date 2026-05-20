@@ -127,6 +127,7 @@ const protectedPages = {
   '/elite-billing':   'elite-billing.html',
   '/elite-history':   'elite-history.html',
   '/customer-history':'customer-history.html',
+  '/storage':         'storage.html',
 };
 Object.entries(protectedPages).forEach(([route, file]) => {
   app.get(route, requirePage, (req, res) =>
@@ -137,7 +138,7 @@ Object.entries(protectedPages).forEach(([route, file]) => {
 // Block direct .html access for protected pages
 const blockedHtml = [
   'elite-dashboard.html','elite-billing.html','elite-history.html',
-  'dashboard.html','billing.html','customer-history.html'
+  'dashboard.html','billing.html','customer-history.html','storage.html'
 ];
 blockedHtml.forEach(file => {
   app.get('/' + file, requirePage, (req, res) =>
