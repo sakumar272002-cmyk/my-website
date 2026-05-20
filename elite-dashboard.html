@@ -84,16 +84,18 @@
     }
     .user-name { font-size:11px; font-weight:700; color:#e65100; }
 
-    /* 📦 Storage badge — navy pill */
+    /* 📦 Storage badge — matches logout button style */
     .storage-badge {
-      background: linear-gradient(135deg,#1a237e,#283593);
-      border-radius: 20px; padding: 5px 13px;
-      font-size: 11px; font-weight: 800; color: #fff; letter-spacing: 1.2px;
-      box-shadow: 0 2px 10px rgba(26,35,126,0.4);
+      background: white; color: #e65100;
+      border: none; padding: 6px 16px;
+      border-radius: 8px; cursor: pointer;
+      font-size: 11px; font-weight: 700;
+      font-family:'Poppins',sans-serif;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.14);
       display: flex; align-items: center; gap: 5px; white-space: nowrap;
-      cursor: pointer; transition: all .2s;
+      transition: all 0.2s; text-decoration: none;
     }
-    .storage-badge:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(26,35,126,.5); }
+    .storage-badge:hover { background: #fff3e0; transform: translateY(-1px); }
 
     /* Logout — solid white button */
     .logout-btn {
