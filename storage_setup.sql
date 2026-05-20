@@ -50,22 +50,6 @@ INSERT INTO storage_products (id, product, brand, stock_in) VALUES
   (7, 'Exhaust Fan 12"',      'Crompton',   8),
   (8, 'Copper Wire 1.5mm 90m','Polycab',   12);
 
-INSERT INTO storage_transactions
-  (product_id, bill_no, customer_name, customer_phone, qty, amount, bill_datetime) VALUES
-  (1, 'BILL-20250520-3', 'Ramesh Kumar',  '9876543210',  2,  480.00, '20 May 2025, 10:30 AM'),
-  (1, 'BILL-20250518-7', 'Seeni Muthu',   '9123456789',  3,  720.00, '18 May 2025, 03:15 PM'),
-  (2, 'BILL-20250519-2', 'Anbu Selvam',   '9988776655',  1, 2800.00, '19 May 2025, 11:00 AM'),
-  (2, 'BILL-20250515-5', 'Malathi Devi',  '9012345678',  2, 5600.00, '15 May 2025, 02:45 PM'),
-  (2, 'BILL-20250512-1', 'Krishnan R',    '9876001234',  1, 2800.00, '12 May 2025, 09:00 AM'),
-  (3, 'BILL-20250517-9', 'Elangovan M',   '9543216789',  4,  520.00, '17 May 2025, 04:00 PM'),
-  (4, 'BILL-20250520-1', 'Balamurugan S', '9001234567', 10, 1500.00, '20 May 2025, 09:00 AM'),
-  (4, 'BILL-20250516-4', 'Chandran K',    '9712345678',  5,  750.00, '16 May 2025, 01:30 PM'),
-  (4, 'BILL-20250514-6', 'Muthukumar P',  '9845612370',  8, 1200.00, '14 May 2025, 10:15 AM'),
-  (4, 'BILL-20250510-3', 'Saranya T',     '9234567890',  6,  900.00, '10 May 2025, 11:45 AM'),
-  (5, 'BILL-20250519-6', 'Ravi Shankar',  '9988001122',  3,  360.00, '19 May 2025, 03:30 PM'),
-  (5, 'BILL-20250513-2', 'Sumathi R',     '9876543000',  2,  240.00, '13 May 2025, 12:00 PM'),
-  (7, 'BILL-20250520-5', 'Jayakumar N',   '9345678901',  2, 3200.00, '20 May 2025, 11:15 AM'),
-  (7, 'BILL-20250511-8', 'Parimala Devi', '9123490087',  1, 1600.00, '11 May 2025, 09:45 AM'),
-  (7, 'BILL-20250508-4', 'Vignesh A',     '9900112233',  1, 1600.00, '08 May 2025, 04:00 PM'),
-  (8, 'BILL-20250518-3', 'Arumugam T',    '9876501234',  3, 4500.00, '18 May 2025, 02:00 PM'),
-  (8, 'BILL-20250514-9', 'Nirmala S',     '9001122334',  1, 1500.00, '14 May 2025, 11:00 AM');
+-- storage_transactions is populated automatically by the server
+-- whenever a bill is saved via POST /save-bill.
+-- No manual inserts needed here.

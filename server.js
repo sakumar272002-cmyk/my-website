@@ -275,22 +275,127 @@ app.get('/elite-ping', requireLogin, (req, res) => {
 
 // ─── BILL HISTORY (Elite Billing — save & retrieve) ──────────────────
 
-// POST /save-bill — save a completed bill to history
+// POST /save-bill — save a completed bill to history AND replicate each
+// line-item into storage_transactions so storage stock-out is always in sync.
+// Both writes happen inside a single DB transaction — if either fails,
+// neither is committed (no partial data).
 app.post('/save-bill', requireLogin, (req, res) => {
   const { billNo, customerName, customerPhone, items, grandTotal, dateTime } = req.body;
   if (!billNo || !customerName)
     return res.status(400).json({ error: 'billNo and customerName are required' });
 
-  db.query(
-    `INSERT INTO bill_history
-      (bill_no, customer_name, customer_phone, items_json, grand_total, bill_datetime)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [billNo, customerName, customerPhone || null, JSON.stringify(items), grandTotal, dateTime],
-    (err) => {
-      if (err) { console.error('Save bill error:', err.message); return res.status(500).json({ error: 'DB error' }); }
-      res.json({ success: true });
+  // items must be an array with at least one entry that has a product name
+  const validItems = Array.isArray(items)
+    ? items.filter(i => i.product && (parseFloat(i.qty) || 0) > 0)
+    : [];
+
+  db.getConnection((connErr, conn) => {
+    if (connErr) {
+      console.error('Save bill – getConnection error:', connErr.message);
+      return res.status(500).json({ error: 'DB connection error' });
     }
-  );
+
+    conn.beginTransaction(txErr => {
+      if (txErr) { conn.release(); return res.status(500).json({ error: 'TX begin error' }); }
+
+      // ── Step 1: write bill_history ──────────────────────────────────
+      conn.query(
+        `INSERT INTO bill_history
+          (bill_no, customer_name, customer_phone, items_json, grand_total, bill_datetime)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [billNo, customerName, customerPhone || null, JSON.stringify(items), grandTotal, dateTime],
+        (histErr) => {
+          if (histErr) {
+            return conn.rollback(() => {
+              conn.release();
+              console.error('Save bill – bill_history insert error:', histErr.message);
+              res.status(500).json({ error: 'DB error saving bill history' });
+            });
+          }
+
+          // ── Step 2: replicate each line-item → storage_transactions ──
+          // We look up the storage_product by name+brand match so we can
+          // record a proper product_id. Items that don't match any storage
+          // product are skipped (non-storage sales are allowed).
+          if (validItems.length === 0) {
+            // Nothing to replicate — just commit the history row
+            return conn.commit(commitErr => {
+              conn.release();
+              if (commitErr) return res.status(500).json({ error: 'TX commit error' });
+              res.json({ success: true, storageRowsInserted: 0 });
+            });
+          }
+
+          let pending = validItems.length;
+          let storageCount = 0;
+          let aborted = false;
+
+          validItems.forEach(item => {
+            if (aborted) return;
+
+            const qty    = parseFloat(item.qty)   || 1;
+            const price  = parseFloat(item.price) || 0;
+            const amount = qty * price;
+            // Match storage product by name (and optionally brand/company)
+            const brand  = item.company || item.brand || null;
+
+            let lookupSql    = 'SELECT id FROM storage_products WHERE product = ?';
+            const lookupVals = [item.product];
+            if (brand) { lookupSql += ' AND brand = ?'; lookupVals.push(brand); }
+            lookupSql += ' LIMIT 1';
+
+            conn.query(lookupSql, lookupVals, (lookupErr, rows) => {
+              if (aborted) return;
+              if (lookupErr) {
+                aborted = true;
+                return conn.rollback(() => {
+                  conn.release();
+                  console.error('Save bill – storage lookup error:', lookupErr.message);
+                  res.status(500).json({ error: 'DB error looking up storage product' });
+                });
+              }
+
+              if (rows.length === 0) {
+                // Product not in storage — skip silently
+                if (--pending === 0 && !aborted) commitAndRespond();
+                return;
+              }
+
+              const productId = rows[0].id;
+              conn.query(
+                `INSERT INTO storage_transactions
+                  (product_id, bill_no, customer_name, customer_phone, qty, amount, bill_datetime)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [productId, billNo, customerName, customerPhone || null, qty, amount, dateTime || null],
+                (txInsErr) => {
+                  if (aborted) return;
+                  if (txInsErr) {
+                    aborted = true;
+                    return conn.rollback(() => {
+                      conn.release();
+                      console.error('Save bill – storage_transactions insert error:', txInsErr.message);
+                      res.status(500).json({ error: 'DB error saving storage transaction' });
+                    });
+                  }
+                  storageCount++;
+                  if (--pending === 0 && !aborted) commitAndRespond();
+                }
+              );
+            });
+          });
+
+          function commitAndRespond() {
+            conn.commit(commitErr => {
+              conn.release();
+              if (commitErr) return res.status(500).json({ error: 'TX commit error' });
+              console.log(`✅ Bill ${billNo} saved — ${storageCount} storage transaction(s) recorded`);
+              res.json({ success: true, storageRowsInserted: storageCount });
+            });
+          }
+        }
+      );
+    });
+  });
 });
 
 // GET /bill-history?phone=9876543210 OR ?name=Seeni
