@@ -48,7 +48,8 @@ INSERT INTO storage_products (id, product, brand, stock_in) VALUES
   (5, '5A Socket & Switch',   'Legrand',   15),
   (6, 'RCCB 40A 30mA',        'Schneider',  4),
   (7, 'Exhaust Fan 12"',      'Crompton',   8),
-  (8, 'Copper Wire 1.5mm 90m','Polycab',   12);
+  (8, 'Copper Wire 1.5mm 90m','Polycab',   12),
+  (9, '12W LED Bulb','Polycab',   12);
 
 -- storage_transactions is populated automatically by the server
 -- whenever a bill is saved via POST /save-bill.
