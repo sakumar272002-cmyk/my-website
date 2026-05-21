@@ -340,6 +340,36 @@
     .import-save-btn:hover { transform:translateY(-1px); box-shadow:0 3px 10px rgba(255,107,53,.3); }
     .import-save-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
 
+    /* +/- mode toggle */
+    .import-mode-toggle {
+      display:flex; border-radius:7px; overflow:hidden;
+      border:1.5px solid #ffb74d; flex-shrink:0;
+    }
+    .import-mode-btn {
+      width:28px; height:32px; border:none; cursor:pointer;
+      font-size:15px; font-weight:700; font-family:'Poppins',sans-serif;
+      transition:all .15s; line-height:1;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .import-mode-btn.add-btn {
+      background:#e8f5e9; color:#2e7d32;
+    }
+    .import-mode-btn.add-btn.active {
+      background:linear-gradient(135deg,#2e7d32,#43a047);
+      color:white;
+    }
+    .import-mode-btn.reduce-btn {
+      background:#ffebee; color:#c62828;
+    }
+    .import-mode-btn.reduce-btn.active {
+      background:linear-gradient(135deg,#c62828,#e53935);
+      color:white;
+    }
+    .import-save-btn.reduce {
+      background:linear-gradient(135deg,#c62828,#e53935);
+    }
+    .import-save-btn.reduce:hover { box-shadow:0 3px 10px rgba(198,40,40,.3); }
+
     /* ── MODAL FOOTER (per-page + paginator) ── */
     .modal-footer {
       display:flex; align-items:center; justify-content:space-between;
@@ -923,19 +953,51 @@ function toggleEditMode() {
   buildTable();
 }
 
-// ─── Import stock for a product ───────────────────────────────
-async function importStock(id, currentStockIn) {
-  const input = document.getElementById(`importInput_${id}`);
-  const btn   = document.getElementById(`importBtn_${id}`);
-  const addQty = parseInt(input.value, 10);
+// ─── Import mode state (per product: 'add' | 'reduce') ────────
+const importModes = {};
 
-  if (isNaN(addQty) || addQty <= 0) {
-    showToast('⚠️ Enter a valid quantity to add');
+function setImportMode(id, mode) {
+  importModes[id] = mode;
+  const addBtn    = document.getElementById(`modeAdd_${id}`);
+  const reduceBtn = document.getElementById(`modeReduce_${id}`);
+  const saveBtn   = document.getElementById(`importBtn_${id}`);
+  const input     = document.getElementById(`importInput_${id}`);
+
+  if (mode === 'add') {
+    addBtn.classList.add('active');
+    reduceBtn.classList.remove('active');
+    saveBtn.classList.remove('reduce');
+    saveBtn.textContent = 'Add';
+    input.placeholder   = 'Qty';
+  } else {
+    reduceBtn.classList.add('active');
+    addBtn.classList.remove('active');
+    saveBtn.classList.add('reduce');
+    saveBtn.textContent = 'Reduce';
+    input.placeholder   = 'Qty';
+  }
+}
+
+// ─── Import / Reduce stock for a product ──────────────────────
+async function importStock(id, currentStockIn) {
+  const input  = document.getElementById(`importInput_${id}`);
+  const btn    = document.getElementById(`importBtn_${id}`);
+  const mode   = importModes[id] || 'add';
+  const qty    = parseInt(input.value, 10);
+
+  if (isNaN(qty) || qty <= 0) {
+    showToast('⚠️ Enter a valid quantity');
     input.focus();
     return;
   }
 
-  const newTotal = currentStockIn + addQty;
+  if (mode === 'reduce' && qty > currentStockIn) {
+    showToast(`⚠️ Cannot reduce by ${qty} — only ${currentStockIn} in stock`);
+    input.focus();
+    return;
+  }
+
+  const newTotal = mode === 'add' ? currentStockIn + qty : currentStockIn - qty;
   btn.disabled = true;
   btn.textContent = '…';
 
@@ -946,12 +1008,15 @@ async function importStock(id, currentStockIn) {
       body: JSON.stringify({ stockIn: newTotal })
     });
     if (!res.ok) throw new Error('Server error');
-    showToast(`✅ Stock updated: +${addQty} units added`);
+
+    const sign = mode === 'add' ? `+${qty}` : `−${qty}`;
+    showToast(`✅ Stock updated: ${sign} units`);
     input.value = '';
+
     // Update local data and re-render
     const product = STORAGE_DATA.find(d => d.id === id);
     if (product) {
-      product.stockIn  = newTotal;
+      product.stockIn   = newTotal;
       product.available = newTotal - product.stockOut;
     }
     const fProduct = filteredData.find(d => d.id === id);
@@ -965,7 +1030,7 @@ async function importStock(id, currentStockIn) {
     showToast('❌ Failed to update stock. Try again.');
     console.error('Import stock error:', err);
     btn.disabled = false;
-    btn.textContent = 'Add';
+    btn.textContent = mode === 'add' ? 'Add' : 'Reduce';
   }
 }
 
@@ -1003,6 +1068,12 @@ function buildTable() {
     const importCol = editMode ? `
       <td class="import-cell">
         <div class="import-wrap">
+          <div class="import-mode-toggle">
+            <button class="import-mode-btn add-btn active" id="modeAdd_${d.id}"
+              onclick="setImportMode(${d.id}, 'add')" title="Add stock">+</button>
+            <button class="import-mode-btn reduce-btn" id="modeReduce_${d.id}"
+              onclick="setImportMode(${d.id}, 'reduce')" title="Reduce stock">−</button>
+          </div>
           <input
             type="number" min="1" id="importInput_${d.id}"
             class="import-input" placeholder="Qty"
