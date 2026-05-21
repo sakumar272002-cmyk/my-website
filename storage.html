@@ -301,6 +301,88 @@
     .ms-label { font-size:10px; font-weight:600; color:#a06040; text-transform:uppercase; letter-spacing:.7px; }
     .ms-value { font-size:16px; font-weight:700; color:#bf360c; }
 
+    /* ── EDIT MODE ── */
+    .edit-toggle-btn {
+      display:flex; align-items:center; gap:6px;
+      background:white; border:1.5px solid #ffb74d; border-radius:9px;
+      padding:7px 13px; font-size:12px; font-weight:700;
+      color:#e65100; cursor:pointer; font-family:'Poppins',sans-serif;
+      box-shadow:0 2px 8px rgba(255,107,53,.1);
+      transition:all .2s; white-space:nowrap; flex-shrink:0;
+    }
+    .edit-toggle-btn:hover { background:#fff3e0; border-color:#ff6b35; transform:translateY(-1px); }
+    .edit-toggle-btn.active {
+      background:linear-gradient(135deg,#ff6b35,#f7931e);
+      color:white; border-color:transparent;
+      box-shadow:0 3px 12px rgba(255,107,53,.35);
+    }
+    .edit-toggle-btn .btn-icon { font-size:14px; }
+
+    col.c-import { width:170px; }
+    .import-cell { text-align:center; }
+
+    .import-wrap {
+      display:flex; align-items:center; justify-content:center; gap:6px;
+    }
+    .import-input {
+      width:56px; padding:4px 7px; border:1.5px solid #ffb74d;
+      border-radius:7px; font-size:13px; font-family:'Poppins',sans-serif;
+      color:#3e1c00; text-align:center; outline:none; background:#fffdf8;
+      transition:border-color .2s;
+    }
+    .import-input:focus { border-color:#ff6b35; box-shadow:0 0 0 2px rgba(255,107,53,.12); }
+    .import-save-btn {
+      padding:4px 10px; background:linear-gradient(135deg,#ff6b35,#f7931e);
+      color:white; border:none; border-radius:7px; font-size:11px;
+      font-weight:700; font-family:'Poppins',sans-serif; cursor:pointer;
+      transition:all .15s; white-space:nowrap;
+    }
+    .import-save-btn:hover { transform:translateY(-1px); box-shadow:0 3px 10px rgba(255,107,53,.3); }
+    .import-save-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+    /* ── MODAL FOOTER (per-page + paginator) ── */
+    .modal-footer {
+      display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:8px;
+      padding:10px 24px 14px; border-top:1px solid #fff3e8;
+      background:#fffaf5;
+    }
+    .modal-footer-count {
+      font-size:11px; color:#a06040; font-weight:500;
+    }
+    .modal-footer-right {
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    }
+    .modal-per-page {
+      display:flex; align-items:center; gap:5px;
+      font-size:11px; color:#7d4e2d; font-weight:500;
+    }
+    .modal-per-page select {
+      border:1.5px solid #ffb74d; border-radius:6px; padding:2px 6px;
+      font-size:11px; font-family:'Poppins',sans-serif; color:#3e1c00;
+      background:white; cursor:pointer; outline:none;
+    }
+    .modal-per-page select:focus { border-color:#ff6b35; }
+    .modal-paginator {
+      display:flex; align-items:center; gap:4px;
+    }
+    .modal-page-btn {
+      min-width:28px; height:28px; padding:0 6px;
+      border:1.5px solid #ffb74d; border-radius:7px;
+      background:white; color:#7d4e2d; font-size:11px; font-weight:600;
+      font-family:'Poppins',sans-serif; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:all .15s;
+    }
+    .modal-page-btn:hover:not(:disabled) { background:#fff3e0; border-color:#ff6b35; color:#e65100; }
+    .modal-page-btn.active {
+      background:linear-gradient(135deg,#ff6b35,#f7931e);
+      border-color:transparent; color:white;
+      box-shadow:0 2px 8px rgba(255,107,53,.3);
+    }
+    .modal-page-btn:disabled { opacity:.4; cursor:not-allowed; }
+    .modal-page-dots { font-size:12px; color:#c49a72; padding:0 2px; line-height:28px; }
+
     /* ── TOAST ── */
     .toast {
       position:fixed; bottom:24px; right:24px;
@@ -319,6 +401,144 @@
     }
     .no-data .icon { font-size:48px; margin-bottom:12px; }
     .no-data .msg  { font-size:14px; font-style:italic; }
+
+    /* ── COLUMN FILTERS ROW ── */
+    .filter-row th {
+      background:#fff3e0; padding:6px 6px; border-right:1px solid #ffe0c0;
+      border-bottom:2px solid #ffb74d;
+    }
+    .filter-row th:last-child { border-right:none; }
+    .col-filter-input {
+      width:100%; padding:4px 8px; border:1.5px solid #ffb74d;
+      border-radius:7px; font-size:11px; font-family:'Poppins',sans-serif;
+      color:#3e1c00; background:white; outline:none;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .col-filter-input:focus { border-color:#ff6b35; box-shadow:0 0 0 2px rgba(255,107,53,.12); }
+    .col-filter-input::placeholder { color:#c49a72; }
+    .col-filter-select {
+      width:100%; padding:4px 6px; border:1.5px solid #ffb74d;
+      border-radius:7px; font-size:11px; font-family:'Poppins',sans-serif;
+      color:#3e1c00; background:white; outline:none; cursor:pointer;
+      transition:border-color .2s;
+    }
+    .col-filter-select:focus { border-color:#ff6b35; }
+    .filter-clear-btn {
+      background:none; border:none; cursor:pointer; font-size:11px;
+      color:#c49a72; padding:2px 4px; border-radius:4px; transition:all .15s;
+      display:inline-flex; align-items:center;
+    }
+    .filter-clear-btn:hover { color:#e65100; background:#fff3e0; }
+    .filter-active-indicator {
+      display:inline-block; width:6px; height:6px; background:#ff6b35;
+      border-radius:50%; margin-left:4px; vertical-align:middle;
+    }
+    thead th .th-inner {
+      display:flex; align-items:center; gap:4px; cursor:pointer; user-select:none;
+    }
+    .sort-icon { font-size:10px; opacity:0.6; }
+    .sort-icon.asc::after  { content:'▲'; }
+    .sort-icon.desc::after { content:'▼'; }
+    .sort-icon.none::after { content:'⇅'; }
+
+    /* ── LOW STOCK HYPERLINK ── */
+    .low-stock-link {
+      color:#c62828; font-weight:700; font-size:20px;
+      cursor:pointer; text-decoration:none;
+      border-bottom:2px dashed #c62828;
+      transition:all .2s; display:inline-block;
+      background:none; border-top:none; border-left:none; border-right:none;
+      font-family:'Poppins',sans-serif; padding:0; line-height:1.2;
+    }
+    .low-stock-link:hover {
+      color:#b71c1c; border-bottom-color:#b71c1c;
+      transform:scale(1.08);
+    }
+
+    /* ── LOW STOCK POPUP MODAL ── */
+    .ls-modal {
+      background:white; border-radius:20px; width:100%; max-width:620px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba(198,40,40,.15);
+      overflow:hidden; animation:slideUp .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    .ls-modal-header {
+      background:linear-gradient(135deg,#c62828,#e53935);
+      padding:18px 24px; display:flex; align-items:center; justify-content:space-between;
+    }
+    .ls-modal-title {
+      font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:white;
+      display:flex; align-items:center; gap:8px;
+    }
+    .ls-modal-subtitle { font-size:11px; color:rgba(255,255,255,.85); margin-top:2px; }
+    .ls-modal-close {
+      background:rgba(255,255,255,.2); border:none; border-radius:8px;
+      width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+      cursor:pointer; font-size:18px; color:white; transition:background .15s;
+    }
+    .ls-modal-close:hover { background:rgba(255,255,255,.35); }
+    .ls-modal-body { padding:20px 24px; max-height:400px; overflow-y:auto; }
+    .ls-item-row {
+      display:flex; align-items:center; gap:14px;
+      padding:11px 14px; border-radius:10px; margin-bottom:8px;
+      background:#fff5f5; border:1px solid #ffcdd2; transition:background .15s;
+    }
+    .ls-item-row:hover { background:#ffebee; }
+    .ls-rank {
+      width:28px; height:28px; border-radius:50%; flex-shrink:0;
+      background:linear-gradient(135deg,#c62828,#e53935);
+      display:flex; align-items:center; justify-content:center;
+      font-size:11px; font-weight:700; color:white;
+    }
+    .ls-item-info { flex:1; min-width:0; }
+    .ls-item-name { font-size:13px; font-weight:600; color:#3e1c00; }
+    .ls-item-brand { font-size:11px; color:#a06040; margin-top:1px; }
+    .ls-stock-in  { font-size:12px; font-weight:600; color:#2e7d32; background:#e8f5e9; border-radius:6px; padding:3px 8px; white-space:nowrap; }
+    .ls-stock-out { font-size:12px; font-weight:600; color:#1565c0; background:#e3f2fd; border-radius:6px; padding:3px 8px; white-space:nowrap; }
+    .ls-avail-badge {
+      font-size:13px; font-weight:800; border-radius:8px; padding:5px 13px;
+      white-space:nowrap; flex-shrink:0;
+    }
+    .ls-avail-low  { color:#e65100; background:#fff3e0; border:1.5px solid #ffb74d; }
+    .ls-avail-zero { color:#c62828; background:#ffebee; border:1.5px solid #ef9a9a; }
+    .ls-modal-footer {
+      display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:8px; padding:10px 24px 14px;
+      border-top:1px solid #ffcdd2; background:#fff5f5;
+    }
+    .ls-footer-count { font-size:11px; color:#a06040; font-weight:500; }
+    .ls-footer-right { display:flex; align-items:center; gap:10px; }
+    .ls-per-page {
+      display:flex; align-items:center; gap:5px;
+      font-size:11px; color:#7d4e2d; font-weight:500;
+    }
+    .ls-per-page select {
+      border:1.5px solid #ef9a9a; border-radius:6px; padding:2px 6px;
+      font-size:11px; font-family:'Poppins',sans-serif; color:#3e1c00;
+      background:white; cursor:pointer; outline:none;
+    }
+    .ls-paginator { display:flex; align-items:center; gap:4px; }
+    .ls-page-btn {
+      min-width:28px; height:28px; padding:0 6px;
+      border:1.5px solid #ef9a9a; border-radius:7px;
+      background:white; color:#7d4e2d; font-size:11px; font-weight:600;
+      font-family:'Poppins',sans-serif; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; transition:all .15s;
+    }
+    .ls-page-btn:hover:not(:disabled) { background:#ffebee; border-color:#c62828; color:#c62828; }
+    .ls-page-btn.active {
+      background:linear-gradient(135deg,#c62828,#e53935);
+      border-color:transparent; color:white; box-shadow:0 2px 8px rgba(198,40,40,.3);
+    }
+    .ls-page-btn:disabled { opacity:.4; cursor:not-allowed; }
+    .ls-page-dots { font-size:12px; color:#c49a72; padding:0 2px; line-height:28px; }
+    .ls-empty { text-align:center; padding:32px; color:#c49a72; font-size:13px; font-style:italic; }
+    .ls-summary-strip {
+      background:linear-gradient(135deg,#fff3e0,#ffebee);
+      border-radius:10px; padding:10px 16px; margin-bottom:14px;
+      display:flex; gap:20px; flex-wrap:wrap; border:1px solid #ffcdd2;
+    }
+    .ls-sum-label { font-size:10px; font-weight:600; color:#a06040; text-transform:uppercase; letter-spacing:.7px; }
+    .ls-sum-value { font-size:15px; font-weight:700; color:#c62828; }
   </style>
 </head>
 <body>
@@ -401,9 +621,14 @@
     <div class="page-title">
       <span>📦</span> Storage Management
     </div>
-    <div class="search-wrap">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="searchInp" placeholder="Search product or brand…" oninput="filterTable()">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInp" placeholder="Search product or brand…" oninput="filterTable()">
+      </div>
+      <button class="edit-toggle-btn" id="editToggleBtn" onclick="toggleEditMode()">
+        <span class="btn-icon">✏️</span> <span id="editBtnLabel">Edit Stock</span>
+      </button>
     </div>
   </div>
 
@@ -441,7 +666,9 @@
       <div class="stat-icon">⚠️</div>
       <div class="stat-body">
         <div class="stat-label">Low Stock Items</div>
-        <div class="stat-value red" id="statLow">0</div>
+        <div class="stat-value red">
+          <button class="low-stock-link" id="statLow" onclick="openLowStockModal()">0</button>
+        </div>
       </div>
     </div>
   </div>
@@ -454,17 +681,70 @@
         <col class="c-prod">
         <col class="c-brand">
         <col class="c-in">
+        <col class="c-import" id="colImport" style="display:none;">
         <col class="c-out">
         <col class="c-avail">
       </colgroup>
       <thead>
         <tr>
-          <th class="tc">Sl.No</th>
-          <th>Product</th>
-          <th>Brand</th>
-          <th class="tc">Stock In</th>
-          <th class="tc">Stock Out</th>
-          <th class="tc">Available Stock</th>
+          <th class="tc" onclick="sortBy('sl')" style="cursor:pointer;">
+            <div class="th-inner" style="justify-content:center;">Sl.No <span class="sort-icon none" id="sort-sl"></span></div>
+          </th>
+          <th onclick="sortBy('product')" style="cursor:pointer;">
+            <div class="th-inner">Product <span class="sort-icon none" id="sort-product"></span></div>
+          </th>
+          <th onclick="sortBy('brand')" style="cursor:pointer;">
+            <div class="th-inner">Brand <span class="sort-icon none" id="sort-brand"></span></div>
+          </th>
+          <th class="tc" onclick="sortBy('stockIn')" style="cursor:pointer;">
+            <div class="th-inner" style="justify-content:center;">Stock In <span class="sort-icon none" id="sort-stockIn"></span></div>
+          </th>
+          <th class="tc" id="thImport" style="display:none;">Stock Import</th>
+          <th class="tc" onclick="sortBy('stockOut')" style="cursor:pointer;">
+            <div class="th-inner" style="justify-content:center;">Stock Out <span class="sort-icon none" id="sort-stockOut"></span></div>
+          </th>
+          <th class="tc" onclick="sortBy('available')" style="cursor:pointer;">
+            <div class="th-inner" style="justify-content:center;">Available Stock <span class="sort-icon none" id="sort-available"></span></div>
+          </th>
+        </tr>
+        <!-- Column Filter Row -->
+        <tr class="filter-row" id="filterRow">
+          <th style="text-align:center;">
+            <button class="filter-clear-btn" onclick="clearAllFilters()" title="Clear all filters">✕ All</button>
+          </th>
+          <th>
+            <input type="text" class="col-filter-input" id="fProduct" placeholder="Filter product…" oninput="applyColumnFilters()">
+          </th>
+          <th>
+            <select class="col-filter-select" id="fBrand" onchange="applyColumnFilters()">
+              <option value="">All Brands</option>
+            </select>
+          </th>
+          <th style="text-align:center;">
+            <select class="col-filter-select" id="fStockIn" onchange="applyColumnFilters()">
+              <option value="">Any</option>
+              <option value="gt0">Has Stock</option>
+              <option value="gte50">&ge; 50</option>
+              <option value="gte10">&ge; 10</option>
+              <option value="lt10">&lt; 10</option>
+            </select>
+          </th>
+          <th id="thImportFilter" style="display:none;"></th>
+          <th style="text-align:center;">
+            <select class="col-filter-select" id="fStockOut" onchange="applyColumnFilters()">
+              <option value="">Any</option>
+              <option value="gt0">Has Outflow</option>
+              <option value="zero">No Outflow</option>
+            </select>
+          </th>
+          <th style="text-align:center;">
+            <select class="col-filter-select" id="fAvail" onchange="applyColumnFilters()">
+              <option value="">Any</option>
+              <option value="good">Good (&gt;5)</option>
+              <option value="low">Low (1–5)</option>
+              <option value="zero">Out of Stock</option>
+            </select>
+          </th>
         </tr>
       </thead>
       <tbody id="storageBody">
@@ -486,7 +766,7 @@
       </div>
     </div>
     <div style="padding:10px 20px 14px; background:#fffaf5; border-top:1px solid #fff3e8; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-      <span style="font-size:11px; color:#c49a72;">Click <strong style="color:#1565c0;">Stock Out</strong> count to view buyer details</span>
+      <span style="font-size:11px; color:#c49a72;">Click <strong style="color:#1565c0;">Stock Out</strong> count to view buyer details &nbsp;·&nbsp; Click <strong style="color:#e65100;">Edit Stock</strong> to add new stock imports</span>
       <div class="paginator" id="paginator"></div>
     </div>
   </div>
@@ -522,6 +802,66 @@
       <!-- Buyer List -->
       <div id="buyerList"></div>
     </div>
+    <!-- Modal Footer -->
+    <div class="modal-footer" id="modalFooter" style="display:none;">
+      <span class="modal-footer-count" id="modalFooterCount"></span>
+      <div class="modal-footer-right">
+        <div class="modal-per-page">
+          Rows:
+          <select id="modalPerPageSel" onchange="onModalPerPageChange()">
+            <option value="5" selected>5</option>
+            <option value="10">10</option>
+            <option value="0">All</option>
+          </select>
+        </div>
+        <div class="modal-paginator" id="modalPaginator"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LOW STOCK POPUP MODAL ══ -->
+<div class="modal-overlay" id="lsModalOverlay" onclick="closeLsModal(event)">
+  <div class="ls-modal" id="lsModalBox">
+    <div class="ls-modal-header">
+      <div>
+        <div class="ls-modal-title">⚠️ Low Stock Alert</div>
+        <div class="ls-modal-subtitle" id="lsModalSubtitle">Products with low or zero available stock</div>
+      </div>
+      <button class="ls-modal-close" onclick="closeLsModalDirect()">✕</button>
+    </div>
+    <div class="ls-modal-body">
+      <div class="ls-summary-strip" id="lsSummaryStrip">
+        <div>
+          <div class="ls-sum-label">Low Stock Items</div>
+          <div class="ls-sum-value" id="lsSumLow">—</div>
+        </div>
+        <div>
+          <div class="ls-sum-label">Out of Stock</div>
+          <div class="ls-sum-value" id="lsSumZero">—</div>
+        </div>
+        <div>
+          <div class="ls-sum-label">Total Affected</div>
+          <div class="ls-sum-value" id="lsSumTotal">—</div>
+        </div>
+      </div>
+      <div id="lsItemList"></div>
+    </div>
+    <div class="ls-modal-footer" id="lsModalFooter" style="display:none;">
+      <span class="ls-footer-count" id="lsFooterCount"></span>
+      <div class="ls-footer-right">
+        <div class="ls-per-page">
+          Per page:
+          <select id="lsPerPageSel" onchange="onLsPerPageChange()">
+            <option value="3">3</option>
+            <option value="5" selected>5</option>
+            <option value="10">10</option>
+            <option value="0">All</option>
+          </select>
+        </div>
+        <div class="ls-paginator" id="lsPaginator"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -539,6 +879,7 @@ let STORAGE_DATA = [];   // all products from API
 let filteredData = [];   // after search filter
 let currentPage  = 1;
 let perPage      = 10;   // default rows per page
+let editMode     = false; // Stock Import edit toggle
 
 // ─── Auth header helper ───────────────────────────────────────
 function authHeaders() {
@@ -560,6 +901,77 @@ document.querySelector('.logout-btn').addEventListener('click', async () => {
   location.href = '/login';
 });
 
+// ─── Toggle Edit Mode ─────────────────────────────────────────
+function toggleEditMode() {
+  editMode = !editMode;
+  const btn   = document.getElementById('editToggleBtn');
+  const label = document.getElementById('editBtnLabel');
+  const thImp = document.getElementById('thImport');
+  const colImp = document.getElementById('colImport');
+  const thImpF = document.getElementById('thImportFilter');
+
+  if (editMode) {
+    btn.classList.add('active');
+    label.textContent = 'Done Editing';
+    thImp.style.display  = '';
+    colImp.style.display = '';
+    thImpF.style.display = '';
+  } else {
+    btn.classList.remove('active');
+    label.textContent = 'Edit Stock';
+    thImp.style.display  = 'none';
+    colImp.style.display = 'none';
+    thImpF.style.display = 'none';
+  }
+  buildTable();
+}
+
+// ─── Import stock for a product ───────────────────────────────
+async function importStock(id, currentStockIn) {
+  const input = document.getElementById(`importInput_${id}`);
+  const btn   = document.getElementById(`importBtn_${id}`);
+  const addQty = parseInt(input.value, 10);
+
+  if (isNaN(addQty) || addQty <= 0) {
+    showToast('⚠️ Enter a valid quantity to add');
+    input.focus();
+    return;
+  }
+
+  const newTotal = currentStockIn + addQty;
+  btn.disabled = true;
+  btn.textContent = '…';
+
+  try {
+    const res = await fetch(`/storage-products/${id}/stock`, {
+      method: 'PATCH',
+      headers: authHeaders(),
+      body: JSON.stringify({ stockIn: newTotal })
+    });
+    if (!res.ok) throw new Error('Server error');
+    showToast(`✅ Stock updated: +${addQty} units added`);
+    input.value = '';
+    // Update local data and re-render
+    const product = STORAGE_DATA.find(d => d.id === id);
+    if (product) {
+      product.stockIn  = newTotal;
+      product.available = newTotal - product.stockOut;
+    }
+    const fProduct = filteredData.find(d => d.id === id);
+    if (fProduct) {
+      fProduct.stockIn   = newTotal;
+      fProduct.available = newTotal - fProduct.stockOut;
+    }
+    buildTable();
+    updateStats(filteredData);
+  } catch (err) {
+    showToast('❌ Failed to update stock. Try again.');
+    console.error('Import stock error:', err);
+    btn.disabled = false;
+    btn.textContent = 'Add';
+  }
+}
+
 // ─── Table helpers ────────────────────────────────────────────
 function availClass(avail) {
   if (avail <= 0) return 'avail-zero';
@@ -570,9 +982,10 @@ function availClass(avail) {
 // ─── Build table for current page ─────────────────────────────
 function buildTable() {
   const tbody = document.getElementById('storageBody');
+  const cols = editMode ? 7 : 6;
 
   if (!filteredData.length) {
-    tbody.innerHTML = `<tr><td colspan="6" class="no-data"><div class="icon">🔍</div><div class="msg">No products match your search.</div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="${cols}" class="no-data"><div class="icon">🔍</div><div class="msg">No products match your search.</div></td></tr>`;
     updateStats([]);
     renderPaginator();
     return;
@@ -590,12 +1003,26 @@ function buildTable() {
       ? `<button class="stock-out-link" onclick="openModal(${d.id})">${d.stockOut}</button>`
       : `<span style="color:#c49a72; font-size:13px;">0</span>`;
 
+    const importCol = editMode ? `
+      <td class="import-cell">
+        <div class="import-wrap">
+          <input
+            type="number" min="1" id="importInput_${d.id}"
+            class="import-input" placeholder="+qty"
+            onkeydown="if(event.key==='Enter') importStock(${d.id}, ${d.stockIn})"
+          >
+          <button class="import-save-btn" id="importBtn_${d.id}"
+            onclick="importStock(${d.id}, ${d.stockIn})">Add</button>
+        </div>
+      </td>` : '';
+
     return `
       <tr>
         <td class="sl-cell">${startIdx + i + 1}</td>
         <td><span class="prod-name">${d.product}</span></td>
         <td style="color:#7d4e2d; font-size:13px;">${d.brand}</td>
         <td class="tc"><span class="stock-in">${d.stockIn}</span></td>
+        ${importCol}
         <td class="tc">${outBtn}</td>
         <td class="tc"><span class="avail-cell ${ac}">${d.available}</span></td>
       </tr>`;
@@ -684,20 +1111,216 @@ function updateStats(data) {
 
 // ─── Search / filter (resets to page 1) ──────────────────────
 function filterTable() {
+  applyColumnFilters();
+}
+
+// ─── Column Filters state ─────────────────────────────────────
+let colFilters = { product:'', brand:'', stockIn:'', stockOut:'', avail:'' };
+let sortState  = { col: null, dir: 'none' }; // dir: 'asc' | 'desc' | 'none'
+
+// ─── Populate brand dropdown from data ───────────────────────
+function populateBrandFilter() {
+  const brands = [...new Set(STORAGE_DATA.map(d => d.brand))].sort();
+  const sel = document.getElementById('fBrand');
+  sel.innerHTML = '<option value="">All Brands</option>' +
+    brands.map(b => `<option value="${b}">${b}</option>`).join('');
+}
+
+// ─── Apply column filters + global search ────────────────────
+function applyColumnFilters() {
+  colFilters.product  = document.getElementById('fProduct').value.trim().toLowerCase();
+  colFilters.brand    = document.getElementById('fBrand').value;
+  colFilters.stockIn  = document.getElementById('fStockIn').value;
+  colFilters.stockOut = document.getElementById('fStockOut').value;
+  colFilters.avail    = document.getElementById('fAvail').value;
+
   const q = document.getElementById('searchInp').value.trim().toLowerCase();
-  filteredData = q
-    ? STORAGE_DATA.filter(d =>
-        d.product.toLowerCase().includes(q) ||
-        d.brand.toLowerCase().includes(q))
-    : [...STORAGE_DATA];
+
+  filteredData = STORAGE_DATA.filter(d => {
+    // Global search
+    if (q && !d.product.toLowerCase().includes(q) && !d.brand.toLowerCase().includes(q)) return false;
+    // Product name filter
+    if (colFilters.product && !d.product.toLowerCase().includes(colFilters.product)) return false;
+    // Brand filter
+    if (colFilters.brand && d.brand !== colFilters.brand) return false;
+    // Stock In filter
+    if (colFilters.stockIn) {
+      if (colFilters.stockIn === 'gt0'   && d.stockIn <= 0)  return false;
+      if (colFilters.stockIn === 'gte50' && d.stockIn < 50)  return false;
+      if (colFilters.stockIn === 'gte10' && d.stockIn < 10)  return false;
+      if (colFilters.stockIn === 'lt10'  && d.stockIn >= 10) return false;
+    }
+    // Stock Out filter
+    if (colFilters.stockOut) {
+      if (colFilters.stockOut === 'gt0'  && d.stockOut <= 0) return false;
+      if (colFilters.stockOut === 'zero' && d.stockOut > 0)  return false;
+    }
+    // Available filter
+    if (colFilters.avail) {
+      if (colFilters.avail === 'good' && d.available <= 5)                     return false;
+      if (colFilters.avail === 'low'  && !(d.available >= 1 && d.available <= 5)) return false;
+      if (colFilters.avail === 'zero' && d.available > 0)                      return false;
+    }
+    return true;
+  });
+
+  applySortToFiltered();
   currentPage = 1;
   buildTable();
+}
+
+// ─── Sort ─────────────────────────────────────────────────────
+function sortBy(col) {
+  if (sortState.col === col) {
+    sortState.dir = sortState.dir === 'asc' ? 'desc' : sortState.dir === 'desc' ? 'none' : 'asc';
+  } else {
+    sortState.col = col;
+    sortState.dir = 'asc';
+  }
+  updateSortIcons();
+  applySortToFiltered();
+  currentPage = 1;
+  buildTable();
+}
+
+function updateSortIcons() {
+  ['sl','product','brand','stockIn','stockOut','available'].forEach(c => {
+    const el = document.getElementById('sort-' + c);
+    if (!el) return;
+    el.className = 'sort-icon ' + (sortState.col === c ? sortState.dir : 'none');
+  });
+}
+
+function applySortToFiltered() {
+  if (!sortState.col || sortState.dir === 'none') return;
+  filteredData.sort((a, b) => {
+    let va = a[sortState.col] ?? 0;
+    let vb = b[sortState.col] ?? 0;
+    if (typeof va === 'string') va = va.toLowerCase();
+    if (typeof vb === 'string') vb = vb.toLowerCase();
+    if (va < vb) return sortState.dir === 'asc' ? -1 : 1;
+    if (va > vb) return sortState.dir === 'asc' ? 1 : -1;
+    return 0;
+  });
+}
+
+// ─── Clear all column filters ─────────────────────────────────
+function clearAllFilters() {
+  document.getElementById('fProduct').value  = '';
+  document.getElementById('fBrand').value    = '';
+  document.getElementById('fStockIn').value  = '';
+  document.getElementById('fStockOut').value = '';
+  document.getElementById('fAvail').value    = '';
+  document.getElementById('searchInp').value = '';
+  colFilters = { product:'', brand:'', stockIn:'', stockOut:'', avail:'' };
+  sortState  = { col: null, dir: 'none' };
+  updateSortIcons();
+  filteredData = [...STORAGE_DATA];
+  currentPage = 1;
+  buildTable();
+}
+
+// ─── Low Stock Modal state ────────────────────────────────────
+let lsAllItems  = [];
+let lsPage      = 1;
+let lsPerPage   = 5;
+
+function openLowStockModal() {
+  const lowItems  = STORAGE_DATA.filter(d => d.available >= 1 && d.available <= 5);
+  const zeroItems = STORAGE_DATA.filter(d => d.available <= 0);
+  lsAllItems = [...zeroItems, ...lowItems]; // zero-stock first, then low
+
+  document.getElementById('lsSumLow').textContent   = lowItems.length;
+  document.getElementById('lsSumZero').textContent  = zeroItems.length;
+  document.getElementById('lsSumTotal').textContent = lsAllItems.length;
+  document.getElementById('lsModalSubtitle').textContent =
+    `${lsAllItems.length} product${lsAllItems.length !== 1 ? 's' : ''} need attention`;
+
+  lsPage    = 1;
+  lsPerPage = parseInt(document.getElementById('lsPerPageSel').value) || 5;
+
+  document.getElementById('lsModalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderLsPage();
+}
+
+function renderLsPage() {
+  const total   = lsAllItems.length;
+  const showAll = lsPerPage === 0;
+  const pageData = showAll ? lsAllItems : lsAllItems.slice((lsPage - 1) * lsPerPage, lsPage * lsPerPage);
+  const list    = document.getElementById('lsItemList');
+
+  if (!total) {
+    list.innerHTML = `<div class="ls-empty">🎉 No low stock items! Everything looks good.</div>`;
+    document.getElementById('lsModalFooter').style.display = 'none';
+    return;
+  }
+
+  list.innerHTML = pageData.map((d, i) => {
+    const globalIdx = showAll ? i : (lsPage - 1) * lsPerPage + i;
+    const ac = d.available <= 0 ? 'ls-avail-zero' : 'ls-avail-low';
+    const label = d.available <= 0 ? '🚫 Out of Stock' : `⚠️ Only ${d.available} left`;
+    return `
+      <div class="ls-item-row">
+        <div class="ls-rank">${globalIdx + 1}</div>
+        <div class="ls-item-info">
+          <div class="ls-item-name">${d.product}</div>
+          <div class="ls-item-brand">${d.brand}</div>
+        </div>
+        <span class="ls-stock-in">In: ${d.stockIn}</span>
+        <span class="ls-stock-out">Out: ${d.stockOut}</span>
+        <span class="ls-avail-badge ${ac}">${label}</span>
+      </div>`;
+  }).join('');
+
+  const from = showAll ? 1 : (lsPage - 1) * lsPerPage + 1;
+  const to   = showAll ? total : Math.min(lsPage * lsPerPage, total);
+  document.getElementById('lsFooterCount').textContent = `Showing ${from}–${to} of ${total} items`;
+  document.getElementById('lsModalFooter').style.display = 'flex';
+  renderLsPaginator();
+}
+
+function renderLsPaginator() {
+  const pg = document.getElementById('lsPaginator');
+  if (lsPerPage === 0 || lsAllItems.length === 0) { pg.innerHTML = ''; return; }
+  const totalPages = Math.ceil(lsAllItems.length / lsPerPage);
+  if (totalPages <= 1) { pg.innerHTML = ''; return; }
+
+  let html = `<button class="ls-page-btn" onclick="goLsPage(${lsPage - 1})" ${lsPage === 1 ? 'disabled' : ''}>&#8592;</button>`;
+  getPageNumbers(lsPage, totalPages).forEach(p => {
+    if (p === '...') html += `<span class="ls-page-dots">…</span>`;
+    else html += `<button class="ls-page-btn ${p === lsPage ? 'active' : ''}" onclick="goLsPage(${p})">${p}</button>`;
+  });
+  html += `<button class="ls-page-btn" onclick="goLsPage(${lsPage + 1})" ${lsPage === totalPages ? 'disabled' : ''}>&#8594;</button>`;
+  pg.innerHTML = html;
+}
+
+function goLsPage(p) {
+  const totalPages = Math.ceil(lsAllItems.length / lsPerPage);
+  if (p < 1 || p > totalPages) return;
+  lsPage = p;
+  renderLsPage();
+  document.querySelector('.ls-modal-body').scrollTop = 0;
+}
+
+function onLsPerPageChange() {
+  lsPerPage = parseInt(document.getElementById('lsPerPageSel').value) || 0;
+  lsPage    = 1;
+  renderLsPage();
+}
+
+function closeLsModal(e) {
+  if (e.target === document.getElementById('lsModalOverlay')) closeLsModalDirect();
+}
+function closeLsModalDirect() {
+  document.getElementById('lsModalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
 }
 
 // ─── Load all products from API ───────────────────────────────
 async function loadProducts() {
   const tbody = document.getElementById('storageBody');
-  tbody.innerHTML = `<tr><td colspan="6" class="no-data"><div class="icon">⏳</div><div class="msg">Loading storage data…</div></td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="7" class="no-data"><div class="icon">⏳</div><div class="msg">Loading storage data…</div></td></tr>`;
   try {
     const res = await fetch('/storage-products', { headers: authHeaders() });
     if (res.status === 401) { location.href = '/login'; return; }
@@ -705,68 +1328,146 @@ async function loadProducts() {
     STORAGE_DATA = data;
     filteredData = [...STORAGE_DATA];
     currentPage  = 1;
+    populateBrandFilter();
     buildTable();
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="6" class="no-data"><div class="icon">❌</div><div class="msg">Failed to load data. Check server connection.</div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="no-data"><div class="icon">❌</div><div class="msg">Failed to load data. Check server connection.</div></td></tr>`;
     console.error('Load products error:', err);
   }
 }
+
+// ─── Modal state ──────────────────────────────────────────────
+let modalAllBuyers = [];   // full sorted list for current modal
+let modalPage      = 1;
+let modalPerPage   = 5;
 
 // ─── Modal — fetch transactions from API ─────────────────────
 async function openModal(id) {
   const item = STORAGE_DATA.find(d => d.id === id);
   if (!item) return;
 
-  document.getElementById('modalProductName').textContent = item.product;
+  document.getElementById('modalProductName').textContent  = item.product;
   document.getElementById('modalProductBrand').textContent = `${item.brand} — Stock Out Details`;
   document.getElementById('msSold').textContent    = '…';
   document.getElementById('msRevenue').textContent = '…';
   document.getElementById('msCount').textContent   = '…';
   document.getElementById('buyerList').innerHTML   =
     `<div class="modal-empty"><div class="empty-icon">⏳</div>Loading transactions…</div>`;
+  document.getElementById('modalFooter').style.display = 'none';
+  document.getElementById('modalPaginator').innerHTML  = '';
+
+  // Reset modal pagination state
+  modalPage    = 1;
+  modalPerPage = parseInt(document.getElementById('modalPerPageSel').value) || 5;
 
   document.getElementById('modalOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 
   try {
-    const res = await fetch(`/storage-transactions/${id}`, { headers: authHeaders() });
+    const res    = await fetch(`/storage-transactions/${id}`, { headers: authHeaders() });
     const buyers = await res.json();
 
-    const totalSold = buyers.reduce((s, b) => s + (b.qty    || 0), 0);
+    // ── Sort: latest first (by created_at desc) ───────────────
+    buyers.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    modalAllBuyers = buyers;
+
+    // Summary (always across ALL records)
+    const totalSold = buyers.reduce((s, b) => s + (b.qty || 0), 0);
     const totalRev  = buyers.reduce((s, b) => s + Number(b.amount || 0), 0);
     document.getElementById('msSold').textContent    = totalSold + ' units';
     document.getElementById('msRevenue').textContent = '₹ ' + totalRev.toLocaleString('en-IN');
     document.getElementById('msCount').textContent   = buyers.length;
 
-    const list = document.getElementById('buyerList');
-    if (!buyers.length) {
-      list.innerHTML = `<div class="modal-empty"><div class="empty-icon">📭</div>No sales recorded yet.</div>`;
-    } else {
-      list.innerHTML = buyers.map(b => {
-        const initial = (b.customer_name || '?').charAt(0).toUpperCase();
-        return `
-          <div class="buyer-row">
-            <div class="buyer-avatar">${initial}</div>
-            <div class="buyer-info">
-              <div class="buyer-name">${b.customer_name}</div>
-              <div class="buyer-phone">📞 ${b.customer_phone || '—'}</div>
-            </div>
-            <div>
-              <div class="buyer-date">🗓 ${b.bill_datetime || '—'}</div>
-              <div class="buyer-bill" style="margin-top:4px;">${b.bill_no}</div>
-            </div>
-            <div>
-              <div class="buyer-amount">₹ ${Number(b.amount).toLocaleString('en-IN')}</div>
-              <div class="buyer-bill">Qty: ${b.qty} unit${b.qty > 1 ? 's' : ''}</div>
-            </div>
-          </div>`;
-      }).join('');
-    }
+    renderModalPage();
   } catch (err) {
     document.getElementById('buyerList').innerHTML =
       `<div class="modal-empty"><div class="empty-icon">❌</div>Failed to load transactions.</div>`;
     console.error('Transactions fetch error:', err);
   }
+}
+
+// ─── Render current modal page ────────────────────────────────
+function renderModalPage() {
+  const total   = modalAllBuyers.length;
+  const showAll = modalPerPage === 0;
+  const pageData = showAll
+    ? modalAllBuyers
+    : modalAllBuyers.slice((modalPage - 1) * modalPerPage, modalPage * modalPerPage);
+
+  const list = document.getElementById('buyerList');
+
+  if (!total) {
+    list.innerHTML = `<div class="modal-empty"><div class="empty-icon">📭</div>No sales recorded yet.</div>`;
+    document.getElementById('modalFooter').style.display = 'none';
+    return;
+  }
+
+  list.innerHTML = pageData.map(b => {
+    const initial = (b.customer_name || '?').charAt(0).toUpperCase();
+    return `
+      <div class="buyer-row">
+        <div class="buyer-avatar">${initial}</div>
+        <div class="buyer-info">
+          <div class="buyer-name">${b.customer_name}</div>
+          <div class="buyer-phone">📞 ${b.customer_phone || '—'}</div>
+        </div>
+        <div>
+          <div class="buyer-date">🗓 ${b.bill_datetime || '—'}</div>
+          <div class="buyer-bill" style="margin-top:4px;">${b.bill_no}</div>
+        </div>
+        <div>
+          <div class="buyer-amount">₹ ${Number(b.amount).toLocaleString('en-IN')}</div>
+          <div class="buyer-bill">Qty: ${b.qty} unit${b.qty > 1 ? 's' : ''}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Footer count label
+  const from = showAll ? 1 : (modalPage - 1) * modalPerPage + 1;
+  const to   = showAll ? total : Math.min(modalPage * modalPerPage, total);
+  document.getElementById('modalFooterCount').textContent =
+    `Showing ${from}–${to} of ${total} transactions`;
+  document.getElementById('modalFooter').style.display = 'flex';
+
+  renderModalPaginator();
+}
+
+// ─── Modal paginator ─────────────────────────────────────────
+function renderModalPaginator() {
+  const pg = document.getElementById('modalPaginator');
+  if (modalPerPage === 0 || modalAllBuyers.length === 0) { pg.innerHTML = ''; return; }
+
+  const totalPages = Math.ceil(modalAllBuyers.length / modalPerPage);
+  if (totalPages <= 1) { pg.innerHTML = ''; return; }
+
+  let html = `<button class="modal-page-btn" onclick="goModalPage(${modalPage - 1})" ${modalPage === 1 ? 'disabled' : ''}>&#8592;</button>`;
+
+  const pages = getPageNumbers(modalPage, totalPages);
+  pages.forEach(p => {
+    if (p === '...') {
+      html += `<span class="modal-page-dots">…</span>`;
+    } else {
+      html += `<button class="modal-page-btn ${p === modalPage ? 'active' : ''}" onclick="goModalPage(${p})">${p}</button>`;
+    }
+  });
+
+  html += `<button class="modal-page-btn" onclick="goModalPage(${modalPage + 1})" ${modalPage === totalPages ? 'disabled' : ''}>&#8594;</button>`;
+  pg.innerHTML = html;
+}
+
+function goModalPage(p) {
+  const totalPages = Math.ceil(modalAllBuyers.length / modalPerPage);
+  if (p < 1 || p > totalPages) return;
+  modalPage = p;
+  renderModalPage();
+  // Scroll modal body to top
+  document.querySelector('.modal-body').scrollTop = 0;
+}
+
+function onModalPerPageChange() {
+  modalPerPage = parseInt(document.getElementById('modalPerPageSel').value) || 0;
+  modalPage    = 1;
+  renderModalPage();
 }
 
 function closeModal(e) {
@@ -775,6 +1476,8 @@ function closeModal(e) {
 function closeModalDirect() {
   document.getElementById('modalOverlay').classList.remove('open');
   document.body.style.overflow = '';
+  modalAllBuyers = [];
+  modalPage      = 1;
 }
 
 // ─── Init ─────────────────────────────────────────────────────
