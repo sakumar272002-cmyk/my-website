@@ -318,14 +318,14 @@
     }
     .edit-toggle-btn .btn-icon { font-size:14px; }
 
-    col.c-import { width:170px; }
+    col.c-import { width:190px; }
     .import-cell { text-align:center; }
 
     .import-wrap {
-      display:flex; align-items:center; justify-content:center; gap:6px;
+      display:flex; align-items:center; justify-content:center; gap:8px;
     }
     .import-input {
-      width:56px; padding:4px 7px; border:1.5px solid #ffb74d;
+      width:80px; padding:5px 10px; border:1.5px solid #ffb74d;
       border-radius:7px; font-size:13px; font-family:'Poppins',sans-serif;
       color:#3e1c00; text-align:center; outline:none; background:#fffdf8;
       transition:border-color .2s;
@@ -622,10 +622,7 @@
       <span>📦</span> Storage Management
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="searchInp" placeholder="Search product or brand…" oninput="filterTable()">
-      </div>
+      <input type="hidden" id="searchInp" value="">
       <button class="edit-toggle-btn" id="editToggleBtn" onclick="toggleEditMode()">
         <span class="btn-icon">✏️</span> <span id="editBtnLabel">Edit Stock</span>
       </button>
@@ -1008,7 +1005,7 @@ function buildTable() {
         <div class="import-wrap">
           <input
             type="number" min="1" id="importInput_${d.id}"
-            class="import-input" placeholder="+qty"
+            class="import-input" placeholder="Qty"
             onkeydown="if(event.key==='Enter') importStock(${d.id}, ${d.stockIn})"
           >
           <button class="import-save-btn" id="importBtn_${d.id}"
