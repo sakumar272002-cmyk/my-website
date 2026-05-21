@@ -322,20 +322,25 @@
     .import-cell { text-align:center; }
 
     .import-wrap {
-      display:flex; align-items:center; justify-content:center; gap:8px;
+      display:flex; align-items:center; justify-content:center; gap:6px;
+    }
+    .import-wrap .import-mode-toggle,
+    .import-wrap .import-input,
+    .import-wrap .import-save-btn {
+      vertical-align:middle;
     }
     .import-input {
-      width:80px; padding:5px 10px; border:1.5px solid #ffb74d;
+      width:72px; height:32px; padding:0 10px; border:1.5px solid #ffb74d;
       border-radius:7px; font-size:13px; font-family:'Poppins',sans-serif;
       color:#3e1c00; text-align:center; outline:none; background:#fffdf8;
-      transition:border-color .2s;
+      transition:border-color .2s; box-sizing:border-box;
     }
     .import-input:focus { border-color:#ff6b35; box-shadow:0 0 0 2px rgba(255,107,53,.12); }
     .import-save-btn {
-      padding:4px 10px; background:linear-gradient(135deg,#ff6b35,#f7931e);
+      height:32px; padding:0 10px; background:linear-gradient(135deg,#ff6b35,#f7931e);
       color:white; border:none; border-radius:7px; font-size:11px;
       font-weight:700; font-family:'Poppins',sans-serif; cursor:pointer;
-      transition:all .15s; white-space:nowrap;
+      transition:all .15s; white-space:nowrap; box-sizing:border-box;
     }
     .import-save-btn:hover { transform:translateY(-1px); box-shadow:0 3px 10px rgba(255,107,53,.3); }
     .import-save-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
@@ -343,10 +348,10 @@
     /* +/- mode toggle */
     .import-mode-toggle {
       display:flex; border-radius:7px; overflow:hidden;
-      border:1.5px solid #ffb74d; flex-shrink:0;
+      border:1.5px solid #ffb74d; flex-shrink:0; height:32px;
     }
     .import-mode-btn {
-      width:28px; height:32px; border:none; cursor:pointer;
+      width:26px; height:100%; border:none; cursor:pointer;
       font-size:15px; font-weight:700; font-family:'Poppins',sans-serif;
       transition:all .15s; line-height:1;
       display:flex; align-items:center; justify-content:center;
