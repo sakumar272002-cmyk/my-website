@@ -337,13 +337,14 @@
     }
     .import-input:focus { border-color:#ff6b35; box-shadow:0 0 0 2px rgba(255,107,53,.12); }
     .import-save-btn {
-      height:32px; padding:0 10px; background:linear-gradient(135deg,#ff6b35,#f7931e);
+      height:32px; width:62px; padding:0; background:linear-gradient(135deg,#ff6b35,#f7931e);
       color:white; border:none; border-radius:7px; font-size:11px;
       font-weight:700; font-family:'Poppins',sans-serif; cursor:pointer;
-      transition:all .15s; white-space:nowrap; box-sizing:border-box;
+      transition:box-shadow .15s; white-space:nowrap; box-sizing:border-box;
+      flex-shrink:0;
     }
-    .import-save-btn:hover { transform:translateY(-1px); box-shadow:0 3px 10px rgba(255,107,53,.3); }
-    .import-save-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+    .import-save-btn:hover { box-shadow:0 3px 10px rgba(255,107,53,.3); }
+    .import-save-btn:disabled { opacity:.5; cursor:not-allowed; }
 
     /* +/- mode toggle */
     .import-mode-toggle {
