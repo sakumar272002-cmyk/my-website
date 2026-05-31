@@ -643,7 +643,7 @@
     <div class="storage-badge">📦 STORAGE</div>
     <div class="user-chip">
       <div class="user-avatar">👤</div>
-      <span class="user-name">Seeni</span>
+      <span class="user-name" id="navUser">—</span>
     </div>
     <button class="logout-btn">Logout</button>
   </div>
@@ -907,6 +907,15 @@
 // ═══════════════════════════════════════════════════════════════
 
 const TOKEN = localStorage.getItem('authToken') || '';
+
+// ─── Render logged-in username ────────────────────────────────
+(function() {
+  const raw = localStorage.getItem('authUser') || '';
+  let name = '';
+  try { name = JSON.parse(raw).username || JSON.parse(raw).name || raw; } catch(e) { name = raw; }
+  const el = document.getElementById('navUser');
+  if (el) el.textContent = name || '—';
+})();
 
 let STORAGE_DATA = [];   // all products from API
 let filteredData = [];   // after search filter
