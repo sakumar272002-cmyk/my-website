@@ -694,10 +694,28 @@ function renderDrop(res, inp, row) {
 }
 
 function pos(inp) {
-  const r = inp.getBoundingClientRect();
-  gDrop.style.top   = (r.bottom + window.scrollY + 3)+'px';
-  gDrop.style.left  = (r.left  + window.scrollX)+'px';
-  gDrop.style.width = Math.max(r.width, 380)+'px';
+  const r   = inp.getBoundingClientRect();
+  const vw  = window.innerWidth;
+  const vh  = window.innerHeight;
+  const dropW = Math.max(r.width, 380);
+  const dropH = Math.min(280, gDrop.scrollHeight || 280);
+
+  // Horizontal: clamp so dropdown never overflows right edge
+  let left = r.left;
+  if (left + dropW > vw - 8) left = Math.max(8, vw - dropW - 8);
+
+  // Vertical: flip above input if not enough space below
+  let top;
+  if (r.bottom + dropH + 3 > vh - 8) {
+    top = r.top - dropH - 3;          // open upward
+    if (top < 8) top = r.bottom + 3;  // fallback: below anyway
+  } else {
+    top = r.bottom + 3;
+  }
+
+  gDrop.style.top   = top  + 'px';
+  gDrop.style.left  = left + 'px';
+  gDrop.style.width = dropW + 'px';
 }
 
 function pick(e, row, idx) {
@@ -732,13 +750,20 @@ function schedClose() {
 }
 function closeDrop() { gDrop.classList.remove('open'); gDrop.innerHTML=''; }
 
-// Only close when scrolling OUTSIDE the dropdown (e.g. page scroll)
-// Scrolling INSIDE the dropdown list must NOT close it
+// Reposition dropdown on page scroll so it stays anchored to the input
 window.addEventListener('scroll', function(e) {
-  if (gDrop.contains(e.target)) return;
-  closeDrop();
+  if (gDrop.contains(e.target)) return;   // ignore scroll inside dropdown itself
+  if (!gDrop.classList.contains('open')) return;
+  const inp = activeRow >= 0 ? document.getElementById('pi'+activeRow) : null;
+  if (inp) { pos(inp); } else { closeDrop(); }
 }, true);
-window.addEventListener('resize', closeDrop);
+
+// Reposition on resize too
+window.addEventListener('resize', function() {
+  if (!gDrop.classList.contains('open')) return;
+  const inp = activeRow >= 0 ? document.getElementById('pi'+activeRow) : null;
+  if (inp) { pos(inp); } else { closeDrop(); }
+});
 
 // ═══════════════════════════════════════════════
 //  PAGINATOR
