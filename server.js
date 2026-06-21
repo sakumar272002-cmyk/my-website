@@ -32,6 +32,8 @@ setTimeout(() => {
   db.getConnection((err, conn) => {
     if (err) { console.error('❌ DB connection failed:', err.message); return; }
     console.log('✅ Connected to MySQL');
+    console.log(`   → host: ${process.env.DB_HOST || 'bgkwzqnaueygs0sltdxg-mysql.services.clever-cloud.com'}`);
+    console.log(`   → database: ${process.env.DB_NAME || 'bgkwzqnaueygs0sltdxg'}`);
 
     // Check all required tables exist and log any missing ones
     const required = ['users', 'settings', 'elite_products', 'bill_counter', 'bill_history'];
@@ -74,27 +76,19 @@ setTimeout(() => {
         if (e2) { console.error('❌ storage_transactions create error:', e2.message); return; }
         console.log('   ✔ Table OK: storage_transactions');
 
-        // Insert sample products only if table is empty
+        // NOTE: We intentionally do NOT auto-insert sample rows here anymore.
+        // storage_products is meant to be populated/synced from elite_products
+        // (see setup_storage_sync.js + the trg_elite_products_after_insert
+        // trigger). Auto-reseeding hardcoded sample data on every restart
+        // whenever the table was empty used to silently undo that sync
+        // (e.g. right after a TRUNCATE step) — this just logs instead.
         conn.query('SELECT COUNT(*) AS cnt FROM storage_products', (e3, rows) => {
           if (!e3 && rows[0].cnt === 0) {
-            conn.query(`
-              INSERT INTO storage_products (id, product, brand, stock_in) VALUES
-                (1, '9W LED Bulb',           'Philips',    10),
-                (2, 'Ceiling Fan 48\"',      'Orient',      6),
-                (3, 'MCB 32A Single Pole',   'Havells',    20),
-                (4, 'PVC Conduit Pipe 25mm', 'Finolex',    50),
-                (5, '5A Socket & Switch',    'Legrand',    15),
-                (6, 'RCCB 40A 30mA',         'Schneider',   4),
-                (7, 'Exhaust Fan 12\"',      'Crompton',    8),
-                (8, 'Copper Wire 1.5mm 90m', 'Polycab',    12)
-            `, (e4) => {
-              if (e4) console.error('❌ Sample insert error:', e4.message);
-              else    console.log('   ✔ Storage sample products inserted');
-              conn.release();
-            });
-          } else {
-            conn.release();
+            console.warn('⚠️  storage_products is EMPTY. Run setup_storage_sync.js to populate it from elite_products.');
+          } else if (!e3) {
+            console.log(`   ✔ storage_products has ${rows[0].cnt} row(s)`);
           }
+          conn.release();
         });
       });
     });
@@ -574,6 +568,28 @@ app.post('/storage-transactions', requireLogin, (req, res) => {
     (err, result) => {
       if (err) { console.error('Add storage transaction error:', err.message); return res.status(500).json({ error: 'DB error' }); }
       res.json({ success: true, id: result.insertId });
+    }
+  );
+});
+
+// ─── DB DIAGNOSTICS ──────────────────────────────────────────────────
+// GET /db-info — confirms which database this LIVE server is actually
+// talking to (host + db name, never the password) plus row counts.
+// Compare this against what setup_storage_sync.js reports to catch any
+// credential/host mismatch between your local script and the deployed app.
+app.get('/db-info', requireLogin, (req, res) => {
+  db.query(
+    `SELECT
+       (SELECT COUNT(*) FROM elite_products)   AS eliteCount,
+       (SELECT COUNT(*) FROM storage_products) AS storageCount`,
+    (err, rows) => {
+      if (err) { console.error('db-info error:', err.message); return res.status(500).json({ error: 'DB error' }); }
+      res.json({
+        host:          process.env.DB_HOST || 'bgkwzqnaueygs0sltdxg-mysql.services.clever-cloud.com',
+        database:      process.env.DB_NAME || 'bgkwzqnaueygs0sltdxg',
+        eliteCount:    rows[0].eliteCount,
+        storageCount:  rows[0].storageCount
+      });
     }
   );
 });
