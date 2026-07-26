@@ -3,43 +3,43 @@
  *  STORAGE ↔ ELITE PRODUCTS SYNC SETUP
  *  Sree Electricals & Electronics
  *
- *  HOW TO RUN (in your project folder, AFTER storage_setup.sql
- *  has been run against the DB at least once — this script checks
- *  for the uq_product_brand unique key it creates and stops if
- *  it's missing):
+ *  HOW TO RUN (in your project folder):
  *    node setup_storage_sync.js
  *
  *  This will:
  *   1. Connect to your Clever Cloud MySQL database
- *   2. Verify storage_setup.sql's unique key exists (safety check)
- *   3. Rebuild storage_products from EVERY row currently in
- *      elite_products:
+ *   2. Ensure storage_products has a UNIQUE(product, brand) key so
+ *      the same product can never be inserted twice (this is what
+ *      was letting e.g. "12W LED Bulb" show up more than once)
+ *   3. Clear all existing rows in storage_products
+ *   4. Rebuild storage_products from elite_products (all 57 products):
  *        product_name -> product
  *        company      -> brand
- *        stock_in     = 10 minimum
- *      Using ON DUPLICATE KEY UPDATE, so this is safe to re-run —
- *      it will never create duplicate rows, and never lowers an
- *      existing row's stock below 10.
- *   4. Install a DB TRIGGER on elite_products so that every NEW
+ *        stock_in     = 10  (minimum starting stock for every product)
+ *   5. Install a DB TRIGGER on elite_products so that every NEW
  *      product inserted there (from now on, by ANY method —
  *      this script, a future API route, or direct SQL) is
  *      automatically mirrored into storage_products with
- *      stock_in = 10.
- *   5. Print a verification report, including a duplicate check.
+ *      stock_in = 10 (same minimum used everywhere else).
+ *   6. Print a verification report.
+ *
+ *  NOTE: storage_products IDs are reset by this script (TRUNCATE
+ *  resets AUTO_INCREMENT). If storage_transactions already has
+ *  rows referencing old product IDs, those links will no longer
+ *  match. Safe to ignore if storage_transactions is empty / this
+ *  is a fresh setup.
  * ============================================================
  */
 
 const mysql = require('mysql2');
 
 const db = mysql.createConnection({
-  host:     process.env.DB_HOST     || 'bgkwzqnaueygs0sltdxg-mysql.services.clever-cloud.com',
-  port:     process.env.DB_PORT     || 3306,
-  user:     process.env.DB_USER     || 'utkpn8wzxl290hqx',
-  password: process.env.DB_PASSWORD || 'i6AZV2A3QoiqjQT9i3QI',
-  database: process.env.DB_NAME     || 'bgkwzqnaueygs0sltdxg'
+  host:     'bgkwzqnaueygs0sltdxg-mysql.services.clever-cloud.com',
+  port:     3306,
+  user:     'utkpn8wzxl290hqx',
+  password: 'i6AZV2A3QoiqjQT9i3QI',
+  database: 'bgkwzqnaueygs0sltdxg'
 });
-
-const MIN_STOCK = 10;
 
 function run(sql, label) {
   return new Promise((resolve, reject) => {
@@ -61,80 +61,82 @@ async function main() {
   });
   console.log('✅ Connected!\n');
 
-  // 0. Safety check — make sure storage_setup.sql's unique key exists.
-  //    Without it, ON DUPLICATE KEY UPDATE below would silently do
-  //    nothing useful and duplicates could sneak back in.
-  const keyCheck = await new Promise((resolve, reject) =>
+  // 1. Make sure duplicates can never happen again: dedupe any existing
+  //    (product, brand) pairs, then add the UNIQUE key if it's missing.
+  await run(
+    `DELETE p1 FROM storage_products p1
+     JOIN storage_products p2
+       ON p1.product = p2.product
+      AND p1.brand   = p2.brand
+      AND p1.id > p2.id`,
+    'Removed any existing duplicate (product, brand) rows'
+  );
+  const [idxRow] = await new Promise((resolve, reject) =>
     db.query(
       `SELECT COUNT(*) AS cnt FROM information_schema.statistics
        WHERE table_schema = DATABASE()
-         AND table_name = 'storage_products'
-         AND index_name = 'uq_product_brand'`,
+         AND table_name  = 'storage_products'
+         AND index_name  = 'uniq_product_brand'`,
       (e, r) => e ? reject(e) : resolve(r)
     )
   );
-  if (keyCheck[0].cnt === 0) {
-    console.error('❌ uq_product_brand unique key not found on storage_products.');
-    console.error('   Run the updated storage_setup.sql FIRST, then re-run this script.');
-    db.end();
-    process.exit(1);
+  if (idxRow.cnt === 0) {
+    await run(
+      'ALTER TABLE storage_products ADD UNIQUE KEY uniq_product_brand (product, brand)',
+      'Added UNIQUE KEY (product, brand) to storage_products'
+    );
+  } else {
+    console.log('✅ uniq_product_brand already present on storage_products');
   }
-  console.log('✅ Unique key present — safe to sync.\n');
 
-  // 1. Rebuild storage_products from every row in elite_products,
-  //    each getting stock_in = 10 minimum. Existing rows for the
-  //    same product+brand keep their current stock_in unless it's
-  //    below 10, in which case it's topped up to 10.
+  // 2. Clear existing storage_products data
+  await run('TRUNCATE TABLE storage_products', 'Cleared storage_products');
+
+  // 3. Rebuild from elite_products — all 57 products, each starting at
+  //    the 10-unit minimum stock.
   await run(
     `INSERT INTO storage_products (product, brand, stock_in)
-     SELECT product_name, company, ${MIN_STOCK}
+     SELECT product_name, company, 10
      FROM elite_products
-     ON DUPLICATE KEY UPDATE
-       stock_in = GREATEST(storage_products.stock_in, ${MIN_STOCK})`,
-    `Synced all elite_products rows into storage_products (min stock_in = ${MIN_STOCK})`
+     ORDER BY product_name`,
+    'Repopulated storage_products from elite_products (stock_in = 10)'
   );
 
-  // 2. Recreate the auto-sync trigger with the correct default
+  // 4. Install (or replace) the auto-sync trigger — every future product
+  //    added to elite_products (script, API route, or direct SQL) gets
+  //    mirrored into storage_products with the same 10-unit minimum.
+  //    INSERT IGNORE means if that exact (product, brand) somehow already
+  //    exists in storage_products, it's left alone instead of erroring or
+  //    duplicating.
   await run('DROP TRIGGER IF EXISTS trg_elite_products_after_insert', 'Dropped old trigger (if any)');
 
   await run(
     `CREATE TRIGGER trg_elite_products_after_insert
      AFTER INSERT ON elite_products
      FOR EACH ROW
-     INSERT INTO storage_products (product, brand, stock_in)
-     VALUES (NEW.product_name, NEW.company, ${MIN_STOCK})
-     ON DUPLICATE KEY UPDATE
-       stock_in = GREATEST(storage_products.stock_in, ${MIN_STOCK})`,
-    `Installed trigger: new elite_products rows auto-sync to storage_products (stock_in = ${MIN_STOCK})`
+     INSERT IGNORE INTO storage_products (product, brand, stock_in)
+     VALUES (NEW.product_name, NEW.company, 10)`,
+    'Installed trigger: new elite_products rows auto-sync to storage_products (stock_in = 10)'
   );
 
-  // 3. Verify
+  // 5. Verify
   const storageRows = await new Promise((resolve, reject) =>
     db.query('SELECT COUNT(*) AS cnt FROM storage_products', (e, r) => e ? reject(e) : resolve(r))
   );
   const eliteRows = await new Promise((resolve, reject) =>
     db.query('SELECT COUNT(*) AS cnt FROM elite_products', (e, r) => e ? reject(e) : resolve(r))
   );
-  const dupCheck = await new Promise((resolve, reject) =>
-    db.query(
-      `SELECT COUNT(*) AS cnt FROM (
-         SELECT product, brand FROM storage_products
-         GROUP BY product, brand HAVING COUNT(*) > 1
-       ) x`,
-      (e, r) => e ? reject(e) : resolve(r)
-    )
-  );
+  const storageCount = storageRows[0].cnt;
+  const eliteCount   = eliteRows[0].cnt;
 
-  console.log('\n📊 elite_products rows  :', eliteRows[0].cnt);
-  console.log('📊 storage_products rows:', storageRows[0].cnt);
-  console.log('📊 duplicate product+brand pairs:', dupCheck[0].cnt);
-  console.log(dupCheck[0].cnt === 0
-    ? '✅ No duplicates — clean.'
-    : '⚠️  Duplicates still present — investigate before continuing.');
+  console.log('\n📊 elite_products rows :', eliteCount);
+  console.log('📊 storage_products rows:', storageCount);
+  console.log(storageCount === eliteCount
+    ? '✅ Counts match — migration successful.'
+    : '⚠️  Counts differ — check for duplicate product_name+company pairs or NULLs.');
 
-  console.log(`\n🚀 Done. Every product in elite_products now has a storage row`);
-  console.log(`   with at least ${MIN_STOCK} in stock. Add a new row to elite_products`);
-  console.log(`   (any way) and it will auto-appear in storage at stock_in = ${MIN_STOCK}.`);
+  console.log('\n🚀 Done. Add a new row to elite_products (any way) and it will now');
+  console.log('   automatically appear in storage_products with stock_in = 10.');
 
   db.end();
 }

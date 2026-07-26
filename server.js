@@ -52,12 +52,57 @@ setTimeout(() => {
         brand      VARCHAR(100)  NOT NULL,
         stock_in   INT           NOT NULL DEFAULT 0,
         created_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        updated_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY uniq_product_brand (product, brand)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `, (e) => {
       if (e) { console.error('❌ storage_products create error:', e.message); return; }
       console.log('   ✔ Table OK: storage_products');
 
+      // ── Retro-fit the UNIQUE(product, brand) guard on pre-existing tables ──
+      // This is what actually stops a product like "12W LED Bulb" from ever
+      // showing up twice in the Storage page: without it, re-running the
+      // sync script, re-adding sample data, or the auto-sync trigger firing
+      // for the same product just creates another row instead of being
+      // merged/ignored. If the table already existed (created before this
+      // fix), the CREATE TABLE IF NOT EXISTS above is a no-op, so we check
+      // for the index explicitly and add it, first clearing out any
+      // duplicate rows that would block the ALTER.
+      conn.query(`
+        SELECT COUNT(*) AS cnt FROM information_schema.statistics
+        WHERE table_schema = DATABASE()
+          AND table_name  = 'storage_products'
+          AND index_name  = 'uniq_product_brand'
+      `, (idxErr, idxRows) => {
+        if (idxErr) {
+          console.error('❌ storage_products index check error:', idxErr.message);
+          return createStorageTransactions();
+        }
+        if (idxRows[0].cnt > 0) return createStorageTransactions();
+
+        conn.query(`
+          DELETE p1 FROM storage_products p1
+          JOIN storage_products p2
+            ON p1.product = p2.product
+           AND p1.brand   = p2.brand
+           AND p1.id > p2.id
+        `, (dupErr, dupResult) => {
+          if (dupErr) console.error('⚠️  Duplicate cleanup error:', dupErr.message);
+          else if (dupResult.affectedRows > 0)
+            console.log(`   🧹 Removed ${dupResult.affectedRows} duplicate storage_products row(s) (e.g. repeated "12W LED Bulb")`);
+
+          conn.query(
+            'ALTER TABLE storage_products ADD UNIQUE KEY uniq_product_brand (product, brand)',
+            (alterErr) => {
+              if (alterErr) console.error('⚠️  Could not add uniq_product_brand:', alterErr.message);
+              else           console.log('   ✔ Added UNIQUE KEY (product, brand) to storage_products');
+              createStorageTransactions();
+            }
+          );
+        });
+      });
+
+      function createStorageTransactions() {
       conn.query(`
         CREATE TABLE IF NOT EXISTS storage_transactions (
           id             INT AUTO_INCREMENT PRIMARY KEY,
@@ -91,6 +136,7 @@ setTimeout(() => {
           conn.release();
         });
       });
+      } // end createStorageTransactions
     });
   });
 }, 3000);
@@ -525,29 +571,21 @@ app.get('/storage-transactions/:productId', requireLogin, (req, res) => {
 });
 
 // POST /storage-products — add a new product to storage
-// Body: { product, brand, stockIn }
-// Uses ON DUPLICATE KEY UPDATE against the (product, brand) unique key
-// (added in storage_setup.sql) so re-adding an existing product+brand
-// tops up its stock_in instead of creating a duplicate row.
+// Body: { product, brand, stockIn } — stockIn defaults to the 10-unit
+// minimum used everywhere else in storage (elite_products sync + the
+// auto-sync trigger). If (product, brand) already exists, this tops up
+// stock_in instead of creating a duplicate row.
 app.post('/storage-products', requireLogin, (req, res) => {
   const { product, brand, stockIn } = req.body;
   if (!product || !brand) return res.status(400).json({ error: 'product and brand are required' });
+  const qty = Number(stockIn) || 10;
   db.query(
     `INSERT INTO storage_products (product, brand, stock_in) VALUES (?, ?, ?)
      ON DUPLICATE KEY UPDATE stock_in = stock_in + VALUES(stock_in)`,
-    [product, brand, Number(stockIn) || 0],
-    (err) => {
+    [product, brand, qty],
+    (err, result) => {
       if (err) { console.error('Add storage product error:', err.message); return res.status(500).json({ error: 'DB error' }); }
-      // insertId is only meaningful on the INSERT branch of the upsert,
-      // so look the row up rather than trust it.
-      db.query(
-        'SELECT id FROM storage_products WHERE product = ? AND brand = ?',
-        [product, brand],
-        (lookupErr, rows) => {
-          if (lookupErr || rows.length === 0) return res.json({ success: true });
-          res.json({ success: true, id: rows[0].id });
-        }
-      );
+      res.json({ success: true, id: result.insertId });
     }
   );
 });
