@@ -108,16 +108,27 @@ async function main() {
   //    INSERT IGNORE means if that exact (product, brand) somehow already
   //    exists in storage_products, it's left alone instead of erroring or
   //    duplicating.
-  await run('DROP TRIGGER IF EXISTS trg_elite_products_after_insert', 'Dropped old trigger (if any)');
-
-  await run(
-    `CREATE TRIGGER trg_elite_products_after_insert
-     AFTER INSERT ON elite_products
-     FOR EACH ROW
-     INSERT IGNORE INTO storage_products (product, brand, stock_in)
-     VALUES (NEW.product_name, NEW.company, 10)`,
-    'Installed trigger: new elite_products rows auto-sync to storage_products (stock_in = 10)'
-  );
+  //
+  //    NOTE: Clever Cloud's MySQL user isn't granted SUPER, so this often
+  //    fails with "You do not have the SUPER privilege and binary logging
+  //    is enabled ... log_bin_trust_function_creators". That's expected on
+  //    managed MySQL and NOT fatal — server.js runs the same INSERT IGNORE
+  //    sync itself every 2 minutes as a trigger-free fallback, so new
+  //    products still end up in storage_products either way.
+  try {
+    await run('DROP TRIGGER IF EXISTS trg_elite_products_after_insert', 'Dropped old trigger (if any)');
+    await run(
+      `CREATE TRIGGER trg_elite_products_after_insert
+       AFTER INSERT ON elite_products
+       FOR EACH ROW
+       INSERT IGNORE INTO storage_products (product, brand, stock_in)
+       VALUES (NEW.product_name, NEW.company, 10)`,
+      'Installed trigger: new elite_products rows auto-sync to storage_products (stock_in = 10)'
+    );
+  } catch (trigErr) {
+    console.warn('⚠️  Trigger not installed (no SUPER privilege on this DB — expected on managed MySQL).');
+    console.warn('    Not a problem: server.js re-runs the same sync every 2 minutes as a fallback.');
+  }
 
   // 5. Verify
   const storageRows = await new Promise((resolve, reject) =>

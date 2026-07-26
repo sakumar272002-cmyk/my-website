@@ -140,6 +140,30 @@ setTimeout(() => {
               console.log('   ✔ storage_products already up to date with elite_products');
             }
 
+            // ── Remove stale rows that AREN'T in elite_products ──────────
+            // This is what was causing storage to show 67 while
+            // elite_products only had 57: 10 leftover rows from the old
+            // hardcoded sample data (different names/brands than the real
+            // catalog, e.g. "MCB 32A Single Pole"/Havells vs the real
+            // "32A MCB"/Legrand) were never removed by the old sync, which
+            // only ever added rows and never cleaned up. storage_products
+            // is meant to mirror elite_products 1:1, so anything not in
+            // elite_products gets removed here.
+            conn.query(
+              `DELETE sp FROM storage_products sp
+               LEFT JOIN elite_products ep
+                 ON sp.product = ep.product_name AND sp.brand = ep.company
+               WHERE ep.id IS NULL`,
+              (cleanErr, cleanResult) => {
+                if (cleanErr) console.error('❌ storage_products stale-row cleanup error:', cleanErr.message);
+                else if (cleanResult.affectedRows > 0)
+                  console.log(`   🧹 Removed ${cleanResult.affectedRows} storage_products row(s) not present in elite_products`);
+
+                checkTrigger();
+              }
+            );
+
+            function checkTrigger() {
             // ── Ensure the auto-sync TRIGGER exists ─────────────────────
             // Keeps future elite_products additions (via any method) auto-
             // mirrored into storage_products with stock_in = 10.
@@ -163,13 +187,23 @@ setTimeout(() => {
                    INSERT IGNORE INTO storage_products (product, brand, stock_in)
                    VALUES (NEW.product_name, NEW.company, 10)`,
                   (trigErr) => {
-                    if (trigErr) console.error('❌ trigger create error:', trigErr.message);
-                    else          console.log('   ✔ Installed trigger: trg_elite_products_after_insert (new elite_products rows → storage_products, stock_in = 10)');
+                    if (trigErr) {
+                      // Expected on Clever Cloud / most shared MySQL hosts: the
+                      // DB user isn't granted SUPER, so triggers can't be
+                      // created (error mentions log_bin_trust_function_creators).
+                      // That's fine — syncStorageProductsFromElite() below runs
+                      // on a timer and covers the same "new product → storage"
+                      // requirement without needing a trigger at all.
+                      console.warn('   ⚠️  Trigger not installed (no SUPER privilege on this DB — expected on managed MySQL). Falling back to periodic sync instead.');
+                    } else {
+                      console.log('   ✔ Installed trigger: trg_elite_products_after_insert (new elite_products rows → storage_products, stock_in = 10)');
+                    }
                     finishStorageSetup();
                   }
                 );
               }
             );
+            }
           }
         );
 
@@ -184,6 +218,43 @@ setTimeout(() => {
     });
   });
 }, 3000);
+
+// ─── STORAGE AUTO-SYNC (trigger fallback) ────────────────────────────
+// Clever Cloud's MySQL user doesn't have SUPER, so the DB TRIGGER above
+// usually can't be created (see warning above). This timer covers the
+// exact same requirement — any product added to elite_products (via
+// setup_elite_products.js, direct SQL, or a future API route) shows up
+// in storage_products with stock_in = 10 — by re-running the same
+// INSERT IGNORE ... SELECT every couple of minutes. It's cheap and a
+// no-op whenever nothing new has been added, thanks to the
+// uniq_product_brand key. POST /storage-sync still exists if you want
+// it to happen immediately instead of waiting for the next tick.
+function syncStorageProductsFromElite() {
+  db.query(
+    `INSERT IGNORE INTO storage_products (product, brand, stock_in)
+     SELECT product_name, company, 10 FROM elite_products`,
+    (err, result) => {
+      if (err) { console.error('⚠️  Periodic storage sync error:', err.message); return; }
+      if (result.affectedRows > 0)
+        console.log(`🔄 Periodic sync: added ${result.affectedRows} new product(s) from elite_products into storage_products (stock_in = 10)`);
+
+      // Also drop any storage_products row that's no longer in elite_products
+      // (e.g. an elite product that was renamed/removed), so counts stay in sync.
+      db.query(
+        `DELETE sp FROM storage_products sp
+         LEFT JOIN elite_products ep
+           ON sp.product = ep.product_name AND sp.brand = ep.company
+         WHERE ep.id IS NULL`,
+        (cleanErr, cleanResult) => {
+          if (cleanErr) console.error('⚠️  Periodic storage cleanup error:', cleanErr.message);
+          else if (cleanResult.affectedRows > 0)
+            console.log(`🔄 Periodic sync: removed ${cleanResult.affectedRows} storage_products row(s) no longer in elite_products`);
+        }
+      );
+    }
+  );
+}
+setInterval(syncStorageProductsFromElite, 2 * 60 * 1000); // every 2 minutes
 
 
 // ─── AUTO-CLEANUP: delete bill_history rows older than 2 years ───────
@@ -689,16 +760,26 @@ app.get('/db-info', requireLogin, (req, res) => {
   );
 });
 
-// POST /storage-sync — manually re-run the elite_products → storage_products
+// POST /storage-sync — manually re-run the elite_products ↔ storage_products
 // sync (adds any missing product at stock_in = 10, leaves existing stock
-// untouched) without waiting for a server restart/redeploy.
+// untouched, and removes any storage_products row no longer present in
+// elite_products) without waiting for a server restart/redeploy.
 app.post('/storage-sync', requireLogin, (req, res) => {
   db.query(
     `INSERT IGNORE INTO storage_products (product, brand, stock_in)
      SELECT product_name, company, 10 FROM elite_products`,
-    (err, result) => {
+    (err, addResult) => {
       if (err) { console.error('Storage sync error:', err.message); return res.status(500).json({ error: 'DB error' }); }
-      res.json({ success: true, added: result.affectedRows });
+      db.query(
+        `DELETE sp FROM storage_products sp
+         LEFT JOIN elite_products ep
+           ON sp.product = ep.product_name AND sp.brand = ep.company
+         WHERE ep.id IS NULL`,
+        (cleanErr, cleanResult) => {
+          if (cleanErr) { console.error('Storage cleanup error:', cleanErr.message); return res.status(500).json({ error: 'DB error' }); }
+          res.json({ success: true, added: addResult.affectedRows, removed: cleanResult.affectedRows });
+        }
+      );
     }
   );
 });
