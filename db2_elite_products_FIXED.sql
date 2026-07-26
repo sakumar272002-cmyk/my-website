@@ -15,7 +15,12 @@ CREATE TABLE elite_products (
   company      VARCHAR(100)  NOT NULL,
   price        DECIMAL(10,2) NOT NULL DEFAULT 0,
   INDEX idx_product_name (product_name),
-  INDEX idx_company      (company)
+  INDEX idx_company      (company),
+  -- Stops the exact bug that let "9W LED Bulb"/"Crompton" sneak in as a
+  -- 57th row with no matching file entry: a stray/duplicate INSERT for a
+  -- (product_name, company) pair that already exists now errors instead
+  -- of silently creating an extra row.
+  UNIQUE KEY uniq_product_company (product_name, company)
 );
 
 INSERT INTO elite_products (product_name, company, price) VALUES
@@ -86,6 +91,6 @@ INSERT INTO elite_products (product_name, company, price) VALUES
 ('Smart Switch 2 Gang', 'Anchor', 1850.00),
 ('Motion Sensor PIR', 'Legrand', 850.00);
 
--- Verify
+-- Verify — should be exactly 56
 SELECT COUNT(*) AS total_products FROM elite_products;
 SELECT * FROM elite_products ORDER BY product_name LIMIT 10;

@@ -9,7 +9,7 @@
  *  This will:
  *   1. Connect to your Clever Cloud MySQL database
  *   2. Drop & recreate the elite_products table
- *   3. Insert all 55 products
+ *   3. Insert all 56 products
  *   4. Print a success/fail report
  * ============================================================
  */
@@ -34,7 +34,8 @@ CREATE TABLE elite_products (
   company      VARCHAR(100)  NOT NULL,
   price        DECIMAL(10,2) NOT NULL DEFAULT 0,
   INDEX idx_product_name (product_name),
-  INDEX idx_company      (company)
+  INDEX idx_company      (company),
+  UNIQUE KEY uniq_product_company (product_name, company)
 );
 
 INSERT INTO elite_products (product_name, company, price) VALUES
