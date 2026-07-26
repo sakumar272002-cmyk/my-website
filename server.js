@@ -526,15 +526,28 @@ app.get('/storage-transactions/:productId', requireLogin, (req, res) => {
 
 // POST /storage-products — add a new product to storage
 // Body: { product, brand, stockIn }
+// Uses ON DUPLICATE KEY UPDATE against the (product, brand) unique key
+// (added in storage_setup.sql) so re-adding an existing product+brand
+// tops up its stock_in instead of creating a duplicate row.
 app.post('/storage-products', requireLogin, (req, res) => {
   const { product, brand, stockIn } = req.body;
   if (!product || !brand) return res.status(400).json({ error: 'product and brand are required' });
   db.query(
-    'INSERT INTO storage_products (product, brand, stock_in) VALUES (?, ?, ?)',
+    `INSERT INTO storage_products (product, brand, stock_in) VALUES (?, ?, ?)
+     ON DUPLICATE KEY UPDATE stock_in = stock_in + VALUES(stock_in)`,
     [product, brand, Number(stockIn) || 0],
-    (err, result) => {
+    (err) => {
       if (err) { console.error('Add storage product error:', err.message); return res.status(500).json({ error: 'DB error' }); }
-      res.json({ success: true, id: result.insertId });
+      // insertId is only meaningful on the INSERT branch of the upsert,
+      // so look the row up rather than trust it.
+      db.query(
+        'SELECT id FROM storage_products WHERE product = ? AND brand = ?',
+        [product, brand],
+        (lookupErr, rows) => {
+          if (lookupErr || rows.length === 0) return res.json({ success: true });
+          res.json({ success: true, id: rows[0].id });
+        }
+      );
     }
   );
 });

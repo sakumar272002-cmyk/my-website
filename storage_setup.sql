@@ -38,10 +38,69 @@ CREATE TABLE IF NOT EXISTS storage_transactions (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
--- ── 3. SAMPLE DATA (matches the old hardcoded list) ─────────────
---  Delete this block if you want to start with an empty storage.
+-- ── 3. DEDUPE ANY EXISTING DUPLICATE ROWS ───────────────────────
+--  Root cause of past duplicates (e.g. two "12W LED Bulb / Crompton"
+--  rows with different stock counts): this file had no uniqueness
+--  constraint, so re-running the INSERT block below on an existing
+--  database just added fresh rows instead of being ignored. This
+--  block merges any duplicates that already exist BEFORE the
+--  constraint is added, so the ALTER TABLE below doesn't fail.
 
-INSERT INTO storage_products (id, product, brand, stock_in) VALUES
+CREATE TEMPORARY TABLE IF NOT EXISTS dup_map AS
+SELECT sp.id AS dup_id, keep.id AS keep_id
+FROM storage_products sp
+JOIN (
+  SELECT product, brand, MIN(id) AS id
+  FROM storage_products
+  GROUP BY product, brand
+) keep ON keep.product = sp.product AND keep.brand = sp.brand
+WHERE sp.id <> keep.id;
+
+UPDATE storage_transactions t
+JOIN dup_map m ON t.product_id = m.dup_id
+SET t.product_id = m.keep_id;
+
+UPDATE storage_products keep
+JOIN (
+  SELECT keep_id, SUM(sp.stock_in) AS extra
+  FROM storage_products sp
+  JOIN dup_map m ON sp.id = m.dup_id
+  GROUP BY keep_id
+) x ON keep.id = x.keep_id
+SET keep.stock_in = keep.stock_in + x.extra;
+
+DELETE sp FROM storage_products sp
+JOIN dup_map m ON sp.id = m.dup_id;
+
+DROP TEMPORARY TABLE IF EXISTS dup_map;
+
+-- ── 4. UNIQUE CONSTRAINT — prevents duplicates from now on ──────
+--  Guarded so this file is safe to run again without erroring on
+--  "duplicate key name" if the constraint already exists.
+
+SET @constraint_exists := (
+  SELECT COUNT(*) FROM information_schema.statistics
+  WHERE table_schema = DATABASE()
+    AND table_name   = 'storage_products'
+    AND index_name    = 'uq_product_brand'
+);
+
+SET @sql := IF(@constraint_exists = 0,
+  'ALTER TABLE storage_products ADD UNIQUE KEY uq_product_brand (product, brand)',
+  'SELECT ''uq_product_brand already exists'' AS note'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+
+-- ── 5. SAMPLE DATA (matches the old hardcoded list) ─────────────
+--  Delete this block if you want to start with an empty storage.
+--  Safe to re-run now: INSERT IGNORE will genuinely be ignored on
+--  a duplicate (product, brand) thanks to the unique key above,
+--  instead of creating a second row.
+
+INSERT IGNORE INTO storage_products (id, product, brand, stock_in) VALUES
   (1, '9W LED Bulb',          'Philips',   10),
   (2, 'Ceiling Fan 48"',      'Orient',     6),
   (3, 'MCB 32A Single Pole',  'Havells',   20),
@@ -50,12 +109,18 @@ INSERT INTO storage_products (id, product, brand, stock_in) VALUES
   (6, 'RCCB 40A 30mA',        'Schneider',  4),
   (7, 'Exhaust Fan 12"',      'Crompton',   8),
   (8, 'Copper Wire 1.5mm 90m','Polycab',   12);
-  
+
 INSERT IGNORE INTO storage_products (product, brand, stock_in) VALUES
 ('12W LED Bulb', 'Crompton', 50),
 ('18W LED Bulb', 'Crompton', 50),
 ('24W LED Bulb', 'Crompton', 50),
 ('30W LED Bulb', 'Crompton', 50);
+
+-- Verify — should return ZERO rows
+SELECT product, brand, COUNT(*) AS c
+FROM storage_products
+GROUP BY product, brand
+HAVING c > 1;
 
 -- storage_transactions is populated automatically by the server
 -- whenever a bill is saved via POST /save-bill.
