@@ -94,3 +94,6 @@ INSERT INTO elite_products (product_name, company, price) VALUES
 -- Verify — should be exactly 56
 SELECT COUNT(*) AS total_products FROM elite_products;
 SELECT * FROM elite_products ORDER BY product_name LIMIT 10;
+
+INSERT INTO elite_products (product_name, company, price)
+VALUES ('12W LED Bulb', 'Crompton', 82.00);
