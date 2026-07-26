@@ -96,4 +96,8 @@ SELECT COUNT(*) AS total_products FROM elite_products;
 SELECT * FROM elite_products ORDER BY product_name LIMIT 10;
 
 INSERT INTO elite_products (product_name, company, price)
-VALUES ('12W LED Bulb', 'Crompton', 82.00);
+VALUES ('12W LED Bulb', 'Crompton', 130.00);
+
+SELECT id, product_name, company, price
+FROM elite_products
+WHERE product_name = '12W LED Bulb';
