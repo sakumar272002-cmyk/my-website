@@ -121,20 +121,64 @@ setTimeout(() => {
         if (e2) { console.error('❌ storage_transactions create error:', e2.message); return; }
         console.log('   ✔ Table OK: storage_transactions');
 
-        // NOTE: We intentionally do NOT auto-insert sample rows here anymore.
-        // storage_products is meant to be populated/synced from elite_products
-        // (see setup_storage_sync.js + the trg_elite_products_after_insert
-        // trigger). Auto-reseeding hardcoded sample data on every restart
-        // whenever the table was empty used to silently undo that sync
-        // (e.g. right after a TRUNCATE step) — this just logs instead.
-        conn.query('SELECT COUNT(*) AS cnt FROM storage_products', (e3, rows) => {
-          if (!e3 && rows[0].cnt === 0) {
-            console.warn('⚠️  storage_products is EMPTY. Run setup_storage_sync.js to populate it from elite_products.');
-          } else if (!e3) {
-            console.log(`   ✔ storage_products has ${rows[0].cnt} row(s)`);
+        // ── Sync storage_products FROM elite_products, min stock 10 ──────
+        // Runs on every server start (Render redeploy/restart), so this
+        // does NOT depend on someone manually running setup_storage_sync.js
+        // against production. INSERT IGNORE + the uniq_product_brand key
+        // mean: any elite_products row not yet in storage_products gets
+        // added with stock_in = 10; rows already there (and their current
+        // stock_in) are left untouched.
+        conn.query(
+          `INSERT IGNORE INTO storage_products (product, brand, stock_in)
+           SELECT product_name, company, 10 FROM elite_products`,
+          (syncErr, syncResult) => {
+            if (syncErr) {
+              console.error('❌ storage_products sync-from-elite_products error:', syncErr.message);
+            } else if (syncResult.affectedRows > 0) {
+              console.log(`   ✔ Synced ${syncResult.affectedRows} new product(s) from elite_products into storage_products (stock_in = 10)`);
+            } else {
+              console.log('   ✔ storage_products already up to date with elite_products');
+            }
+
+            // ── Ensure the auto-sync TRIGGER exists ─────────────────────
+            // Keeps future elite_products additions (via any method) auto-
+            // mirrored into storage_products with stock_in = 10.
+            conn.query(
+              `SELECT COUNT(*) AS cnt FROM information_schema.triggers
+               WHERE trigger_schema = DATABASE()
+                 AND trigger_name = 'trg_elite_products_after_insert'`,
+              (trigCheckErr, trigRows) => {
+                if (trigCheckErr) {
+                  console.error('❌ trigger check error:', trigCheckErr.message);
+                  return finishStorageSetup();
+                }
+                if (trigRows[0].cnt > 0) {
+                  console.log('   ✔ Trigger OK: trg_elite_products_after_insert');
+                  return finishStorageSetup();
+                }
+                conn.query(
+                  `CREATE TRIGGER trg_elite_products_after_insert
+                   AFTER INSERT ON elite_products
+                   FOR EACH ROW
+                   INSERT IGNORE INTO storage_products (product, brand, stock_in)
+                   VALUES (NEW.product_name, NEW.company, 10)`,
+                  (trigErr) => {
+                    if (trigErr) console.error('❌ trigger create error:', trigErr.message);
+                    else          console.log('   ✔ Installed trigger: trg_elite_products_after_insert (new elite_products rows → storage_products, stock_in = 10)');
+                    finishStorageSetup();
+                  }
+                );
+              }
+            );
           }
+        );
+
+        function finishStorageSetup() {
+        conn.query('SELECT COUNT(*) AS cnt FROM storage_products', (e3, rows) => {
+          if (!e3) console.log(`   ✔ storage_products has ${rows[0].cnt} row(s)`);
           conn.release();
         });
+        }
       });
       } // end createStorageTransactions
     });
@@ -641,6 +685,20 @@ app.get('/db-info', requireLogin, (req, res) => {
         eliteCount:    rows[0].eliteCount,
         storageCount:  rows[0].storageCount
       });
+    }
+  );
+});
+
+// POST /storage-sync — manually re-run the elite_products → storage_products
+// sync (adds any missing product at stock_in = 10, leaves existing stock
+// untouched) without waiting for a server restart/redeploy.
+app.post('/storage-sync', requireLogin, (req, res) => {
+  db.query(
+    `INSERT IGNORE INTO storage_products (product, brand, stock_in)
+     SELECT product_name, company, 10 FROM elite_products`,
+    (err, result) => {
+      if (err) { console.error('Storage sync error:', err.message); return res.status(500).json({ error: 'DB error' }); }
+      res.json({ success: true, added: result.affectedRows });
     }
   );
 });
