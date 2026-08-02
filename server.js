@@ -685,74 +685,116 @@ app.get('/storage-transactions/:productId', requireLogin, (req, res) => {
   );
 });
 
-// POST /storage-products — add a brand-new product to storage.
-// Body: { product, brand, stockIn }
+// POST /storage-products — add a brand-new product to the CATALOG.
+// Body: { product, brand, price, stockIn }
 //
-// (product, brand) must be unique. Unlike the old behavior, a duplicate
-// no longer silently tops up the existing row's stock — it is rejected
-// with 409 so the UI can show a clear "already exists" message. To add
-// more units to an existing product, use PATCH /storage-products/:id/stock
-// (the "Edit Stock" flow) instead.
+// This must write to BOTH tables, not just storage_products:
+//   - elite_products    → the master catalog. Elite Dashboard's product
+//                          search/billing reads from here, and it needs
+//                          a price.
+//   - storage_products   → stock tracking for the Storage page.
+//
+// Why both: on every server start, this app deletes any storage_products
+// row that has no matching elite_products row (see the startup cleanup
+// above) — so a product written only to storage_products would work
+// today and silently vanish on the next restart/redeploy. The insert is
+// wrapped in a transaction so it's all-or-nothing: if either table's
+// insert fails, both roll back and the two tables never drift apart.
+//
+// Duplicate check runs against elite_products (the source of truth).
+// The storage_products insert uses ON DUPLICATE KEY UPDATE as a
+// self-heal: if an old, orphaned storage_products row already exists
+// for this exact (product, brand) — e.g. left over from before this
+// fix — it gets linked up and its stock set to the value just entered,
+// instead of failing with a confusing duplicate error.
 app.post('/storage-products', requireLogin, (req, res) => {
   const product = String(req.body.product || '').trim();
   const brand   = String(req.body.brand   || '').trim();
+  const price   = Number(req.body.price);
   const stockIn = Number(req.body.stockIn);
 
   if (!product || !brand) {
     return res.status(400).json({ error: 'product and brand are required' });
   }
+  if (!Number.isFinite(price) || price < 0) {
+    return res.status(400).json({ error: 'price must be a number 0 or greater' });
+  }
   if (!Number.isFinite(stockIn) || stockIn < 0) {
     return res.status(400).json({ error: 'stockIn must be a number 0 or greater' });
   }
 
-  // Explicit duplicate check up front — gives a clear, actionable message
-  // instead of a generic DB error, and lets the client tell the user
-  // exactly which existing product/brand combination conflicted.
-  db.query(
-    'SELECT id FROM storage_products WHERE product = ? AND brand = ? LIMIT 1',
-    [product, brand],
-    (checkErr, existing) => {
-      if (checkErr) {
-        console.error('Add storage product — duplicate check error:', checkErr.message);
-        return res.status(500).json({ error: 'DB error' });
-      }
-      if (existing.length > 0) {
-        return res.status(409).json({
-          error: 'duplicate',
-          message: `"${product}" (${brand}) already exists in Storage. Use Edit Stock to add more units instead.`
-        });
-      }
+  db.getConnection((connErr, conn) => {
+    if (connErr) {
+      console.error('Add product — connection error:', connErr.message);
+      return res.status(500).json({ error: 'DB error' });
+    }
 
-      db.query(
-        'INSERT INTO storage_products (product, brand, stock_in) VALUES (?, ?, ?)',
-        [product, brand, stockIn],
-        (insErr, result) => {
-          if (insErr) {
-            // Race-condition fallback: another request inserted the same
-            // (product, brand) between the check above and this insert —
-            // the UNIQUE(product, brand) key catches it here too.
-            if (insErr.code === 'ER_DUP_ENTRY') {
-              return res.status(409).json({
-                error: 'duplicate',
-                message: `"${product}" (${brand}) already exists in Storage. Use Edit Stock to add more units instead.`
-              });
+    const fail = (err, stage) => {
+      console.error(`Add product — ${stage} error:`, err.message);
+      conn.rollback(() => {
+        conn.release();
+        res.status(500).json({ error: 'DB error' });
+      });
+    };
+    const conflict = () => {
+      conn.rollback(() => {
+        conn.release();
+        res.status(409).json({
+          error: 'duplicate',
+          message: `"${product}" (${brand}) already exists. Use Edit Stock to add more units instead.`
+        });
+      });
+    };
+
+    conn.beginTransaction(txErr => {
+      if (txErr) { conn.release(); console.error('Add product — tx start error:', txErr.message); return res.status(500).json({ error: 'DB error' }); }
+
+      // 1. Duplicate check against the master catalog (source of truth)
+      conn.query(
+        'SELECT id FROM elite_products WHERE product_name = ? AND company = ? LIMIT 1',
+        [product, brand],
+        (checkErr, existing) => {
+          if (checkErr) return fail(checkErr, 'duplicate check');
+          if (existing.length > 0) return conflict();
+
+          // 2. Insert into elite_products (master catalog + price)
+          conn.query(
+            'INSERT INTO elite_products (product_name, company, price) VALUES (?, ?, ?)',
+            [product, brand, price],
+            (eliteErr) => {
+              if (eliteErr) {
+                if (eliteErr.code === 'ER_DUP_ENTRY') return conflict();
+                return fail(eliteErr, 'elite_products insert');
+              }
+
+              // 3. Insert (or self-heal) into storage_products
+              conn.query(
+                `INSERT INTO storage_products (product, brand, stock_in) VALUES (?, ?, ?)
+                 ON DUPLICATE KEY UPDATE stock_in = VALUES(stock_in)`,
+                [product, brand, stockIn],
+                (storErr, storResult) => {
+                  if (storErr) return fail(storErr, 'storage_products insert');
+
+                  conn.commit(commitErr => {
+                    if (commitErr) return fail(commitErr, 'commit');
+                    conn.release();
+                    res.json({
+                      success:   true,
+                      id:        storResult.insertId,
+                      product, brand, price,
+                      stockIn,
+                      stockOut:  0,
+                      available: stockIn
+                    });
+                  });
+                }
+              );
             }
-            console.error('Add storage product error:', insErr.message);
-            return res.status(500).json({ error: 'DB error' });
-          }
-          res.json({
-            success:   true,
-            id:        result.insertId,
-            product,
-            brand,
-            stockIn,
-            stockOut:  0,
-            available: stockIn
-          });
+          );
         }
       );
-    }
-  );
+    });
+  });
 });
 
 // PATCH /storage-products/:id/stock — update stock_in count

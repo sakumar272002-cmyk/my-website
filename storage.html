@@ -361,6 +361,13 @@
       padding:7px 16px !important; font-size:12px; font-weight:600;
       color:#c62828; text-align:left !important;
     }
+    .add-row-hint-row td {
+      background:#fff8ec; border-bottom:1px solid #ffe0c0;
+    }
+    .add-row-hint-cell {
+      padding:5px 16px !important; font-size:11px; color:#a06040;
+      text-align:left !important;
+    }
 
     col.c-import { width:190px; }
     .import-cell { text-align:center; }
@@ -970,7 +977,7 @@ let currentPage  = 1;
 let perPage      = 10;   // default rows per page
 let editMode     = false; // Stock Import edit toggle
 let addRowOpen   = false; // Add Product inline row toggle
-let addDraft     = { product: '', brand: '', stock: 10 }; // preserves typed values across re-renders
+let addDraft     = { product: '', brand: '', stock: 10, price: '' }; // preserves typed values across re-renders
 
 // ─── Auth header helper ───────────────────────────────────────
 function authHeaders() {
@@ -1023,7 +1030,7 @@ function toggleAddProduct() {
   const btn   = document.getElementById('addProductBtn');
   const label = document.getElementById('addProductBtnLabel');
 
-  addDraft = { product: '', brand: '', stock: 10 };
+  addDraft = { product: '', brand: '', stock: 10, price: '' };
 
   if (addRowOpen) {
     btn.classList.add('active');
@@ -1044,7 +1051,7 @@ function toggleAddProduct() {
 
 function cancelAddProduct() {
   addRowOpen = false;
-  addDraft   = { product: '', brand: '', stock: 10 };
+  addDraft   = { product: '', brand: '', stock: 10, price: '' };
   const btn   = document.getElementById('addProductBtn');
   const label = document.getElementById('addProductBtnLabel');
   btn.classList.remove('active');
@@ -1082,15 +1089,25 @@ function renderAddRow() {
         <input type="number" id="newProdStock" class="add-row-input add-row-input-num" placeholder="Stock"
           min="0" value="${escAttr(addDraft.stock)}"
           oninput="onAddRowInput()"
-          onkeydown="if(event.key==='Enter'){event.preventDefault(); saveNewProduct();}">
+          onkeydown="if(event.key==='Enter'){event.preventDefault(); document.getElementById('newProdPrice').focus();}">
       </td>
       ${importCell}
-      <td class="tc" style="color:#c49a72; font-size:13px;">—</td>
+      <td class="tc">
+        <input type="number" id="newProdPrice" class="add-row-input add-row-input-num" placeholder="Price ₹"
+          min="0" step="0.01" value="${escAttr(addDraft.price)}"
+          oninput="onAddRowInput()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault(); saveNewProduct();}">
+      </td>
       <td class="tc">
         <div class="add-row-actions">
           <button class="add-row-save" id="addRowSaveBtn" onclick="saveNewProduct()" title="Save product">&#10003;</button>
           <button class="add-row-cancel" onclick="cancelAddProduct()" title="Cancel">&#10005;</button>
         </div>
+      </td>
+    </tr>
+    <tr class="add-row-hint-row">
+      <td colspan="${totalCols}" class="add-row-hint-cell">
+        💡 The <strong>Stock Out</strong> column holds <strong>Price ₹</strong> for a new product. Saving adds it to both the Elite catalog and Storage.
       </td>
     </tr>
     <tr id="addRowErrorRow" class="add-row-error-row" style="display:none;">
@@ -1103,11 +1120,13 @@ function onAddRowInput() {
   const nameEl  = document.getElementById('newProdName');
   const brandEl = document.getElementById('newProdBrand');
   const stockEl = document.getElementById('newProdStock');
-  if (!nameEl || !brandEl || !stockEl) return;
+  const priceEl = document.getElementById('newProdPrice');
+  if (!nameEl || !brandEl || !stockEl || !priceEl) return;
 
   addDraft.product = nameEl.value;
   addDraft.brand   = brandEl.value;
   addDraft.stock   = stockEl.value;
+  addDraft.price   = priceEl.value;
 
   liveValidateAddRow();
 }
@@ -1151,18 +1170,21 @@ async function saveNewProduct() {
   const nameEl  = document.getElementById('newProdName');
   const brandEl = document.getElementById('newProdBrand');
   const stockEl = document.getElementById('newProdStock');
+  const priceEl = document.getElementById('newProdPrice');
   const saveBtn = document.getElementById('addRowSaveBtn');
   const errRow  = document.getElementById('addRowErrorRow');
   const errMsg  = document.getElementById('addRowErrorMsg');
-  if (!nameEl || !brandEl || !stockEl || !saveBtn) return;
+  if (!nameEl || !brandEl || !stockEl || !priceEl || !saveBtn) return;
 
   const product = nameEl.value.trim();
   const brand   = brandEl.value.trim();
   const stockIn = parseInt(stockEl.value, 10);
+  const price   = parseFloat(priceEl.value);
 
   nameEl.classList.remove('invalid');
   brandEl.classList.remove('invalid');
   stockEl.classList.remove('invalid');
+  priceEl.classList.remove('invalid');
 
   if (!product) {
     nameEl.classList.add('invalid');
@@ -1183,6 +1205,13 @@ async function saveNewProduct() {
     errMsg.textContent = '⚠️ Stock In must be a valid number (0 or more).';
     errRow.style.display = '';
     stockEl.focus();
+    return;
+  }
+  if (isNaN(price) || price < 0) {
+    priceEl.classList.add('invalid');
+    errMsg.textContent = '⚠️ Price must be a valid number (0 or more).';
+    errRow.style.display = '';
+    priceEl.focus();
     return;
   }
 
@@ -1207,7 +1236,7 @@ async function saveNewProduct() {
     const res = await fetch('/storage-products', {
       method: 'POST',
       headers: authHeaders(),
-      body: JSON.stringify({ product, brand, stockIn })
+      body: JSON.stringify({ product, brand, price, stockIn })
     });
 
     if (res.status === 401) { location.href = '/login'; return; }
@@ -1216,7 +1245,7 @@ async function saveNewProduct() {
       const data = await res.json().catch(() => ({}));
       nameEl.classList.add('invalid');
       brandEl.classList.add('invalid');
-      errMsg.textContent = `⚠️ ${data.message || 'This product and brand already exist in Storage.'}`;
+      errMsg.textContent = `⚠️ ${data.message || 'This product and brand already exist.'}`;
       errRow.style.display = '';
       return;
     }
@@ -1225,9 +1254,9 @@ async function saveNewProduct() {
       throw new Error(data.error || 'Server error');
     }
 
-    showToast(`✅ "${product}" added to Storage`);
+    showToast(`✅ "${product}" added to Elite catalog & Storage`);
     errRow.style.display = 'none';
-    addDraft = { product: '', brand: '', stock: 10 };
+    addDraft = { product: '', brand: '', stock: 10, price: '' };
 
     // Reload from the database so the table, stats, and brand filter
     // always reflect what's actually saved — never a locally-guessed state.
