@@ -23,81 +23,87 @@ CREATE TABLE elite_products (
   UNIQUE KEY uniq_product_company (product_name, company)
 );
 
+
+DELETE FROM elite_products;
+
 INSERT INTO elite_products (product_name, company, price) VALUES
--- WIRES
-('0.5 sq mm Wire', 'Finolex', 210.00),
-('0.5 sq mm Wire', 'Havells', 245.00),
-('0.75 sq mm Wire', 'Finolex', 295.00),
-('0.75 sq mm Wire', 'Polycab', 310.00),
-('1.0 sq mm Wire', 'Finolex', 385.00),
-('1.0 sq mm Wire', 'Havells', 420.00),
-('1.5 sq mm Wire', 'Finolex', 550.00),
-('1.5 sq mm Wire', 'Polycab', 580.00),
-('1.5 sq mm Wire', 'Havells', 610.00),
-('2.5 sq mm Wire', 'Finolex', 870.00),
-('2.5 sq mm Wire', 'Polycab', 895.00),
-('2.5 sq mm Wire', 'Havells', 940.00),
-('4.0 sq mm Wire', 'Finolex', 1380.00),
-('4.0 sq mm Wire', 'Polycab', 1420.00),
-('6.0 sq mm Wire', 'Finolex', 2050.00),
-('6.0 sq mm Wire', 'Havells', 2180.00),
--- LED BULBS
-('9W LED Bulb', 'Philips', 85.00),
-('9W LED Bulb', 'Syska', 75.00),
-('12W LED Bulb', 'Philips', 110.00),
-('12W LED Bulb', 'Havells', 120.00),
-('18W LED Bulb', 'Crompton', 165.00),
-('24W LED Bulb', 'Syska', 210.00),
-('36W LED Tube Light', 'Philips', 280.00),
-('36W LED Tube Light', 'Havells', 295.00),
-('20W LED Downlight', 'Philips', 380.00),
--- FANS
-('Ceiling Fan 48"', 'Usha', 1800.00),
-('Ceiling Fan 48"', 'Crompton', 1950.00),
-('Ceiling Fan 56"', 'Orient', 2200.00),
-('Ceiling Fan 56"', 'Havells', 2400.00),
-('Table Fan 400mm', 'Usha', 1200.00),
-('Exhaust Fan 6"', 'Havells', 650.00),
-('Exhaust Fan 9"', 'Crompton', 850.00),
--- SWITCHES & SOCKETS
-('1-Way Switch 6A', 'Legrand', 85.00),
-('1-Way Switch 6A', 'Anchor', 75.00),
-('2-Way Switch 6A', 'Legrand', 110.00),
-('5A Socket', 'GM', 75.00),
-('15A Socket', 'Legrand', 130.00),
--- MCB & DB
-('6A MCB', 'Schneider', 180.00),
-('16A MCB', 'ABB', 220.00),
-('32A MCB', 'Legrand', 310.00),
-('4-Way DB Box', 'Havells', 580.00),
-('8-Way DB Box', 'Schneider', 950.00),
--- AC
-('1.5T Split AC', 'Voltas', 35000.00),
-('1T Split AC', 'Daikin', 28000.00),
-('2T Split AC', 'LG', 42000.00),
--- UPS
-('600VA UPS', 'APC', 2800.00),
-('1KVA UPS', 'Luminous', 5500.00),
--- LED STRIPS
-('LED Strip 5m Warm', 'Syska', 450.00),
-('LED Strip 5m Cool', 'Philips', 520.00),
--- CCTV
-('CCTV Camera 2MP', 'CP Plus', 1250.00),
-('CCTV Camera 4MP', 'Hikvision', 2850.00),
-('DVR 4Ch 1080P', 'CP Plus', 2850.00),
-('DVR 8Ch 1080P', 'Hikvision', 4500.00),
--- NETWORKING & SMART
-('WiFi Router AC1200', 'TP-Link', 2250.00),
-('Smart Switch 2 Gang', 'Anchor', 1850.00),
-('Motion Sensor PIR', 'Legrand', 850.00);
+('5 Amps Switch (Screw Type)', 'Hifi', 20.00),
+('5 Amps Socket (Screw Type)', 'Hifi', 35.00),
+('5 Amps Plug Top', 'Hifi', 35.00),
+('15 Amps Plug Top', 'Hifi', 70.00),
+('5 Amps Two Way Switch (Screw Type)', 'Hifi', 25.00),
+('5 Amps Indicator (Screw Type)', 'Hifi', 25.00),
+('15 Amps Switch (Screw Type)', 'Hifi', 60.00),
+('15 Amps Socket (Screw Type)', 'Hifi', 65.00),
+('15 Amps Switch - Type 2 (Screw Type)', 'Hifi', 70.00), -- check: possible duplicate of previous row
+('5 Amps Bell Switch (Screw Type)', 'Hifi', 25.00),
+('15 Amps Bell Switch (Screw Type)', 'Hifi', 70.00),
+('5 Amps 2 Pin Socket', 'Hifi', 25.00),
+('5 Amps Bell Switch - Type 2', 'Hifi', 30.00), -- check: written as "Bed Switch", likely Bell Switch variant
+('15 Amps 3 Pin Socket', 'Kangi', 100.00),
+('15 Amps 3 Pin Plug Top', 'Kangi', 100.00),
+('5 Amps 2 Pin Plug Top', 'Kangi', 25.00),
+('5 Amps 3 Pin Socket', 'Kangi', 50.00);
 
--- Verify — should be exactly 56
-SELECT COUNT(*) AS total_products FROM elite_products;
-SELECT * FROM elite_products ORDER BY product_name LIMIT 10;
+-- ============================================
+-- STEP 3: Insert items from Image 2 (page 2, items 20-34)
+-- ============================================
+INSERT INTO elite_products (product_name, company, price) VALUES
+('5 Amps Switch (Pressing Type)', 'Hifi', 30.00),
+('5 Amps 2 Way Switch', 'Hifi', 35.00),
+('5 Amps Socket (5 Pin)', 'Hifi', 40.00),
+('5 Amps 2 Pin Socket', 'Hifi', 30.00),
+('5 Amps Indicator (Pressing Type)', 'Hifi', 30.00),
+('5 Amps Bell Switch', 'Hifi', 35.00),
+('15 Amps Switch', 'Hifi', 55.00),
+('15 Amps Socket', 'Hifi', 60.00),
+('10 Amps DB Switch', 'Generic', 180.00),
+('16 Amps DB Switch', 'Generic', 190.00),
+('25 Amps DB Switch', 'Generic', 220.00),
+('32 Amps DB Switch', 'Generic', 220.00),
+('10 Amps MCB Switch', 'Generic', 220.00),
+('16 Amps MCB Switch', 'Generic', 220.00),
+('25 Amps MCB Switch', 'Generic', 220.00),
+('32 Amps MCB Switch', 'Generic', 220.00);
 
-INSERT INTO elite_products (product_name, company, price)
-VALUES ('12W LED Bulb', 'Crompton', 130.00);
+-- ============================================
+-- STEP 4: Insert items from Image 1 ("Electrical (3)", items 41-58)
+-- ============================================
+INSERT INTO elite_products (product_name, company, price) VALUES
+('5 Amps Combined Switch & Socket', 'Generic', 190.00),
+('15 Amps Combined Switch & Socket', 'Generic', 190.00),
+('MCB 1P 10A', 'Generic', 310.00),
+('MCB 1P 16A', 'Generic', 370.00),   -- check: figure hard to read, could be 380
+('MCB 1P 25A', 'Generic', 290.00),
+('MCB 1P 32A', 'Generic', 290.00),   -- check: price used ditto marks, verify against original
+('MCB 2P 10A', 'Generic', 310.00),   -- check: price used ditto marks, verify against original
+('MCB 2P 16A', 'Generic', 310.00),   -- check: price used ditto marks, verify against original
+('MCB 2P 32A', 'Generic', 310.00),   -- check: price used ditto marks, verify against original
+('MCB 3P 40A', 'Generic', 310.00),   -- check: price used ditto marks, verify against original
+('MCB 3P 32A', 'Generic', 310.00),   -- check: price used ditto marks, verify against original
+('MCB 3P 63A', 'Generic', 310.00),   -- check: price used ditto marks, verify against original
+('MCB 4P 32A', 'Generic', 310.00),   -- check: price used ditto marks, verify against original
+('MCB 4P 63A', 'Generic', 310.00),   -- check: price used ditto marks, verify against original
+('RCCB 2P 40A', 'Generic', 1200.00),
+('RCCB 2P 80A', 'Generic', 1200.00),
+('RCCB 4P 80A', 'Generic', 3200.00),
+('RCCB 4P 100A', 'Generic', 3200.00);
 
-SELECT id, product_name, company, price
-FROM elite_products
-WHERE product_name = '12W LED Bulb';
+
+UPDATE elite_products SET product_name = '5 Amps 2 Way Switch (Pressing Type)' 
+WHERE product_name = '5 Amps 2 Way Switch' AND price = 35.00;
+
+UPDATE elite_products SET product_name = '5 Amps Socket (5 Pin) (Pressing Type)' 
+WHERE product_name = '5 Amps Socket (5 Pin)' AND price = 40.00;
+
+UPDATE elite_products SET product_name = '5 Amps 2 Pin Socket (Pressing Type)' 
+WHERE product_name = '5 Amps 2 Pin Socket' AND price = 30.00;
+
+UPDATE elite_products SET product_name = '5 Amps Bell Switch (Pressing Type)' 
+WHERE product_name = '5 Amps Bell Switch' AND price = 35.00;
+
+UPDATE elite_products SET product_name = '15 Amps Switch (Pressing Type)' 
+WHERE product_name = '15 Amps Switch' AND price = 55.00;
+
+UPDATE elite_products SET product_name = '15 Amps Socket (Pressing Type)' 
+WHERE product_name = '15 Amps Socket' AND price = 60.00;

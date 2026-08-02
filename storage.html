@@ -318,6 +318,50 @@
     }
     .edit-toggle-btn .btn-icon { font-size:14px; }
 
+    /* Add Product button — green accent to distinguish from Edit Stock */
+    .add-product-btn.active {
+      background:linear-gradient(135deg,#2e7d32,#43a047);
+      color:white; border-color:transparent;
+      box-shadow:0 3px 12px rgba(46,125,50,.35);
+    }
+
+    /* ── ADD PRODUCT ROW ── */
+    .add-product-row td {
+      background:#fff8ec; padding-top:8px; padding-bottom:8px;
+      border-bottom:none;
+    }
+    .add-row-input {
+      width:100%; height:34px; padding:0 10px; border:1.5px solid #ffb74d;
+      border-radius:7px; font-size:13px; font-family:'Poppins',sans-serif;
+      color:#3e1c00; outline:none; background:#fffdf8; box-sizing:border-box;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .add-row-input::placeholder { color:#c49a72; }
+    .add-row-input:focus { border-color:#ff6b35; box-shadow:0 0 0 2px rgba(255,107,53,.12); }
+    .add-row-input.invalid { border-color:#c62828; box-shadow:0 0 0 2px rgba(198,40,40,.12); }
+    .add-row-input-num { text-align:center; }
+    .add-row-actions { display:flex; align-items:center; justify-content:center; gap:6px; }
+    .add-row-save, .add-row-cancel {
+      width:32px; height:32px; border:none; border-radius:7px;
+      font-size:15px; font-weight:700; cursor:pointer; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      transition:box-shadow .15s, background .15s, opacity .15s;
+    }
+    .add-row-save {
+      background:linear-gradient(135deg,#2e7d32,#43a047); color:white;
+    }
+    .add-row-save:hover:not(:disabled) { box-shadow:0 3px 10px rgba(46,125,50,.35); }
+    .add-row-save:disabled { opacity:.45; cursor:not-allowed; }
+    .add-row-cancel { background:#ffebee; color:#c62828; font-size:13px; }
+    .add-row-cancel:hover { background:#ffcdd2; }
+    .add-row-error-row td {
+      background:#fff3f3; border-bottom:1px solid #ffe0c0;
+    }
+    .add-row-error-cell {
+      padding:7px 16px !important; font-size:12px; font-weight:600;
+      color:#c62828; text-align:left !important;
+    }
+
     col.c-import { width:190px; }
     .import-cell { text-align:center; }
 
@@ -659,6 +703,9 @@
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
       <input type="hidden" id="searchInp" value="">
+      <button class="edit-toggle-btn add-product-btn" id="addProductBtn" onclick="toggleAddProduct()">
+        <span class="btn-icon">➕</span> <span id="addProductBtnLabel">Add Product</span>
+      </button>
       <button class="edit-toggle-btn" id="editToggleBtn" onclick="toggleEditMode()">
         <span class="btn-icon">✏️</span> <span id="editBtnLabel">Edit Stock</span>
       </button>
@@ -922,6 +969,8 @@ let filteredData = [];   // after search filter
 let currentPage  = 1;
 let perPage      = 10;   // default rows per page
 let editMode     = false; // Stock Import edit toggle
+let addRowOpen   = false; // Add Product inline row toggle
+let addDraft     = { product: '', brand: '', stock: 10 }; // preserves typed values across re-renders
 
 // ─── Auth header helper ───────────────────────────────────────
 function authHeaders() {
@@ -966,6 +1015,239 @@ function toggleEditMode() {
     thImpF.style.display = 'none';
   }
   buildTable();
+}
+
+// ─── Add Product — toggle inline row ───────────────────────────
+function toggleAddProduct() {
+  addRowOpen = !addRowOpen;
+  const btn   = document.getElementById('addProductBtn');
+  const label = document.getElementById('addProductBtnLabel');
+
+  addDraft = { product: '', brand: '', stock: 10 };
+
+  if (addRowOpen) {
+    btn.classList.add('active');
+    label.textContent = 'Cancel';
+  } else {
+    btn.classList.remove('active');
+    label.textContent = 'Add Product';
+  }
+  buildTable();
+
+  if (addRowOpen) {
+    setTimeout(() => {
+      const el = document.getElementById('newProdName');
+      if (el) el.focus();
+    }, 30);
+  }
+}
+
+function cancelAddProduct() {
+  addRowOpen = false;
+  addDraft   = { product: '', brand: '', stock: 10 };
+  const btn   = document.getElementById('addProductBtn');
+  const label = document.getElementById('addProductBtnLabel');
+  btn.classList.remove('active');
+  label.textContent = 'Add Product';
+  buildTable();
+}
+
+// ─── Escape values placed into input value="" attributes ──────
+function escAttr(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ─── Render the inline Add Product row + its error banner ─────
+function renderAddRow() {
+  const importCell = editMode ? `<td class="tc" style="color:#c49a72; font-size:12px;">—</td>` : '';
+  const totalCols  = editMode ? 7 : 6;
+  return `
+    <tr class="add-product-row">
+      <td class="sl-cell" style="color:#2e7d32; font-size:16px;">✨</td>
+      <td>
+        <input type="text" id="newProdName" class="add-row-input" placeholder="Product name"
+          maxlength="255" value="${escAttr(addDraft.product)}"
+          oninput="onAddRowInput()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault(); document.getElementById('newProdBrand').focus();}">
+      </td>
+      <td>
+        <input type="text" id="newProdBrand" class="add-row-input" placeholder="Brand"
+          maxlength="100" value="${escAttr(addDraft.brand)}"
+          oninput="onAddRowInput()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault(); document.getElementById('newProdStock').focus();}">
+      </td>
+      <td class="tc">
+        <input type="number" id="newProdStock" class="add-row-input add-row-input-num" placeholder="Stock"
+          min="0" value="${escAttr(addDraft.stock)}"
+          oninput="onAddRowInput()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault(); saveNewProduct();}">
+      </td>
+      ${importCell}
+      <td class="tc" style="color:#c49a72; font-size:13px;">—</td>
+      <td class="tc">
+        <div class="add-row-actions">
+          <button class="add-row-save" id="addRowSaveBtn" onclick="saveNewProduct()" title="Save product">&#10003;</button>
+          <button class="add-row-cancel" onclick="cancelAddProduct()" title="Cancel">&#10005;</button>
+        </div>
+      </td>
+    </tr>
+    <tr id="addRowErrorRow" class="add-row-error-row" style="display:none;">
+      <td colspan="${totalCols}" class="add-row-error-cell" id="addRowErrorMsg"></td>
+    </tr>`;
+}
+
+// ─── Keep typed values across re-renders + live duplicate check ─
+function onAddRowInput() {
+  const nameEl  = document.getElementById('newProdName');
+  const brandEl = document.getElementById('newProdBrand');
+  const stockEl = document.getElementById('newProdStock');
+  if (!nameEl || !brandEl || !stockEl) return;
+
+  addDraft.product = nameEl.value;
+  addDraft.brand   = brandEl.value;
+  addDraft.stock   = stockEl.value;
+
+  liveValidateAddRow();
+}
+
+// ─── Live duplicate validation (product + brand, case-insensitive) ─
+function liveValidateAddRow() {
+  const nameEl  = document.getElementById('newProdName');
+  const brandEl = document.getElementById('newProdBrand');
+  const saveBtn = document.getElementById('addRowSaveBtn');
+  const errRow  = document.getElementById('addRowErrorRow');
+  const errMsg  = document.getElementById('addRowErrorMsg');
+  if (!nameEl || !brandEl || !saveBtn || !errRow || !errMsg) return;
+
+  nameEl.classList.remove('invalid');
+  brandEl.classList.remove('invalid');
+
+  const product = (addDraft.product || '').trim();
+  const brand   = (addDraft.brand   || '').trim();
+
+  if (product && brand) {
+    const isDuplicate = STORAGE_DATA.some(d =>
+      d.product.trim().toLowerCase() === product.toLowerCase() &&
+      d.brand.trim().toLowerCase()   === brand.toLowerCase()
+    );
+    if (isDuplicate) {
+      nameEl.classList.add('invalid');
+      brandEl.classList.add('invalid');
+      errMsg.textContent = `⚠️ "${product}" (${brand}) already exists in Storage — use a different name/brand, or Edit Stock to add more units.`;
+      errRow.style.display = '';
+      saveBtn.disabled = true;
+      return;
+    }
+  }
+  errRow.style.display = 'none';
+  errMsg.textContent   = '';
+  saveBtn.disabled = false;
+}
+
+// ─── Save a new product to the database ────────────────────────
+async function saveNewProduct() {
+  const nameEl  = document.getElementById('newProdName');
+  const brandEl = document.getElementById('newProdBrand');
+  const stockEl = document.getElementById('newProdStock');
+  const saveBtn = document.getElementById('addRowSaveBtn');
+  const errRow  = document.getElementById('addRowErrorRow');
+  const errMsg  = document.getElementById('addRowErrorMsg');
+  if (!nameEl || !brandEl || !stockEl || !saveBtn) return;
+
+  const product = nameEl.value.trim();
+  const brand   = brandEl.value.trim();
+  const stockIn = parseInt(stockEl.value, 10);
+
+  nameEl.classList.remove('invalid');
+  brandEl.classList.remove('invalid');
+  stockEl.classList.remove('invalid');
+
+  if (!product) {
+    nameEl.classList.add('invalid');
+    errMsg.textContent = '⚠️ Product name is required.';
+    errRow.style.display = '';
+    nameEl.focus();
+    return;
+  }
+  if (!brand) {
+    brandEl.classList.add('invalid');
+    errMsg.textContent = '⚠️ Brand is required.';
+    errRow.style.display = '';
+    brandEl.focus();
+    return;
+  }
+  if (isNaN(stockIn) || stockIn < 0) {
+    stockEl.classList.add('invalid');
+    errMsg.textContent = '⚠️ Stock In must be a valid number (0 or more).';
+    errRow.style.display = '';
+    stockEl.focus();
+    return;
+  }
+
+  // Client-side duplicate guard for instant feedback — the server
+  // re-checks this too, so a race between two users is still caught.
+  const isDuplicate = STORAGE_DATA.some(d =>
+    d.product.trim().toLowerCase() === product.toLowerCase() &&
+    d.brand.trim().toLowerCase()   === brand.toLowerCase()
+  );
+  if (isDuplicate) {
+    nameEl.classList.add('invalid');
+    brandEl.classList.add('invalid');
+    errMsg.textContent = `⚠️ "${product}" (${brand}) already exists in Storage — use a different name/brand, or Edit Stock to add more units.`;
+    errRow.style.display = '';
+    return;
+  }
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = '…';
+
+  try {
+    const res = await fetch('/storage-products', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ product, brand, stockIn })
+    });
+
+    if (res.status === 401) { location.href = '/login'; return; }
+
+    if (res.status === 409) {
+      const data = await res.json().catch(() => ({}));
+      nameEl.classList.add('invalid');
+      brandEl.classList.add('invalid');
+      errMsg.textContent = `⚠️ ${data.message || 'This product and brand already exist in Storage.'}`;
+      errRow.style.display = '';
+      return;
+    }
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Server error');
+    }
+
+    showToast(`✅ "${product}" added to Storage`);
+    errRow.style.display = 'none';
+    addDraft = { product: '', brand: '', stock: 10 };
+
+    // Reload from the database so the table, stats, and brand filter
+    // always reflect what's actually saved — never a locally-guessed state.
+    await loadProducts();
+    applyColumnFilters(); // keep any active search/filter/sort applied
+
+    if (addRowOpen) {
+      setTimeout(() => {
+        const el = document.getElementById('newProdName');
+        if (el) el.focus();
+      }, 30);
+    }
+  } catch (err) {
+    errMsg.textContent = '❌ Failed to save product. Check your connection and try again.';
+    errRow.style.display = '';
+    console.error('Add product error:', err);
+  } finally {
+    const btnAgain = document.getElementById('addRowSaveBtn');
+    if (btnAgain) { btnAgain.disabled = false; btnAgain.textContent = '✓'; }
+  }
 }
 
 // ─── Import mode state (per product: 'add' | 'reduce') ────────
@@ -1060,11 +1342,13 @@ function availClass(avail) {
 function buildTable() {
   const tbody = document.getElementById('storageBody');
   const cols = editMode ? 7 : 6;
+  const addRowHtml = addRowOpen ? renderAddRow() : '';
 
   if (!filteredData.length) {
-    tbody.innerHTML = `<tr><td colspan="${cols}" class="no-data"><div class="icon">🔍</div><div class="msg">No products match your search.</div></td></tr>`;
+    tbody.innerHTML = addRowHtml + `<tr><td colspan="${cols}" class="no-data"><div class="icon">🔍</div><div class="msg">No products match your search.</div></td></tr>`;
     updateStats([]);
     renderPaginator();
+    if (addRowOpen) liveValidateAddRow();
     return;
   }
 
@@ -1074,7 +1358,7 @@ function buildTable() {
   const pageData = showAll ? filteredData : filteredData.slice((currentPage - 1) * perPage, currentPage * perPage);
   const startIdx = showAll ? 0 : (currentPage - 1) * perPage;
 
-  tbody.innerHTML = pageData.map((d, i) => {
+  tbody.innerHTML = addRowHtml + pageData.map((d, i) => {
     const ac     = availClass(d.available);
     const outBtn = d.stockOut > 0
       ? `<button class="stock-out-link" onclick="openModal(${d.id})">${d.stockOut}</button>`
@@ -1119,6 +1403,7 @@ function buildTable() {
 
   updateStats(filteredData);
   renderPaginator();
+  if (addRowOpen) liveValidateAddRow();
 }
 
 // ─── Paginator ────────────────────────────────────────────────
