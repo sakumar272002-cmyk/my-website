@@ -157,12 +157,19 @@
     .prod-name { font-weight:600; color:#3e1c00; }
     .prod-cell-wrap { display:flex; align-items:center; gap:8px; }
     .edit-prod-btn {
-      border:none; background:#fff3e0; color:#e65100; cursor:pointer;
-      width:22px; height:22px; border-radius:6px; font-size:11px;
+      border:1.5px solid #ffcc95; background:#ffffff; color:#e65100; cursor:pointer;
+      width:26px; height:26px; border-radius:8px;
       display:inline-flex; align-items:center; justify-content:center;
-      flex-shrink:0; padding:0; transition:all .15s;
+      flex-shrink:0; padding:0; transition:all .18s ease;
+      box-shadow:0 1px 4px rgba(255,107,53,.18);
     }
-    .edit-prod-btn:hover { background:#ff6b35; color:white; transform:translateY(-1px); }
+    .edit-prod-btn svg { width:13px; height:13px; }
+    .edit-prod-btn:hover {
+      background:#ff6b35; border-color:#ff6b35; color:white;
+      transform:translateY(-1px) scale(1.06);
+      box-shadow:0 4px 12px rgba(255,107,53,.4);
+    }
+    .edit-prod-btn:active { transform:translateY(0) scale(0.97); }
 
     /* Stock In cell */
     .stock-in {
@@ -961,7 +968,7 @@
 </div>
 
 <!-- ══ EDIT PRODUCT MODAL ══ -->
-<div class="modal-overlay" id="editModalOverlay" onclick="closeEditModal(event)">
+<div class="modal-overlay" id="editModalOverlay">
   <div class="modal" id="editModalBox" style="max-width:440px;">
     <div class="modal-header">
       <div>
@@ -1351,9 +1358,6 @@ function openEditModal(id) {
   setTimeout(() => document.getElementById('editProdName').focus(), 30);
 }
 
-function closeEditModal(e) {
-  if (e.target === document.getElementById('editModalOverlay')) closeEditModalDirect();
-}
 function closeEditModalDirect() {
   document.getElementById('editModalOverlay').classList.remove('open');
   document.body.style.overflow = '';
@@ -1596,7 +1600,9 @@ function buildTable() {
         <td>
           <div class="prod-cell-wrap">
             <span class="prod-name">${d.product}</span>
-            <button class="edit-prod-btn" onclick="openEditModal(${d.id})" title="Edit product">✏️</button>
+            <button class="edit-prod-btn" onclick="openEditModal(${d.id})" title="Edit product">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            </button>
           </div>
         </td>
         <td style="color:#7d4e2d; font-size:13px;">${d.brand}</td>
