@@ -486,6 +486,137 @@ app.get('/elite-ping', requireLogin, (req, res) => {
   });
 });
 
+// PUT /elite-products/:id — edit an existing product's name, brand, and price.
+// Body: { product_name, company, price }
+//
+// This must update BOTH tables, same reasoning as Add Product:
+//   - elite_products    → master catalog. Elite Dashboard reads straight
+//                          from GET /elite-products, so as soon as this
+//                          commits, the dashboard shows the new name/
+//                          brand/price on its next fetch — no extra code
+//                          needed there.
+//   - storage_products   → keyed by (product, brand), NOT by id, so if the
+//                          name or brand changes we have to rename the
+//                          matching storage_products row too, or Storage
+//                          would silently point at a stale/orphaned name
+//                          while Elite Dashboard shows the new one.
+//
+// Steps (all inside one transaction — either everything commits or nothing does):
+//   1. Look up the product's CURRENT product_name/company (need the old
+//      values to find its matching storage_products row).
+//   2. Duplicate check: does another elite_products row already use the
+//      new (product_name, company) pair? If so, reject with 409 — same
+//      rule as Add Product.
+//   3. UPDATE elite_products with the new name/company/price.
+//   4. UPDATE storage_products SET product=?, brand=? WHERE product=OLD
+//      AND brand=OLD — renames the matching stock row, stock_in untouched.
+//      If that update would collide with some other existing storage_products
+//      row (an old orphaned row with the exact new name/brand), roll back
+//      and return 409 so nothing drifts out of sync silently.
+app.put('/elite-products/:id', requireLogin, (req, res) => {
+  const id = req.params.id;
+  const product_name = String(req.body.product_name || '').trim();
+  const company       = String(req.body.company || '').trim();
+  const price         = Number(req.body.price);
+
+  if (!product_name || !company) {
+    return res.status(400).json({ error: 'product_name and company are required' });
+  }
+  if (!Number.isFinite(price) || price < 0) {
+    return res.status(400).json({ error: 'price must be a number 0 or greater' });
+  }
+
+  db.getConnection((connErr, conn) => {
+    if (connErr) {
+      console.error('Edit product — connection error:', connErr.message);
+      return res.status(500).json({ error: 'DB error' });
+    }
+
+    const fail = (err, stage) => {
+      console.error(`Edit product — ${stage} error:`, err.message);
+      conn.rollback(() => {
+        conn.release();
+        res.status(500).json({ error: 'DB error' });
+      });
+    };
+    const conflict = (message) => {
+      conn.rollback(() => {
+        conn.release();
+        res.status(409).json({ error: 'duplicate', message });
+      });
+    };
+    const notFound = () => {
+      conn.rollback(() => {
+        conn.release();
+        res.status(404).json({ error: 'not_found', message: 'Product not found' });
+      });
+    };
+
+    conn.beginTransaction(txErr => {
+      if (txErr) { conn.release(); console.error('Edit product — tx start error:', txErr.message); return res.status(500).json({ error: 'DB error' }); }
+
+      // 1. Fetch current name/brand (needed to find the matching storage_products row)
+      conn.query(
+        'SELECT product_name, company FROM elite_products WHERE id = ? LIMIT 1 FOR UPDATE',
+        [id],
+        (findErr, rows) => {
+          if (findErr) return fail(findErr, 'lookup');
+          if (rows.length === 0) return notFound();
+
+          const oldName  = rows[0].product_name;
+          const oldBrand = rows[0].company;
+
+          // 2. Duplicate check — some OTHER row already using the new name+brand?
+          conn.query(
+            'SELECT id FROM elite_products WHERE product_name = ? AND company = ? AND id != ? LIMIT 1',
+            [product_name, company, id],
+            (dupErr, existing) => {
+              if (dupErr) return fail(dupErr, 'duplicate check');
+              if (existing.length > 0) {
+                return conflict(`"${product_name}" (${company}) already exists as a different product.`);
+              }
+
+              // 3. Update the master catalog row
+              conn.query(
+                'UPDATE elite_products SET product_name = ?, company = ?, price = ? WHERE id = ?',
+                [product_name, company, price, id],
+                (eliteErr) => {
+                  if (eliteErr) {
+                    if (eliteErr.code === 'ER_DUP_ENTRY') {
+                      return conflict(`"${product_name}" (${company}) already exists as a different product.`);
+                    }
+                    return fail(eliteErr, 'elite_products update');
+                  }
+
+                  // 4. Rename the matching storage_products row (stock_in untouched)
+                  conn.query(
+                    'UPDATE storage_products SET product = ?, brand = ? WHERE product = ? AND brand = ?',
+                    [product_name, company, oldName, oldBrand],
+                    (storErr) => {
+                      if (storErr) {
+                        if (storErr.code === 'ER_DUP_ENTRY') {
+                          return conflict(`Can't rename — "${product_name}" (${company}) already exists in Storage as a separate row. Run Storage Sync to resolve, then try again.`);
+                        }
+                        return fail(storErr, 'storage_products rename');
+                      }
+
+                      conn.commit(commitErr => {
+                        if (commitErr) return fail(commitErr, 'commit');
+                        conn.release();
+                        res.json({ success: true, id: Number(id), product_name, company, price });
+                      });
+                    }
+                  );
+                }
+              );
+            }
+          );
+        }
+      );
+    });
+  });
+});
+
 // ─── BILL HISTORY (Elite Billing — save & retrieve) ──────────────────
 
 // POST /save-bill — save a completed bill to history AND replicate each
@@ -650,16 +781,18 @@ app.get('/storage-products', requireLogin, (req, res) => {
       p.product,
       p.brand,
       p.stock_in   AS stockIn,
+      e.price      AS price,
       COALESCE(SUM(t.qty), 0) AS stockOut
     FROM storage_products p
     LEFT JOIN storage_transactions t ON t.product_id = p.id
+    LEFT JOIN elite_products e ON e.product_name = p.product AND e.company = p.brand
     WHERE 1=1`;
   const params = [];
   if (search) {
     sql += ' AND (p.product LIKE ? OR p.brand LIKE ?)';
     params.push('%' + search + '%', '%' + search + '%');
   }
-  sql += ' GROUP BY p.id ORDER BY p.product';
+  sql += ' GROUP BY p.id, p.product, p.brand, p.stock_in, e.price ORDER BY p.product';
   db.query(sql, params, (err, rows) => {
     if (err) { console.error('Storage products error:', err.message); return res.status(500).json({ error: 'DB error' }); }
     // Compute available on the server so the client never does arithmetic
@@ -787,6 +920,134 @@ app.post('/storage-products', requireLogin, (req, res) => {
                       available: stockIn
                     });
                   });
+                }
+              );
+            }
+          );
+        }
+      );
+    });
+  });
+});
+
+// PATCH /storage-products/:id — edit an existing product's name, brand, and price
+// from the STORAGE page. Body: { product, brand, price }
+//
+// Mirror of PUT /elite-products/:id — same reasoning, opposite direction:
+//   - storage_products  → identified by id (this route's :id). Renamed here.
+//   - elite_products    → keyed by (product_name, company), NOT by the
+//                          storage id, so if the name or brand changes we
+//                          have to find and update the matching
+//                          elite_products row too, or Elite Dashboard would
+//                          keep showing the old name/brand/price while
+//                          Storage shows the new one.
+//
+// Steps (all inside one transaction — either everything commits or nothing does):
+//   1. Look up this row's CURRENT product/brand (need the old values to
+//      find its matching elite_products row).
+//   2. Duplicate check: does another storage_products row already use the
+//      new (product, brand) pair? If so, reject with 409 — same rule as
+//      Add Product / Edit Product on the Elite side.
+//   3. UPDATE storage_products with the new product/brand (stock_in untouched).
+//   4. UPDATE elite_products SET product_name=?, company=?, price=?
+//      WHERE product_name=OLD AND company=OLD — renames + reprices the
+//      matching catalog row. If that update would collide with some other
+//      existing elite_products row, roll back and return 409 so nothing
+//      drifts out of sync silently.
+app.patch('/storage-products/:id', requireLogin, (req, res) => {
+  const id      = req.params.id;
+  const product = String(req.body.product || '').trim();
+  const brand   = String(req.body.brand   || '').trim();
+  const price   = Number(req.body.price);
+
+  if (!product || !brand) {
+    return res.status(400).json({ error: 'product and brand are required' });
+  }
+  if (!Number.isFinite(price) || price < 0) {
+    return res.status(400).json({ error: 'price must be a number 0 or greater' });
+  }
+
+  db.getConnection((connErr, conn) => {
+    if (connErr) {
+      console.error('Edit storage product — connection error:', connErr.message);
+      return res.status(500).json({ error: 'DB error' });
+    }
+
+    const fail = (err, stage) => {
+      console.error(`Edit storage product — ${stage} error:`, err.message);
+      conn.rollback(() => {
+        conn.release();
+        res.status(500).json({ error: 'DB error' });
+      });
+    };
+    const conflict = (message) => {
+      conn.rollback(() => {
+        conn.release();
+        res.status(409).json({ error: 'duplicate', message });
+      });
+    };
+    const notFound = () => {
+      conn.rollback(() => {
+        conn.release();
+        res.status(404).json({ error: 'not_found', message: 'Product not found' });
+      });
+    };
+
+    conn.beginTransaction(txErr => {
+      if (txErr) { conn.release(); console.error('Edit storage product — tx start error:', txErr.message); return res.status(500).json({ error: 'DB error' }); }
+
+      // 1. Fetch current product/brand (needed to find the matching elite_products row)
+      conn.query(
+        'SELECT product, brand FROM storage_products WHERE id = ? LIMIT 1 FOR UPDATE',
+        [id],
+        (findErr, rows) => {
+          if (findErr) return fail(findErr, 'lookup');
+          if (rows.length === 0) return notFound();
+
+          const oldProduct = rows[0].product;
+          const oldBrand   = rows[0].brand;
+
+          // 2. Duplicate check — some OTHER row already using the new product+brand?
+          conn.query(
+            'SELECT id FROM storage_products WHERE product = ? AND brand = ? AND id != ? LIMIT 1',
+            [product, brand, id],
+            (dupErr, existing) => {
+              if (dupErr) return fail(dupErr, 'duplicate check');
+              if (existing.length > 0) {
+                return conflict(`"${product}" (${brand}) already exists as a different product.`);
+              }
+
+              // 3. Update the storage row (stock_in untouched)
+              conn.query(
+                'UPDATE storage_products SET product = ?, brand = ? WHERE id = ?',
+                [product, brand, id],
+                (storErr) => {
+                  if (storErr) {
+                    if (storErr.code === 'ER_DUP_ENTRY') {
+                      return conflict(`"${product}" (${brand}) already exists as a different product.`);
+                    }
+                    return fail(storErr, 'storage_products update');
+                  }
+
+                  // 4. Rename + reprice the matching elite_products row
+                  conn.query(
+                    'UPDATE elite_products SET product_name = ?, company = ?, price = ? WHERE product_name = ? AND company = ?',
+                    [product, brand, price, oldProduct, oldBrand],
+                    (eliteErr) => {
+                      if (eliteErr) {
+                        if (eliteErr.code === 'ER_DUP_ENTRY') {
+                          return conflict(`Can't rename — "${product}" (${brand}) already exists in the Elite catalog as a separate product. Run Storage Sync to resolve, then try again.`);
+                        }
+                        return fail(eliteErr, 'elite_products rename');
+                      }
+
+                      conn.commit(commitErr => {
+                        if (commitErr) return fail(commitErr, 'commit');
+                        conn.release();
+                        res.json({ success: true, id: Number(id), product, brand, price });
+                      });
+                    }
+                  );
                 }
               );
             }
