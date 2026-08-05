@@ -728,9 +728,6 @@
       <button class="edit-toggle-btn add-product-btn" id="addProductBtn" onclick="toggleAddProduct()">
         <span class="btn-icon">➕</span> <span id="addProductBtnLabel">Add Product</span>
       </button>
-      <button class="edit-toggle-btn" id="editToggleBtn" onclick="toggleEditMode()">
-        <span class="btn-icon">✏️</span> <span id="editBtnLabel">Edit Stock</span>
-      </button>
     </div>
   </div>
 
@@ -783,10 +780,11 @@
         <col class="c-prod">
         <col class="c-brand">
         <col class="c-in">
-        <col class="c-import" id="colImport" style="display:none;">
         <col class="c-out">
         <col class="c-avail">
       </colgroup>
+      <!-- Note: the old Stock Import column was removed — stock is now
+           adjusted from the same Edit Product modal as name/brand/price. -->
       <thead>
         <tr>
           <th class="tc" onclick="sortBy('sl')" style="cursor:pointer;">
@@ -801,7 +799,6 @@
           <th class="tc" onclick="sortBy('stockIn')" style="cursor:pointer;">
             <div class="th-inner" style="justify-content:center;">Stock In <span class="sort-icon none" id="sort-stockIn"></span></div>
           </th>
-          <th class="tc" id="thImport" style="display:none;">Stock Import</th>
           <th class="tc" onclick="sortBy('stockOut')" style="cursor:pointer;">
             <div class="th-inner" style="justify-content:center;">Stock Out <span class="sort-icon none" id="sort-stockOut"></span></div>
           </th>
@@ -831,7 +828,6 @@
               <option value="lt10">&lt; 10</option>
             </select>
           </th>
-          <th id="thImportFilter" style="display:none;"></th>
           <th style="text-align:center;">
             <select class="col-filter-select" id="fStockOut" onchange="applyColumnFilters()">
               <option value="">Any</option>
@@ -868,7 +864,7 @@
       </div>
     </div>
     <div style="padding:10px 20px 14px; background:#fffaf5; border-top:1px solid #fff3e8; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-      <span style="font-size:11px; color:#c49a72;">Click <strong style="color:#1565c0;">Stock Out</strong> count to view buyer details &nbsp;·&nbsp; Click <strong style="color:#e65100;">Edit Stock</strong> to add new stock imports</span>
+      <span style="font-size:11px; color:#c49a72;">Click <strong style="color:#1565c0;">Stock Out</strong> count to view buyer details &nbsp;·&nbsp; Click the <strong style="color:#e65100;">✏️ pencil</strong> next to a product to edit details or stock</span>
       <div class="paginator" id="paginator"></div>
     </div>
   </div>
@@ -973,7 +969,7 @@
     <div class="modal-header">
       <div>
         <div class="modal-title"><span>✏️</span> Edit Product</div>
-        <div class="modal-subtitle">Update name, brand &amp; price</div>
+        <div class="modal-subtitle">Update name, brand, price &amp; stock</div>
       </div>
       <button class="modal-close" onclick="closeEditModalDirect()">✕</button>
     </div>
@@ -993,9 +989,25 @@
         <input type="text" id="editProdBrand" class="add-row-input" maxlength="100" placeholder="Brand">
       </div>
 
-      <div>
+      <div style="margin-bottom:14px;">
         <label style="display:block; font-size:11px; font-weight:600; color:#a06040; text-transform:uppercase; letter-spacing:.6px; margin-bottom:6px;">Price ₹</label>
         <input type="number" id="editProdPrice" class="add-row-input" min="0" step="0.01" placeholder="Price ₹">
+      </div>
+
+      <div style="border-top:1px dashed #ffe0c0; margin:16px 0 14px; padding-top:14px;">
+        <label style="display:block; font-size:11px; font-weight:600; color:#a06040; text-transform:uppercase; letter-spacing:.6px; margin-bottom:6px;">
+          Stock &nbsp;<span style="text-transform:none; font-weight:500; color:#c49a72;">(current: <strong id="editCurrentStock" style="color:#7d4e2d;">—</strong>)</span>
+        </label>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <div class="import-mode-toggle">
+            <button type="button" class="import-mode-btn add-btn active" id="editModeAdd"
+              onclick="setEditStockMode('add')" title="Add stock">+</button>
+            <button type="button" class="import-mode-btn reduce-btn" id="editModeReduce"
+              onclick="setEditStockMode('reduce')" title="Reduce stock">−</button>
+          </div>
+          <input type="number" min="1" id="editStockQty" class="import-input" placeholder="Qty (optional)" style="width:auto; flex:1;">
+        </div>
+        <div style="font-size:10.5px; color:#c49a72; margin-top:6px;">Leave quantity blank to save details without changing stock.</div>
       </div>
     </div>
     <div class="modal-footer" style="justify-content:flex-end; gap:10px;">
@@ -1028,7 +1040,6 @@ let STORAGE_DATA = [];   // all products from API
 let filteredData = [];   // after search filter
 let currentPage  = 1;
 let perPage      = 10;   // default rows per page
-let editMode     = false; // Stock Import edit toggle
 let addRowOpen   = false; // Add Product inline row toggle
 let addDraft     = { product: '', brand: '', stock: 10, price: '' }; // preserves typed values across re-renders
 
@@ -1051,31 +1062,6 @@ document.querySelector('.logout-btn').addEventListener('click', async () => {
   localStorage.removeItem('authToken');
   location.href = '/login';
 });
-
-// ─── Toggle Edit Mode ─────────────────────────────────────────
-function toggleEditMode() {
-  editMode = !editMode;
-  const btn   = document.getElementById('editToggleBtn');
-  const label = document.getElementById('editBtnLabel');
-  const thImp = document.getElementById('thImport');
-  const colImp = document.getElementById('colImport');
-  const thImpF = document.getElementById('thImportFilter');
-
-  if (editMode) {
-    btn.classList.add('active');
-    label.textContent = 'Done Editing';
-    thImp.style.display  = '';
-    colImp.style.display = '';
-    thImpF.style.display = '';
-  } else {
-    btn.classList.remove('active');
-    label.textContent = 'Edit Stock';
-    thImp.style.display  = 'none';
-    colImp.style.display = 'none';
-    thImpF.style.display = 'none';
-  }
-  buildTable();
-}
 
 // ─── Add Product — toggle inline row ───────────────────────────
 function toggleAddProduct() {
@@ -1121,8 +1107,7 @@ function escAttr(s) {
 
 // ─── Render the inline Add Product row + its error banner ─────
 function renderAddRow() {
-  const importCell = editMode ? `<td class="tc" style="color:#c49a72; font-size:12px;">—</td>` : '';
-  const totalCols  = editMode ? 7 : 6;
+  const totalCols = 6;
   return `
     <tr class="add-product-row">
       <td class="sl-cell" style="color:#2e7d32; font-size:16px;">✨</td>
@@ -1144,7 +1129,6 @@ function renderAddRow() {
           oninput="onAddRowInput()"
           onkeydown="if(event.key==='Enter'){event.preventDefault(); document.getElementById('newProdPrice').focus();}">
       </td>
-      ${importCell}
       <td class="tc">
         <input type="number" id="newProdPrice" class="add-row-input add-row-input-num" placeholder="Price ₹"
           min="0" step="0.01" value="${escAttr(addDraft.price)}"
@@ -1348,6 +1332,12 @@ function openEditModal(id) {
   document.getElementById('editRowErrorRow').style.display = 'none';
   document.getElementById('editRowErrorMsg').textContent   = '';
 
+  // Reset the Stock section to this product's current value
+  document.getElementById('editCurrentStock').textContent = item.stockIn;
+  document.getElementById('editStockQty').value = '';
+  document.getElementById('editStockQty').classList.remove('invalid');
+  setEditStockMode('add');
+
   const saveBtn = document.getElementById('editSaveBtn');
   saveBtn.disabled = false;
   saveBtn.textContent = 'Save Changes';
@@ -1356,6 +1346,25 @@ function openEditModal(id) {
   document.body.style.overflow = 'hidden';
 
   setTimeout(() => document.getElementById('editProdName').focus(), 30);
+}
+
+// ─── Stock add/reduce mode toggle inside the Edit Product modal ─
+let editStockMode = 'add';
+function setEditStockMode(mode) {
+  editStockMode = mode;
+  const addBtn    = document.getElementById('editModeAdd');
+  const reduceBtn = document.getElementById('editModeReduce');
+  const input     = document.getElementById('editStockQty');
+
+  if (mode === 'add') {
+    addBtn.classList.add('active');
+    reduceBtn.classList.remove('active');
+    input.placeholder = 'Qty (optional)';
+  } else {
+    reduceBtn.classList.add('active');
+    addBtn.classList.remove('active');
+    input.placeholder = 'Qty (optional)';
+  }
 }
 
 function closeEditModalDirect() {
@@ -1419,6 +1428,32 @@ async function saveEditProduct() {
     return;
   }
 
+  // ── Stock section: optional. Blank qty = no stock change. ──
+  const stockQtyEl = document.getElementById('editStockQty');
+  const qtyRaw     = stockQtyEl.value.trim();
+  const item       = STORAGE_DATA.find(d => d.id === id);
+  const currentStockIn = item ? item.stockIn : 0;
+  let newStockIn   = null; // null = don't touch stock
+
+  if (qtyRaw !== '') {
+    const qty = parseInt(qtyRaw, 10);
+    if (isNaN(qty) || qty <= 0) {
+      stockQtyEl.classList.add('invalid');
+      errMsg.textContent = '⚠️ Stock quantity must be a positive number.';
+      errRow.style.display = '';
+      stockQtyEl.focus();
+      return;
+    }
+    if (editStockMode === 'reduce' && qty > currentStockIn) {
+      stockQtyEl.classList.add('invalid');
+      errMsg.textContent = `⚠️ Cannot reduce by ${qty} — only ${currentStockIn} in stock.`;
+      errRow.style.display = '';
+      stockQtyEl.focus();
+      return;
+    }
+    newStockIn = editStockMode === 'add' ? currentStockIn + qty : currentStockIn - qty;
+  }
+
   saveBtn.disabled = true;
   saveBtn.textContent = 'Saving…';
 
@@ -1444,7 +1479,17 @@ async function saveEditProduct() {
       throw new Error(data.error || 'Server error');
     }
 
-    showToast(`✅ "${product}" updated`);
+    // Details saved — now apply the stock change, if any, to the DB too.
+    if (newStockIn !== null) {
+      const stockRes = await fetch(`/storage-products/${id}/stock`, {
+        method: 'PATCH',
+        headers: authHeaders(),
+        body: JSON.stringify({ stockIn: newStockIn })
+      });
+      if (!stockRes.ok) throw new Error('Stock update failed');
+    }
+
+    showToast(newStockIn !== null ? `✅ "${product}" updated — stock set to ${newStockIn}` : `✅ "${product}" updated`);
     closeEditModalDirect();
 
     // Reload from the database so the table, stats, and Elite
@@ -1461,87 +1506,6 @@ async function saveEditProduct() {
   }
 }
 
-// ─── Import mode state (per product: 'add' | 'reduce') ────────
-const importModes = {};
-
-function setImportMode(id, mode) {
-  importModes[id] = mode;
-  const addBtn    = document.getElementById(`modeAdd_${id}`);
-  const reduceBtn = document.getElementById(`modeReduce_${id}`);
-  const saveBtn   = document.getElementById(`importBtn_${id}`);
-  const input     = document.getElementById(`importInput_${id}`);
-
-  if (mode === 'add') {
-    addBtn.classList.add('active');
-    reduceBtn.classList.remove('active');
-    saveBtn.classList.remove('reduce');
-    saveBtn.textContent = 'Add';
-    input.placeholder   = 'Qty';
-  } else {
-    reduceBtn.classList.add('active');
-    addBtn.classList.remove('active');
-    saveBtn.classList.add('reduce');
-    saveBtn.textContent = 'Reduce';
-    input.placeholder   = 'Qty';
-  }
-}
-
-// ─── Import / Reduce stock for a product ──────────────────────
-async function importStock(id, currentStockIn) {
-  const input  = document.getElementById(`importInput_${id}`);
-  const btn    = document.getElementById(`importBtn_${id}`);
-  const mode   = importModes[id] || 'add';
-  const qty    = parseInt(input.value, 10);
-
-  if (isNaN(qty) || qty <= 0) {
-    showToast('⚠️ Enter a valid quantity');
-    input.focus();
-    return;
-  }
-
-  if (mode === 'reduce' && qty > currentStockIn) {
-    showToast(`⚠️ Cannot reduce by ${qty} — only ${currentStockIn} in stock`);
-    input.focus();
-    return;
-  }
-
-  const newTotal = mode === 'add' ? currentStockIn + qty : currentStockIn - qty;
-  btn.disabled = true;
-  btn.textContent = '…';
-
-  try {
-    const res = await fetch(`/storage-products/${id}/stock`, {
-      method: 'PATCH',
-      headers: authHeaders(),
-      body: JSON.stringify({ stockIn: newTotal })
-    });
-    if (!res.ok) throw new Error('Server error');
-
-    const sign = mode === 'add' ? `+${qty}` : `−${qty}`;
-    showToast(`✅ Stock updated: ${sign} units`);
-    input.value = '';
-
-    // Update local data and re-render
-    const product = STORAGE_DATA.find(d => d.id === id);
-    if (product) {
-      product.stockIn   = newTotal;
-      product.available = newTotal - product.stockOut;
-    }
-    const fProduct = filteredData.find(d => d.id === id);
-    if (fProduct) {
-      fProduct.stockIn   = newTotal;
-      fProduct.available = newTotal - fProduct.stockOut;
-    }
-    buildTable();
-    updateStats(filteredData);
-  } catch (err) {
-    showToast('❌ Failed to update stock. Try again.');
-    console.error('Import stock error:', err);
-    btn.disabled = false;
-    btn.textContent = mode === 'add' ? 'Add' : 'Reduce';
-  }
-}
-
 // ─── Table helpers ────────────────────────────────────────────
 function availClass(avail) {
   if (avail <= 0) return 'avail-zero';
@@ -1552,7 +1516,7 @@ function availClass(avail) {
 // ─── Build table for current page ─────────────────────────────
 function buildTable() {
   const tbody = document.getElementById('storageBody');
-  const cols = editMode ? 7 : 6;
+  const cols = 6;
   const addRowHtml = addRowOpen ? renderAddRow() : '';
 
   if (!filteredData.length) {
@@ -1575,25 +1539,6 @@ function buildTable() {
       ? `<button class="stock-out-link" onclick="openModal(${d.id})">${d.stockOut}</button>`
       : `<span style="color:#c49a72; font-size:13px;">0</span>`;
 
-    const importCol = editMode ? `
-      <td class="import-cell">
-        <div class="import-wrap">
-          <div class="import-mode-toggle">
-            <button class="import-mode-btn add-btn active" id="modeAdd_${d.id}"
-              onclick="setImportMode(${d.id}, 'add')" title="Add stock">+</button>
-            <button class="import-mode-btn reduce-btn" id="modeReduce_${d.id}"
-              onclick="setImportMode(${d.id}, 'reduce')" title="Reduce stock">−</button>
-          </div>
-          <input
-            type="number" min="1" id="importInput_${d.id}"
-            class="import-input" placeholder="Qty"
-            onkeydown="if(event.key==='Enter') importStock(${d.id}, ${d.stockIn})"
-          >
-          <button class="import-save-btn" id="importBtn_${d.id}"
-            onclick="importStock(${d.id}, ${d.stockIn})">Add</button>
-        </div>
-      </td>` : '';
-
     return `
       <tr>
         <td class="sl-cell">${startIdx + i + 1}</td>
@@ -1607,7 +1552,6 @@ function buildTable() {
         </td>
         <td style="color:#7d4e2d; font-size:13px;">${d.brand}</td>
         <td class="tc"><span class="stock-in">${d.stockIn}</span></td>
-        ${importCol}
         <td class="tc">${outBtn}</td>
         <td class="tc"><span class="avail-cell ${ac}">${d.available}</span></td>
       </tr>`;
