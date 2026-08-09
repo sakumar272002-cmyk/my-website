@@ -6,25 +6,8 @@ const jwt        = require('jsonwebtoken');
 const path       = require('path');
 const cookieParser = require('cookie-parser');
 
-// ─── REQUIRED ENVIRONMENT VARIABLES ──────────────────────────────────
-// No hardcoded fallbacks for secrets/credentials. Previously this file had
-// the DB password and JWT signing secret baked in as literal defaults —
-// meaning anyone with the source (or this repo, if it's ever public) had
-// full DB + session-forging access, AND a missing env var on the host would
-// silently connect to old/stale credentials instead of failing visibly.
-// Fail loudly at startup instead, so a misconfigured deploy is obvious from
-// the very first log line rather than showing up later as ECONNREFUSED or
-// a security hole.
-const REQUIRED_ENV = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'JWT_SECRET'];
-const missingEnv = REQUIRED_ENV.filter(key => !process.env[key]);
-if (missingEnv.length) {
-  console.error('❌ Missing required environment variable(s): ' + missingEnv.join(', '));
-  console.error('   Set these in your hosting provider\'s Environment settings (e.g. Render → Environment) before starting the server.');
-  process.exit(1);
-}
-
 const app = express();
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = 'sree-electricals-jwt-secret-2024';
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -33,11 +16,11 @@ app.use(cookieParser());
 // ─── DATABASE POOL ───────────────────────────────────────────────────
 // Pool handles idle-timeout reconnects automatically (no more ECONNRESET)
 const db = mysql.createPool({
-  host:               process.env.DB_HOST,
-  port:               process.env.DB_PORT || 3306,
-  user:               process.env.DB_USER,
-  password:           process.env.DB_PASSWORD,
-  database:           process.env.DB_NAME,
+  host:               process.env.DB_HOST     || 'bgkwzqnaueygs0sltdxg-mysql.services.clever-cloud.com',
+  port:               process.env.DB_PORT     || 3306,
+  user:               process.env.DB_USER     || 'utkpn8wzxl290hqx',
+  password:           process.env.DB_PASSWORD || 'i6AZV2A3QoiqjQT9i3QI',
+  database:           process.env.DB_NAME     || 'bgkwzqnaueygs0sltdxg',
   waitForConnections: true,
   connectionLimit:    3,
   queueLimit:         0,
@@ -45,13 +28,12 @@ const db = mysql.createPool({
   keepAliveInitialDelay: 0
 });
 
-
 setTimeout(() => {
   db.getConnection((err, conn) => {
     if (err) { console.error('❌ DB connection failed:', err.message); return; }
     console.log('✅ Connected to MySQL');
-    console.log(`   → host: ${process.env.DB_HOST}`);
-    console.log(`   → database: ${process.env.DB_NAME}`);
+    console.log(`   → host: ${process.env.DB_HOST || 'bgkwzqnaueygs0sltdxg-mysql.services.clever-cloud.com'}`);
+    console.log(`   → database: ${process.env.DB_NAME || 'bgkwzqnaueygs0sltdxg'}`);
 
     // Check all required tables exist and log any missing ones
     const required = ['users', 'settings', 'elite_products', 'bill_counter', 'bill_history'];
@@ -335,15 +317,17 @@ app.get('/verify-token', (req, res) => {
   }
 });
 
+// ─── STATIC FILES (public assets only — no HTML pages) ─────────────
+// Serve only css/js/fonts etc. HTML pages are protected by requirePage below.
+app.use(express.static(path.join(__dirname), {
+  index: false,
+  extensions: [] // don't auto-serve .html files
+}));
+
 // ─── PUBLIC PAGES (no auth needed) ───────────────────────────────────
 // Always serve the login page for / and /login — NEVER auto-redirect to dashboard.
 // The client (login.html) is responsible for checking token validity via /verify-token
 // and redirecting if appropriate. Doing it server-side here would bypass the login UI.
-// IMPORTANT: these — and every protected/blocked route below — MUST be registered
-// BEFORE express.static(). express.static() matches on the literal file path on disk
-// (e.g. a request for /dashboard.html), so if it runs first it will serve the raw
-// HTML file directly and the requirePage auth check below is never reached — that
-// was the bypass (paste /dashboard or /billing URL into a new tab → no login redirect).
 app.get('/',      (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 
@@ -358,13 +342,9 @@ const protectedPages = {
   '/storage':         'storage.html',
 };
 Object.entries(protectedPages).forEach(([route, file]) => {
-  app.get(route, requirePage, (req, res) => {
-    // Never let the browser cache a protected page — otherwise Back/Forward
-    // after logout (or on a shared computer) can show it from cache without
-    // re-checking auth at all.
-    res.set('Cache-Control', 'no-store');
-    res.sendFile(path.join(__dirname, file));
-  });
+  app.get(route, requirePage, (req, res) =>
+    res.sendFile(path.join(__dirname, file))
+  );
 });
 
 // Block direct .html access for protected pages
@@ -373,24 +353,10 @@ const blockedHtml = [
   'dashboard.html','billing.html','customer-history.html','storage.html'
 ];
 blockedHtml.forEach(file => {
-  app.get('/' + file, requirePage, (req, res) => {
-    res.set('Cache-Control', 'no-store');
-    res.sendFile(path.join(__dirname, file));
-  });
+  app.get('/' + file, requirePage, (req, res) =>
+    res.sendFile(path.join(__dirname, file))
+  );
 });
-
-// Catch-all safety net: redirect ANY other *.html request to /login instead of
-// letting express.static() serve it. This covers stray/renamed html files too,
-// not just the ones named above.
-app.get(/\.html$/i, (req, res) => res.redirect('/login'));
-
-// ─── STATIC FILES (public assets only — no HTML pages) ─────────────
-// Registered LAST. Only reachable for requests that didn't match a route above,
-// so it only ever ends up serving css/js/images/fonts — never the protected HTML.
-app.use(express.static(path.join(__dirname), {
-  index: false,
-  extensions: [] // don't auto-serve .html files
-}));
 
 // ─── LOGIN ───────────────────────────────────────────────────────────
 app.post('/login', (req, res) => {
@@ -1138,8 +1104,8 @@ app.get('/db-info', requireLogin, (req, res) => {
     (err, rows) => {
       if (err) { console.error('db-info error:', err.message); return res.status(500).json({ error: 'DB error' }); }
       res.json({
-        host:          process.env.DB_HOST,
-        database:      process.env.DB_NAME,
+        host:          process.env.DB_HOST || 'bgkwzqnaueygs0sltdxg-mysql.services.clever-cloud.com',
+        database:      process.env.DB_NAME || 'bgkwzqnaueygs0sltdxg',
         eliteCount:    rows[0].eliteCount,
         storageCount:  rows[0].storageCount
       });

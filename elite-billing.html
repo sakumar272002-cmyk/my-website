@@ -170,26 +170,8 @@
   </div>
 </div>
 <script>
-// ═══════════════════════════════════════════════
-//  PER-TAB SESSION GATE
-// ═══════════════════════════════════════════════
-// See elite-dashboard.html for the full explanation. Cookies are shared
-// across tabs; sessionStorage is not — so this requires the tab to have
-// actually arrived here via the app (same-origin referrer), not a typed,
-// pasted, or bookmarked URL, even if the browser's cookie is still valid.
-(function enforceTabSession(){
-  if (sessionStorage.getItem('sessionVerified') === '1') return;
-  let sameOrigin = false;
-  try { sameOrigin = !!document.referrer && new URL(document.referrer).origin === window.location.origin; } catch(e) {}
-  if (sameOrigin) { sessionStorage.setItem('sessionVerified', '1'); }
-  else { window.location.replace('/login'); }
-})();
-
-// Auth is enforced server-side via the httpOnly session cookie — this page cannot
-// be served without a valid cookie (see requirePage/blockedHtml in server.js), and
-// fetch() below sends that cookie automatically. No token is read from localStorage
-// or the URL: a token in the URL is dead weight that only leaks into browser
-// history/logs, and reading it from localStorage would be XSS-exploitable.
+const authToken=localStorage.getItem('authToken');
+if(!authToken) window.location.replace('/login');
 
 const SHOP_NAME='SREE ELECTRICALS & ELECTRONICS';
 const SHOP_ADDR='Subramaniapuram, Vasudevanallur(p.o), Tenkasi Main Road, Tamil Nadu-627758';
@@ -207,7 +189,7 @@ async function fetchBillNo(){
   const cached=sessionStorage.getItem('eliteBillNo');
   if(cached) return cached;
   try{
-    const r=await fetch('/next-bill-no');
+    const r=await fetch('/next-bill-no',{headers:{'authorization':authToken}});
     const d=await r.json();
     if(d.billNo){ sessionStorage.setItem('eliteBillNo',d.billNo); return d.billNo; }
   }catch(e){}
@@ -244,7 +226,7 @@ async function saveBillToDB(billNo, name, phone, items, grand, dateTime){
   try{
     await fetch('/save-bill',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','authorization':authToken},
       body:JSON.stringify({billNo, customerName:name, customerPhone:phone, items, grandTotal:grand, dateTime})
     });
   }catch(e){ console.warn('Could not save bill to history:', e); }
