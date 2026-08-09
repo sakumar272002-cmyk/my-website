@@ -317,17 +317,15 @@ app.get('/verify-token', (req, res) => {
   }
 });
 
-// ─── STATIC FILES (public assets only — no HTML pages) ─────────────
-// Serve only css/js/fonts etc. HTML pages are protected by requirePage below.
-app.use(express.static(path.join(__dirname), {
-  index: false,
-  extensions: [] // don't auto-serve .html files
-}));
-
 // ─── PUBLIC PAGES (no auth needed) ───────────────────────────────────
 // Always serve the login page for / and /login — NEVER auto-redirect to dashboard.
 // The client (login.html) is responsible for checking token validity via /verify-token
 // and redirecting if appropriate. Doing it server-side here would bypass the login UI.
+// IMPORTANT: these — and every protected/blocked route below — MUST be registered
+// BEFORE express.static(). express.static() matches on the literal file path on disk
+// (e.g. a request for /dashboard.html), so if it runs first it will serve the raw
+// HTML file directly and the requirePage auth check below is never reached — that
+// was the bypass (paste /dashboard or /billing URL into a new tab → no login redirect).
 app.get('/',      (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
 
@@ -357,6 +355,19 @@ blockedHtml.forEach(file => {
     res.sendFile(path.join(__dirname, file))
   );
 });
+
+// Catch-all safety net: redirect ANY other *.html request to /login instead of
+// letting express.static() serve it. This covers stray/renamed html files too,
+// not just the ones named above.
+app.get(/\.html$/i, (req, res) => res.redirect('/login'));
+
+// ─── STATIC FILES (public assets only — no HTML pages) ─────────────
+// Registered LAST. Only reachable for requests that didn't match a route above,
+// so it only ever ends up serving css/js/images/fonts — never the protected HTML.
+app.use(express.static(path.join(__dirname), {
+  index: false,
+  extensions: [] // don't auto-serve .html files
+}));
 
 // ─── LOGIN ───────────────────────────────────────────────────────────
 app.post('/login', (req, res) => {
