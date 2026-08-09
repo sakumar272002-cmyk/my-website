@@ -6,8 +6,25 @@ const jwt        = require('jsonwebtoken');
 const path       = require('path');
 const cookieParser = require('cookie-parser');
 
+// ─── REQUIRED ENVIRONMENT VARIABLES ──────────────────────────────────
+// No hardcoded fallbacks for secrets/credentials. Previously this file had
+// the DB password and JWT signing secret baked in as literal defaults —
+// meaning anyone with the source (or this repo, if it's ever public) had
+// full DB + session-forging access, AND a missing env var on the host would
+// silently connect to old/stale credentials instead of failing visibly.
+// Fail loudly at startup instead, so a misconfigured deploy is obvious from
+// the very first log line rather than showing up later as ECONNREFUSED or
+// a security hole.
+const REQUIRED_ENV = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'JWT_SECRET'];
+const missingEnv = REQUIRED_ENV.filter(key => !process.env[key]);
+if (missingEnv.length) {
+  console.error('❌ Missing required environment variable(s): ' + missingEnv.join(', '));
+  console.error('   Set these in your hosting provider\'s Environment settings (e.g. Render → Environment) before starting the server.');
+  process.exit(1);
+}
+
 const app = express();
-const JWT_SECRET = 'sree-electricals-jwt-secret-2024';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -16,11 +33,11 @@ app.use(cookieParser());
 // ─── DATABASE POOL ───────────────────────────────────────────────────
 // Pool handles idle-timeout reconnects automatically (no more ECONNRESET)
 const db = mysql.createPool({
-  host:               process.env.DB_HOST     || 'bgkwzqnaueygs0sltdxg-mysql.services.clever-cloud.com',
-  port:               process.env.DB_PORT     || 3306,
-  user:               process.env.DB_USER     || 'utkpn8wzxl290hqx',
-  password:           process.env.DB_PASSWORD || 'i6AZV2A3QoiqjQT9i3QI',
-  database:           process.env.DB_NAME     || 'bgkwzqnaueygs0sltdxg',
+  host:               process.env.DB_HOST,
+  port:               process.env.DB_PORT || 3306,
+  user:               process.env.DB_USER,
+  password:           process.env.DB_PASSWORD,
+  database:           process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit:    3,
   queueLimit:         0,
@@ -28,12 +45,13 @@ const db = mysql.createPool({
   keepAliveInitialDelay: 0
 });
 
+
 setTimeout(() => {
   db.getConnection((err, conn) => {
     if (err) { console.error('❌ DB connection failed:', err.message); return; }
     console.log('✅ Connected to MySQL');
-    console.log(`   → host: ${process.env.DB_HOST || 'bgkwzqnaueygs0sltdxg-mysql.services.clever-cloud.com'}`);
-    console.log(`   → database: ${process.env.DB_NAME || 'bgkwzqnaueygs0sltdxg'}`);
+    console.log(`   → host: ${process.env.DB_HOST}`);
+    console.log(`   → database: ${process.env.DB_NAME}`);
 
     // Check all required tables exist and log any missing ones
     const required = ['users', 'settings', 'elite_products', 'bill_counter', 'bill_history'];
@@ -1120,8 +1138,8 @@ app.get('/db-info', requireLogin, (req, res) => {
     (err, rows) => {
       if (err) { console.error('db-info error:', err.message); return res.status(500).json({ error: 'DB error' }); }
       res.json({
-        host:          process.env.DB_HOST || 'bgkwzqnaueygs0sltdxg-mysql.services.clever-cloud.com',
-        database:      process.env.DB_NAME || 'bgkwzqnaueygs0sltdxg',
+        host:          process.env.DB_HOST,
+        database:      process.env.DB_NAME,
         eliteCount:    rows[0].eliteCount,
         storageCount:  rows[0].storageCount
       });
