@@ -1025,7 +1025,12 @@
 //  LIVE DATA — fetches from server API (no hardcoded data)
 // ═══════════════════════════════════════════════════════════════
 
-const TOKEN = localStorage.getItem('authToken') || '';
+// Auth is enforced server-side via the httpOnly session cookie — this page cannot
+// be served without a valid cookie (see requirePage/blockedHtml in server.js), and
+// fetch() below sends that cookie automatically. No token is read from localStorage
+// or attached to requests: localStorage is readable by any JS on the page (so an
+// XSS bug anywhere would mean full account takeover) and a raw JWT should never
+// travel outside the cookie.
 
 // ─── Render logged-in username ────────────────────────────────
 (function() {
@@ -1045,7 +1050,7 @@ let addDraft     = { product: '', brand: '', stock: 10, price: '' }; // preserve
 
 // ─── Auth header helper ───────────────────────────────────────
 function authHeaders() {
-  return { 'Content-Type': 'application/json', 'Authorization': TOKEN };
+  return { 'Content-Type': 'application/json' };
 }
 
 // ─── Toast ────────────────────────────────────────────────────

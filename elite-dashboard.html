@@ -443,10 +443,15 @@
 // ═══════════════════════════════════════════════
 //  AUTH
 // ═══════════════════════════════════════════════
-const TOKEN = localStorage.getItem('authToken');
-if (!TOKEN) window.location.replace('/login');
+// Auth is enforced server-side via the httpOnly session cookie (requirePage /
+// requireLogin in server.js) — this page cannot even load without a valid cookie,
+// and every fetch() below sends it automatically (same-origin requests include
+// cookies by default). We deliberately do NOT read/store the JWT in localStorage
+// or attach it as an Authorization header: localStorage is readable by any JS on
+// the page (so any XSS = full account takeover), and a token must never travel in
+// a URL (browser history, server/proxy logs, Referer headers all leak it).
 document.getElementById('navUser').textContent = localStorage.getItem('authUser') || '—';
-const H = { 'Content-Type':'application/json', 'Authorization': TOKEN };
+const H = { 'Content-Type':'application/json' };
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -816,7 +821,7 @@ function saveBill() {
   // Flag: when user presses Back from billing, dashboard should RESET (fresh slate)
   // goHistory() does NOT set this flag, so Back from History PRESERVES data.
   sessionStorage.setItem('eliteDashShouldReset', 'true');
-  window.location.href = '/elite-billing.html?token=' + encodeURIComponent(TOKEN);
+  window.location.href = '/elite-billing.html';
 }
 
 function clearAll() {
@@ -835,7 +840,7 @@ function goStorage() {
 }
 function goHistory() {
   snapPage(); // persist current page before leaving
-  window.location.href = '/elite-history.html?token=' + encodeURIComponent(TOKEN);
+  window.location.href = '/elite-history.html';
 }
 async function doLogout() {
   try { await fetch('/logout', { method:'POST' }); } catch(e){}
