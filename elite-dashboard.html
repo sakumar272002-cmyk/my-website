@@ -441,6 +441,27 @@
 
 <script>
 // ═══════════════════════════════════════════════
+//  PER-TAB SESSION GATE
+// ═══════════════════════════════════════════════
+// The httpOnly cookie proves this BROWSER has a valid login, but cookies are
+// shared across every tab in that browser — so a pasted/typed/bookmarked URL
+// opened in a brand-new tab would otherwise "just work" off that shared
+// cookie. sessionStorage is private to a single tab (a new tab always starts
+// empty, even on a site you're already logged into elsewhere), so we use it
+// to require that THIS SPECIFIC TAB actually arrived here via the app — i.e.
+// document.referrer is same-origin (clicked/redirected from a page on this
+// site, e.g. right after logging in) — not via a typed/pasted/bookmarked URL.
+// document.referrer is set by the browser itself from real navigation
+// history; it can't be forged by editing the URL.
+(function enforceTabSession(){
+  if (sessionStorage.getItem('sessionVerified') === '1') return;
+  let sameOrigin = false;
+  try { sameOrigin = !!document.referrer && new URL(document.referrer).origin === window.location.origin; } catch(e) {}
+  if (sameOrigin) { sessionStorage.setItem('sessionVerified', '1'); }
+  else { window.location.replace('/login'); }
+})();
+
+// ═══════════════════════════════════════════════
 //  AUTH
 // ═══════════════════════════════════════════════
 // Auth is enforced server-side via the httpOnly session cookie (requirePage /
@@ -846,6 +867,7 @@ async function doLogout() {
   try { await fetch('/logout', { method:'POST' }); } catch(e){}
   localStorage.removeItem('authToken');
   localStorage.removeItem('authUser');
+  sessionStorage.removeItem('sessionVerified');
   window.location.replace('/login');
 }
 function toast(msg) {

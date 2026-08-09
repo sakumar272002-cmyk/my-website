@@ -1022,6 +1022,21 @@
 
 <script>
 // ═══════════════════════════════════════════════════════════════
+//  PER-TAB SESSION GATE
+// ═══════════════════════════════════════════════════════════════
+// See elite-dashboard.html for the full explanation. Cookies are shared
+// across tabs; sessionStorage is not — so this requires the tab to have
+// actually arrived here via the app (same-origin referrer), not a typed,
+// pasted, or bookmarked URL, even if the browser's cookie is still valid.
+(function enforceTabSession(){
+  if (sessionStorage.getItem('sessionVerified') === '1') return;
+  let sameOrigin = false;
+  try { sameOrigin = !!document.referrer && new URL(document.referrer).origin === window.location.origin; } catch(e) {}
+  if (sameOrigin) { sessionStorage.setItem('sessionVerified', '1'); }
+  else { window.location.replace('/login'); }
+})();
+
+// ═══════════════════════════════════════════════════════════════
 //  LIVE DATA — fetches from server API (no hardcoded data)
 // ═══════════════════════════════════════════════════════════════
 
@@ -1065,6 +1080,7 @@ function showToast(msg) {
 document.querySelector('.logout-btn').addEventListener('click', async () => {
   await fetch('/logout', { method: 'POST' });
   localStorage.removeItem('authToken');
+  sessionStorage.removeItem('sessionVerified');
   location.href = '/login';
 });
 

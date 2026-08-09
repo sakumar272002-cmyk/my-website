@@ -340,9 +340,13 @@ const protectedPages = {
   '/storage':         'storage.html',
 };
 Object.entries(protectedPages).forEach(([route, file]) => {
-  app.get(route, requirePage, (req, res) =>
-    res.sendFile(path.join(__dirname, file))
-  );
+  app.get(route, requirePage, (req, res) => {
+    // Never let the browser cache a protected page — otherwise Back/Forward
+    // after logout (or on a shared computer) can show it from cache without
+    // re-checking auth at all.
+    res.set('Cache-Control', 'no-store');
+    res.sendFile(path.join(__dirname, file));
+  });
 });
 
 // Block direct .html access for protected pages
@@ -351,9 +355,10 @@ const blockedHtml = [
   'dashboard.html','billing.html','customer-history.html','storage.html'
 ];
 blockedHtml.forEach(file => {
-  app.get('/' + file, requirePage, (req, res) =>
-    res.sendFile(path.join(__dirname, file))
-  );
+  app.get('/' + file, requirePage, (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.sendFile(path.join(__dirname, file));
+  });
 });
 
 // Catch-all safety net: redirect ANY other *.html request to /login instead of
