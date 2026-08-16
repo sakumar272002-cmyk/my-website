@@ -170,6 +170,22 @@
   </div>
 </div>
 <script>
+// ── SECURITY: never trust/expose a token via the URL ──────────────────
+// The auth token must only ever live in localStorage (already set at
+// login). If a link somewhere appended ?token=... to get here, that is a
+// leak vector (browser history, server access logs, Referer headers,
+// screenshots). We ignore any token in the URL and immediately scrub the
+// query string from the address bar, without a reload.
+if (location.search) {
+  const params = new URLSearchParams(location.search);
+  if (params.has('token')) {
+    params.delete('token');
+    const cleanQuery = params.toString();
+    const cleanUrl = location.pathname + (cleanQuery ? '?' + cleanQuery : '') + location.hash;
+    history.replaceState(null, '', cleanUrl);
+  }
+}
+
 const authToken=localStorage.getItem('authToken');
 if(!authToken) window.location.replace('/login');
 
